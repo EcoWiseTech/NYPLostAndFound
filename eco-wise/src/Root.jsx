@@ -21,7 +21,7 @@ const theme = createTheme({
         }
     },
     palette: {
-        primaryColor: "#89CFF0"
+        primaryColor: "#001f3f"
       },
 });
 
@@ -31,17 +31,19 @@ function Root() {
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <AlertProvider>
-                    <Navbar />
-                    <AlertComponenet />
-                    <Box
-                        sx={{
-                            minHeight: "84vh",
-                        }}
-                    >
-                        <Outlet />
-                    </Box>
-                    <Footer />
-                    <ScrollRestoration />
+                    <SideNav />
+                        <AlertComponenet />
+                        <Box
+                            sx={{
+                                minHeight: "84vh",
+                                ml:8
+                            }}
+                        >
+                            <Outlet />
+                        </Box>
+                        <Footer />
+                        <ScrollRestoration />
+                    
                 </AlertProvider>
             </ThemeProvider>
         </>
