@@ -6,7 +6,8 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 
 function Footer() {
   return (
-    <AppBar position="static" component="footer" sx={{ backgroundColor: "#ffbf00", py: 1 }}>
+
+    <AppBar position="static" component="footer" sx={{ backgroundColor: "primaryColor", py: 1}}>
       <CssBaseline />
       <Toolbar sx={{ flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center' }}>
         <Grid container spacing={2} sx={{ justifyContent: 'space-between', width: '100%' }}>
@@ -19,10 +20,10 @@ function Footer() {
             <Link href="/privacy" color="inherit" underline="hover" fontFamily="Poppins" sx={{ mx: 1, mt: 1 }}>
               Privacy Policy
             </Link>
-            <Link href="/terms" color="inherit" underline="hover" fontFamily="Poppins" sx={{ mx: 1, mt: 1  }}>
+            <Link href="/terms" color="inherit" underline="hover" fontFamily="Poppins" sx={{ mx: 1, mt: 1 }}>
               Terms of Service
             </Link>
-            <Link href="/contact" color="inherit" underline="hover" fontFamily="Poppins" sx={{ mx: 1, mt: 1  }}>
+            <Link href="/contact" color="inherit" underline="hover" fontFamily="Poppins" sx={{ mx: 1, mt: 1 }}>
               Contact Us
             </Link>
           </Grid>
