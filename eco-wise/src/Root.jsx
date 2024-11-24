@@ -5,6 +5,8 @@ import { AlertProvider } from './contexts/AlertContext';
 import AlertComponenet from './components/common/Alert';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
+import SideNav from './components/common/SideNav';
+import GreyBackground from './components/common/GreyBackground';
 
 
 const theme = createTheme({
@@ -22,7 +24,7 @@ const theme = createTheme({
     },
     palette: {
         primaryColor: "#001f3f"
-      },
+    },
 });
 
 function Root() {
@@ -32,18 +34,19 @@ function Root() {
                 <CssBaseline />
                 <AlertProvider>
                     <SideNav />
-                        <AlertComponenet />
-                        <Box
-                            sx={{
-                                minHeight: "84vh",
-                                ml:8
-                            }}
-                        >
-                            <Outlet />
-                        </Box>
-                        <Footer />
-                        <ScrollRestoration />
-                    
+                    <AlertComponenet />
+                    <Box
+                        sx={{
+                            minHeight: "84vh",
+                            ml: 8
+                        }}
+                    >
+                        <GreyBackground/>
+                        <Outlet />
+                    </Box>
+                    <Footer />
+                    <ScrollRestoration />
+
                 </AlertProvider>
             </ThemeProvider>
         </>
