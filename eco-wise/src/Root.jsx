@@ -19,7 +19,10 @@ const theme = createTheme({
                 }
             }
         }
-    }
+    },
+    palette: {
+        primaryColor: "#89CFF0"
+      },
 });
 
 function Root() {
