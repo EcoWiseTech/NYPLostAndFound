@@ -18,7 +18,7 @@ Resources:
       TemplateURL: !Sub https://s3.amazonaws.com/${TemplateBucket}/templates/github-to-lambda.yaml
       Parameters:
         FunctionName: "github-to-lambda"
-        TemplateBucket: !Ref TemplateBucket 
+        TemplateBucket: !Ref TemplateBucket  
 
 
 
