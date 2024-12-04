@@ -1,0 +1,23 @@
+{
+  "name": "github-to-lambda",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frankruszel/github-to-lambda.git"
+  },
+  "author": "frank",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/frankruszel/github-to-lambda/issues"
+  },
+  "homepage": "https://github.com/frankruszel/github-to-lambda#readme",
+  "dependencies": {
+    "@vercel/ncc": "^0.38.3",
+    "lodash": "^4.17.21"
+  }
+}

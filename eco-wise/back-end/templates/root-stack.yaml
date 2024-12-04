@@ -1,0 +1,20 @@
+Description: Root Stack, contains all the resources needed for the application
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Ref TemplateBucket
+  nestedSkeletonStack:
+    DependsOn: TemplateBucket
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${TemplateBucket}/templates/github-to-lambda.yaml
+      Parameters:
+        FunctionName: "github-to-lambda"
+        TemplateBucket: "fm-iac-artifact-bucket"
+
+
+
