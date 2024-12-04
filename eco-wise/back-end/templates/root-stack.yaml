@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   TemplateBucket:
     Type: String
-    Default: ""fm-iac-artifact-bucket""
+    Default: "fm-iac-artifact-bucket"
 
 Resources:
   S3Bucket:
