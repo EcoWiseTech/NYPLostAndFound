@@ -1,5 +1,9 @@
 Description: Root Stack, contains all the resources needed for the application
 AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  TemplateBucket:
+    Type: String
+    Default: ""fm-iac-artifact-bucket""
 
 Resources:
   S3Bucket:
@@ -14,7 +18,7 @@ Resources:
       TemplateURL: !Sub https://s3.amazonaws.com/${TemplateBucket}/templates/github-to-lambda.yaml
       Parameters:
         FunctionName: "github-to-lambda"
-        TemplateBucket: "fm-iac-artifact-bucket"
+        TemplateBucket: !Ref TemplateBucket
 
 
 
