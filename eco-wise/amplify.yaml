@@ -1,10 +1,10 @@
 version: 1
 applications:
   - frontend:
+      appRoot: eco-wise  # Set this to the directory of your frontend code
       phases:
         preBuild:
           commands:
-            - cd eco-wise
             - npm ci --cache .npm --prefer-offline
         build:
           commands:
@@ -17,6 +17,7 @@ applications:
         paths:
           - eco-wise/.npm/**/*
     backend:
+      appRoot: lambdas  # Optional, if needed for a multi-root monorepo
       phases:
         install:
           runtime-versions:
