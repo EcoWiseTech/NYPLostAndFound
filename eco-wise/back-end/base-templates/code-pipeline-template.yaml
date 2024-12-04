@@ -96,15 +96,13 @@ Resources:
                 - gem install cfn-nag
                 - echo "Installing dependencies for lamda..."
                 - npm ci
-                - git fetch --unshallow 
-                - git fetch origin 
+                
             pre_build:
               commands:
                 - cd lambdas
+                - pwd
                 - |
                   export CODEBUILD=true
-                  cd lambdas
-                  pwd
                   for function in */ ; do
                     echo ${function%/}
                     cd ${function}
@@ -113,13 +111,26 @@ Resources:
                       pwd
                       rel_url=$ARTIFACTS_BUCKET/templates/${function%/}.yaml;
                       aws s3 cp ./${function%/}.yaml s3://$rel_url --acl bucket-owner-full-control;
-                      aws cloudformation validate-template --template-url https://s3.amazonaws.com/$rel_url;
+                    fi
+                    
+                    if [ -f "index.js" ]; then
+                      rel_url=$ARTIFACTS_BUCKET/lambda-files/${function%/}.zip;
+                      echo "Compiling code to single file for ${function%/} lambda function..."
+                      npx ncc build index.js
+            
+                      echo "Zipping ${function%/} handler code..."
+                      zip -j deploy.zip ./dist/*
+                      
+                      ls
+                      
+                      aws s3 cp ./deploy.zip s3://$rel_url --acl bucket-owner-full-control;
                     fi
                 
                     cd ..
                   done
-                  
-                - cfn_nag_scan --input-path templates/
+                - pwd
+                - cd ..
+                - cfn_nag_scan --input-path ./templates
                 - for tmplt in $(ls ./templates); 
                   do
                       rel_url=fm-iac-artifact-bucket/templates/$tmplt;
