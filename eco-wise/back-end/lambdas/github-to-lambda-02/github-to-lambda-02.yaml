@@ -26,11 +26,11 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
   GithubToLambda02:
     Type: AWS::Lambda::Function
-    DependsOn: LambdaRole
+    DependsOn: LambdaRole02
     Properties:
       FunctionName: !Ref FunctionName
       Runtime: nodejs22.x
-      Role: !GetAtt LambdaRole.Arn
+      Role: !GetAtt LambdaRole02.Arn
       Handler: index.handler 
       Code:
         S3Bucket: !Ref TemplateBucket
