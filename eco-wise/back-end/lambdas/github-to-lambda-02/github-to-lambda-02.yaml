@@ -9,10 +9,10 @@ Parameters:
     Default: ""
 
 Resources:
-  LambdaRole:
+  LambdaRole02:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: lambda-test-role
+      RoleName: lambda-test-role-02
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -24,7 +24,7 @@ Resources:
               - 'sts:AssumeRole'
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-  GithubToLambda:
+  GithubToLambda02:
     Type: AWS::Lambda::Function
     DependsOn: LambdaRole
     Properties:
