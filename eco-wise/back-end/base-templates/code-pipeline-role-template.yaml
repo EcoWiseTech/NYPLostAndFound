@@ -299,7 +299,7 @@ Resources:
           - Action:   
               - logs:CreateLogGroup
               - logs:CreateLogStream
-              - logs:PutLogEvents
+              - logs:PutLogEvents 
             Effect: Allow
             Resource:
               - Fn::Join:
