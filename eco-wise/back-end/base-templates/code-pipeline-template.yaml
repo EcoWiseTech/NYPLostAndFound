@@ -119,7 +119,7 @@ Resources:
                       if [ $status -eq 0 ]; then
                         echo "Lambda '${function%/} ' exists"      
                         echo "Updating Lambda ${function%/}..."      
-                        aws lambda update-function-code --function-name=${function%/} --s3-bucket=$ARTIFACT_BUCKET --s3-key=lambda-files/${function%/}.zip
+                        aws lambda update-function-code --function-name=${function%/} --s3-bucket=$ARTIFACTS_BUCKET --s3-key=lambda-files/${function%/}.zip
                         echo "Update Complete for Lambda ${function%/}!"   
                         
                       else
