@@ -301,7 +301,7 @@ Resources:
               - logs:CreateLogStream
               - logs:PutLogEvents 
             Effect: Allow
-            Resource:
+            Resource: 
               - Fn::Join:
                   - ""
                   - - "arn:"
