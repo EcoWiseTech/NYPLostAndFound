@@ -5,17 +5,17 @@ Resources:
   nestedSkeletonStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/fm-iac-artifact-bucket/templates/github-to-lambda.yaml
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda.yaml
       Parameters:
         FunctionName: "github-to-lambda"
-        TemplateBucket: "fm-iac-artifact-bucket"
+        TemplateBucket: "eco-wise-iac-artifact-bucket"
   nestedFunctionStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/fm-iac-artifact-bucket/templates/github-to-lambda-02.yaml
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda-02.yaml
       Parameters:
         FunctionName: "github-to-lambda-02"
-        TemplateBucket: "fm-iac-artifact-bucket"
+        TemplateBucket: "eco-wise-iac-artifact-bucket"
 
 
 

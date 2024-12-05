@@ -135,7 +135,7 @@ Resources:
                   - iam:ListRoles
                   - iam:PassRole
                 Resource: arn:aws:iam::*:role/flow-logs-*
-                
+
   CodePipelineRolePolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -152,7 +152,7 @@ Resources:
               - "s3:PutObject"
               - "s3:GetBucketPolicy"
             Resource:
-              - arn:aws:s3:::fm-iac-artifact-bucket
+              - arn:aws:s3:::eco-wise-iac-artifact-bucket
           -
             Effect: Allow
             Action:
@@ -257,7 +257,7 @@ Resources:
               - "lambda:PublishVersion"
               - "lambda:GetFunction"
               - "lambda:CreateFunction"
-            Resource: "arn:aws:lambda:*:992382578667:function:*"
+            Resource: "arn:aws:lambda:*:${AWS::AccountId}:function:*"
           -
             Effect: "Allow"
             Action:

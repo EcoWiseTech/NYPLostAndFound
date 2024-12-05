@@ -205,7 +205,7 @@ Resources:
                 - cfn_nag_scan --input-path ./templates
                 - for tmplt in $(ls ./templates); 
                   do
-                      rel_url=fm-iac-artifact-bucket/templates/$tmplt;
+                      rel_url=$ARTIFACTS_BUCKET/templates/$tmplt;
                       aws s3 cp ./templates/$tmplt s3://$rel_url --acl bucket-owner-full-control;
                       aws cloudformation validate-template --template-url https://s3.amazonaws.com/$rel_url;
                   done
