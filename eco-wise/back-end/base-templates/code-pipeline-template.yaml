@@ -223,7 +223,13 @@ Resources:
             Push:
               - Branches:
                   Includes: 
-                    - "main"
+                    - "features/frank-lambda-deployment"
+                FilePaths:
+                  Includes:
+                    - "eco-wise/back-end"
+                  Excludes:
+                    - "eco-wise/front-end"
+                
           ProviderType: "CodeStarSourceConnection"
       Stages:
         - Actions:
