@@ -75,7 +75,8 @@ Resources:
                   - "cloudformation:ValidateTemplate"
                   - "cloudformation:ExecuteChangeSet"
                   - "cloudformation:DeleteChangeSet"
-                Resource: "*"
+                Resource: 
+                  - "*"
               -
                 Effect: "Allow"
                 Action:
@@ -111,8 +112,7 @@ Resources:
                   - "iam:DeleteServiceLinkedRole"
                   - "iam:GetServiceLinkedRoleDeletionStatus"
                 Resource:
-                  - "*"
-              
+                  - "*"              
               -
                 Effect: "Allow"
                 Action:
@@ -271,7 +271,8 @@ Resources:
               - "lambda:PublishVersion"
               - "lambda:GetFunction"
               - "lambda:CreateFunction"
-            Resource: "arn:aws:lambda:*:${AWS::AccountId}:function:*"
+            Resource:
+              - Fn::Sub: "arn:aws:lambda:*:${AWS::AccountId}:function:*"
           -
             Effect: "Allow"
             Action:
