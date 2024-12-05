@@ -30,7 +30,7 @@ Resources:
     Properties:
       FunctionName: !Ref FunctionName
       Runtime: nodejs22.x
-      Role: !GetAtt LambdaRoleTwo.Arn
+      Role: !GetAtt LambdaRoleThree.Arn
       Handler: index.handler 
       Code:
         S3Bucket: !Ref TemplateBucket
