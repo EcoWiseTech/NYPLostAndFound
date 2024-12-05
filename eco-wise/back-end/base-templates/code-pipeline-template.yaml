@@ -281,8 +281,7 @@ Resources:
                 Capabilities: CAPABILITY_NAMED_IAM
                 StackName:
                   Fn::Sub: Test-${AWS::StackName}
-                TemplateConfiguration: CFNTemplateArtifact::uat-vpc-params.json
-                TemplatePath: CFNTemplateArtifact::vpc-stack.yaml
+                TemplatePath: CFNTemplateArtifact::eco-wise/back-end/templates/root-stack.yaml
               RunOrder: 1
             - ActionTypeId:
                 Category: Build
