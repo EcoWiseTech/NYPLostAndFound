@@ -65,6 +65,20 @@ Resources:
               -
                 Effect: "Allow"
                 Action:
+                  - "cloudformation:CreateChangeSet"
+                  - "cloudformation:CreateStack"
+                  - "cloudformation:CreateUploadBucket"
+                  - "cloudformation:DeleteStack"
+                  - "cloudformation:Describe*"
+                  - "cloudformation:List*"
+                  - "cloudformation:UpdateStack"
+                  - "cloudformation:ValidateTemplate"
+                  - "cloudformation:ExecuteChangeSet"
+                  - "cloudformation:DeleteChangeSet"
+                Resource: "*"
+              -
+                Effect: "Allow"
+                Action:
                   - "iam:AddRoleToInstanceProfile"
                   - "iam:AttachRolePolicy"
                   - "iam:CreateInstanceProfile"
