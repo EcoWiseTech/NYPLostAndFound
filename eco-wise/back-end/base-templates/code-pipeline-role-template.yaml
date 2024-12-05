@@ -291,7 +291,7 @@ Resources:
             Resource:
               - Fn::Sub: "arn:aws:lambda:*:${AWS::AccountId}:function:*"
           -  
-            Effect: "Allow"
+            Effect: "Allow" 
             Action:
               - codestar-connections:UseConnection
             Resource:
