@@ -290,7 +290,7 @@ Resources:
               - "lambda:CreateFunction"
             Resource:
               - Fn::Sub: "arn:aws:lambda:*:${AWS::AccountId}:function:*"
-          - 
+          -  
             Effect: "Allow"
             Action:
               - codestar-connections:UseConnection
