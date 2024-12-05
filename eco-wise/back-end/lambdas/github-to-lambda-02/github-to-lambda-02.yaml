@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Lambda function 2
+Description: Lambda function
 Parameters:
   FunctionName:
     Type: String
@@ -9,7 +9,7 @@ Parameters:
     Default: ""
 
 Resources:
-  LambdaRole02:
+  LambdaRoleTwo:
     Type: 'AWS::IAM::Role'
     Properties:
       RoleName: lambda-test-role-02
@@ -24,13 +24,13 @@ Resources:
               - 'sts:AssumeRole'
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-  GithubToLambda02:
+  GithubToLambdaTwo:
     Type: AWS::Lambda::Function
-    DependsOn: LambdaRole02
+    DependsOn: LambdaRoleTwo
     Properties:
       FunctionName: !Ref FunctionName
       Runtime: nodejs22.x
-      Role: !GetAtt LambdaRole02.Arn
+      Role: !GetAtt LambdaRoleTwo.Arn
       Handler: index.handler 
       Code:
         S3Bucket: !Ref TemplateBucket
