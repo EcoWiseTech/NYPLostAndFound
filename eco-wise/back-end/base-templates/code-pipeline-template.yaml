@@ -58,6 +58,18 @@ Parameters:
   #   Default: ""
 
 Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Ref TemplateBucket
+      PublicAccessBlockConfiguration: 
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      
+
   LambdaUpdater:
     Type: AWS::CodeBuild::Project
     Properties:
