@@ -223,7 +223,7 @@ Resources:
             Push:
               - Branches:
                   Includes: 
-                    - "features/frank-lambda-deployment"
+                    - !Ref GithubBranch
                 FilePaths:
                   Includes:
                     - "eco-wise/back-end"
