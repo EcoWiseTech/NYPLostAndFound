@@ -296,7 +296,7 @@ Resources:
               - codestar-connections:UseConnection
             Resource:
               - !Ref EcoWiseConnection
-          - Action:
+          - Action: 
               - logs:CreateLogGroup
               - logs:CreateLogStream
               - logs:PutLogEvents
