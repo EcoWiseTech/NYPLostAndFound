@@ -270,7 +270,7 @@ Resources:
                 Version: 1              
               InputArtifacts:
                 - Name: SourceArtifact
-              Name: UpdateLambda
+              Name: CreateCFNStack
               Configuration:
                 ActionMode: REPLACE_ON_FAILURE
                 RoleArn:
@@ -281,6 +281,7 @@ Resources:
                 Capabilities: CAPABILITY_NAMED_IAM
                 StackName:
                   Fn::Sub: Test-${AWS::StackName}
+                ArtifactName: SourceArtifact
                 TemplatePath: CFNTemplateArtifact::eco-wise/back-end/templates/root-stack.yaml
               RunOrder: 1
             - ActionTypeId:
@@ -292,7 +293,7 @@ Resources:
                 ProjectName: !Ref LambdaUpdater
               InputArtifacts:
                 - Name: SourceArtifact
-              Name: CreateCFNStack
+              Name: UpdateLambda
               RunOrder: 2
           Name: Deploy
       ArtifactStore:
