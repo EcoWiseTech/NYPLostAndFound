@@ -226,9 +226,9 @@ Resources:
                     - !Ref GithubBranch
                 FilePaths:
                   Includes:
-                    - "eco-wise/back-end"
+                    - "eco-wise/back-end/**"
                   Excludes:
-                    - "eco-wise/front-end"
+                    - "eco-wise/front-end/**"
                 
           ProviderType: "CodeStarSourceConnection"
       Stages:
