@@ -26,11 +26,11 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
   GithubToLambda:
     Type: AWS::Lambda::Function
-    DependsOn: LambdaRole
+    DependsOn: FunctionRole
     Properties:
       FunctionName: !Ref FunctionName
       Runtime: nodejs22.x
-      Role: !GetAtt LambdaRole.Arn
+      Role: !GetAtt FunctionRole.Arn
       Handler: index.handler 
       Code: ./dist/index.js
       Description: List Amazon S3 buckets in us-east-1.
