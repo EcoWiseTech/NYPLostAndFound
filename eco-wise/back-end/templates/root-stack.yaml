@@ -5,7 +5,7 @@ Resources:
   functionOne:
     Type: AWS::CloudFormation::Stack 
     Properties:
-      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda.yaml
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/function-01.yaml
       Parameters:
         FunctionName: "function-01"
         TemplateBucket: "eco-wise-iac-artifact-bucket"
