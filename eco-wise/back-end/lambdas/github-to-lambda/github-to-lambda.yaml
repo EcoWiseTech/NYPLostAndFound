@@ -9,10 +9,10 @@ Parameters:
     Default: ""
 
 Resources:
-  LambdaRole:
+  FunctionRole:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: lambda-test-role
+      RoleName: function-role
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
