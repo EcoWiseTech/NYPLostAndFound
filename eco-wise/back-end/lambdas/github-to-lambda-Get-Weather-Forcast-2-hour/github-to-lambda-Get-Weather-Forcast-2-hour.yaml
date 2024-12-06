@@ -3,16 +3,16 @@ Description: Lambda function
 Parameters:
   FunctionName:
     Type: String
-    Description: "Test description for new lambda function"
+    Description: "Github branch name e.g. development"
   TemplateBucket:
     Type: String
     Default: ""
 
 Resources:
-  LambdaRoleFour:
+  github-to-lambda-Get-Weather-Forcast-2-hour:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: lambda-test-role-05
+      RoleName: github-to-lambda-Get-Weather-Forcast-2-hour
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -24,13 +24,13 @@ Resources:
               - 'sts:AssumeRole'
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-  GithubToLambdaFour:
+  github-to-lambda-Get-Weather-Forcast-2-hour:
     Type: AWS::Lambda::Function
     DependsOn: LambdaRoleFour
     Properties:
       FunctionName: !Ref FunctionName
       Runtime: nodejs22.x
-      Role: !GetAtt LambdaRoleFour.Arn
+      Role: !GetAtt github-to-lambda-Get-Weather-Forcast-2-hour.Arn
       Handler: index.handler 
       Code:
         S3Bucket: !Ref TemplateBucket
