@@ -31,5 +31,8 @@ Resources:
       Parameters:
         FunctionName: "github-to-lambda-04"
         TemplateBucket: "eco-wise-iac-artifact-bucket" 
-
+  nestedApiGatewayStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket-test/templates/testapi.yaml
 
