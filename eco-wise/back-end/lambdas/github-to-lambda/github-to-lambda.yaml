@@ -32,9 +32,7 @@ Resources:
       Runtime: nodejs22.x
       Role: !GetAtt LambdaRole.Arn
       Handler: index.handler 
-      Code:
-        S3Bucket: !Ref TemplateBucket
-        S3Key: !Sub lambda-files/${FunctionName}.zip
+      Code: ./dist/index.js
       Description: List Amazon S3 buckets in us-east-1.
       TracingConfig:
         Mode: Active
