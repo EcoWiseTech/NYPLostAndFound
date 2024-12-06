@@ -2,34 +2,13 @@ Description: Root Stack, contains all the resources needed for the application
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
-  nestedSkeletonStack:
+  functionOne:
     Type: AWS::CloudFormation::Stack 
     Properties:
       TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda.yaml
       Parameters:
-        FunctionName: "github-to-lambda"
-        TemplateBucket: "eco-wise-iac-artifact-bucket"
-  nestedFunctionStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda-02.yaml
-      Parameters:
-        FunctionName: "github-to-lambda-02"
+        FunctionName: "function-01"
         TemplateBucket: "eco-wise-iac-artifact-bucket"
 
-  nestedFunctionThreeStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda-03.yaml
-      Parameters:
-        FunctionName: "github-to-lambda-03"
-        TemplateBucket: "eco-wise-iac-artifact-bucket" 
-  nestedFunctionFourStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda-04.yaml
-      Parameters:
-        FunctionName: "github-to-lambda-04"
-        TemplateBucket: "eco-wise-iac-artifact-bucket" 
 
 

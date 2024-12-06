@@ -20,7 +20,12 @@ Parameters:
   PermissionBoundaryARN:
     Description: Please specify Permission Boundary Policy ARN
     Type: String
-    Default: ""    
+    Default: "" 
+
+  TemplateBucket:
+    Description: "Please specify Template Bucket"
+    Type: String
+    Default: ""
 
 Resources:
   EcoWiseConnection:
