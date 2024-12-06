@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda function
+Parameters:
+  FunctionName:
+    Type: String
+    Description: "Github branch name e.g. development"
+  TemplateBucket:
+    Type: String
+    Default: ""
+
+Resources:
+  LambdaRoleFour:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: lambda-test-role-04
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  GithubToLambdaFour:
+    Type: AWS::Lambda::Function
+    DependsOn: LambdaRoleFour
+    Properties:
+      FunctionName: !Ref FunctionName
+      Runtime: nodejs22.x
+      Role: !GetAtt LambdaRoleFour.Arn
+      Handler: index.handler 
+      Code:
+        S3Bucket: !Ref TemplateBucket
+        S3Key: !Sub lambda-files/${FunctionName}.zip
+      TracingConfig:
+        Mode: Active
