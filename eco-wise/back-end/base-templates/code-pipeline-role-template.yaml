@@ -345,7 +345,9 @@ Resources:
               - s3:PutObject
               - s3:Abort*
             Effect: Allow
-            Resource: "*"
+            Resource:
+              - !Sub arn:aws:s3:::${TemplateBucket}
+              - !Sub arn:aws:s3:::${TemplateBucket}/*
           - Action:
               - cloudformation:*
               - organizations:ListDelegatedAdministrators
