@@ -31,7 +31,7 @@ Resources:
       Parameters:
         FunctionName: "github-to-lambda-04"
         TemplateBucket: "eco-wise-iac-artifact-bucket" 
-  github-to-lambda-Get-Weather-Forcast-two-hour:
+  WeatherForcastFunction:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda-Get-Weather-Forcast-two-hour.yaml
