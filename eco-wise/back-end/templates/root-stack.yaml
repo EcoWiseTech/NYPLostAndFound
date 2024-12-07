@@ -57,14 +57,12 @@ Resources:
         Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:get-weather-data-function/invocations
         PassthroughBehavior: WHEN_NO_MATCH
 
-  ApiGatewayLambdaPermission:
+  GetWeatherDataApiPermission:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: get-weather-data-function
-      Action: 'lambda:InvokeFunction'
+      FunctionName: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:get-weather-data-function
+      Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${EcoWiseApi}/GET/get-weather-data"
-
   # Lambda function stacks
   nestedSkeletonStack:
     Type: AWS::CloudFormation::Stack 
@@ -109,4 +107,23 @@ Resources:
       Parameters:
         FunctionName: "get-weather-data-function"
         TemplateBucket: "eco-wise-iac-artifact-bucket"
+  # EventBridge Events
+  WeatherApiFunctionTriggerRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: WeatherApiFunctionTriggerRule
+      Description: Trigger WeatherApiFunction every 5 minutes
+      ScheduleExpression: rate(5 minutes)
+      State: ENABLED
+      Targets:
+        - Arn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:weather-api-function
+          Id: WeatherApiFunctionTarget
+
+  WeatherApiFunctionPermissionForEvent:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:weather-api-function
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt WeatherApiFunctionTriggerRule.Arn
 
