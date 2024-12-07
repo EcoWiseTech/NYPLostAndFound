@@ -112,8 +112,8 @@ Resources:
     Type: AWS::Events::Rule
     Properties:
       Name: WeatherApiFunctionTriggerRule
-      Description: Trigger WeatherApiFunction every 5 minutes
-      ScheduleExpression: rate(5 minutes)
+      Description: Trigger WeatherApiFunction every 30 minutes
+      ScheduleExpression: rate(30 minutes)
       State: ENABLED
       Targets:
         - Arn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:weather-api-function
