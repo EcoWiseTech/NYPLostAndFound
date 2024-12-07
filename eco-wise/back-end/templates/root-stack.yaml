@@ -31,4 +31,11 @@ Resources:
       Parameters:
         FunctionName: "github-to-lambda-04"
         TemplateBucket: "eco-wise-iac-artifact-bucket" 
+  WeatherApiFunctionStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/weather-api-function.yaml
+      Parameters:
+        FunctionName: "weather-api-function"
+        TemplateBucket: "eco-wise-iac-artifact-bucket" 
 
