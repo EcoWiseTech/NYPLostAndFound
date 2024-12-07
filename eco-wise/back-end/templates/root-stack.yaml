@@ -25,6 +25,15 @@ Resources:
           Value: Production
         - Key: Application
           Value: EcoWise
+  # Base API gateway stack
+  EcoWiseApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: ecowiseapi
+      Description: "API Gateway for the EcoWise project"
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
   # Lambda function stacks
   nestedSkeletonStack:
     Type: AWS::CloudFormation::Stack 
