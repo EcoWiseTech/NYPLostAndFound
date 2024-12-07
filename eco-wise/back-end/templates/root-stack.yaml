@@ -54,7 +54,7 @@ Resources:
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetWeatherDataFunctionStack.Outputs.GetWeatherDataFunction.Arn}/invocations
+        Uri: !Sub arn:aws:lambda:us-east-1:992382578667:function:get-weather-data-function
         PassthroughBehavior: WHEN_NO_MATCH
 
   ApiGatewayLambdaPermission:
