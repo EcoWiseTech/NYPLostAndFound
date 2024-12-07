@@ -51,8 +51,8 @@ Resources:
         Mode: Active
 
   GetWeatherDataApiPermission:
-  Type: AWS::Lambda::Permission
-  Properties:
-    FunctionName: !Ref GetWeatherDataFunction
-    Action: lambda:InvokeFunction
-    Principal: apigateway.amazonaws.com
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt GetWeatherDataFunction.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "apigateway.amazonaws.com"
