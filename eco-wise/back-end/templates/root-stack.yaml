@@ -62,4 +62,10 @@ Resources:
       Parameters:
         FunctionName: "weather-api-function"
         TemplateBucket: "eco-wise-iac-artifact-bucket" 
-
+  GetWeatherDataFunctionStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/get-weather-data-function.yaml
+      Parameters:
+        FunctionName: "get-weather-data-function"
+        TemplateBucket: "eco-wise-iac-artifact-bucket" 
