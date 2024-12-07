@@ -195,6 +195,18 @@ Resources:
                 Resource:
                   - Fn::Sub: "arn:aws:apigateway:*::/restapis"
                   - Fn::Sub: "arn:aws:apigateway:*::/restapis/*"
+              - 
+                Effect: Allow
+                Action:
+                  - "events:PutRule"
+                  - "events:PutTargets"
+                  - "events:DescribeRule"
+                  - "events:ListRules"
+                  - "events:ListTargetsByRule"
+                  - "events:DeleteRule"
+                  - "events:RemoveTargets"
+                Resource:
+                  - "*"
 
 
   CodePipelineRolePolicy:
