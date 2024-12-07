@@ -49,3 +49,10 @@ Resources:
         S3Key: !Sub lambda-files/${FunctionName}.zip
       TracingConfig:
         Mode: Active
+
+  GetWeatherDataApiPermission:
+  Type: AWS::Lambda::Permission
+  Properties:
+    FunctionName: !Ref GetWeatherDataFunction
+    Action: lambda:InvokeFunction
+    Principal: apigateway.amazonaws.com
