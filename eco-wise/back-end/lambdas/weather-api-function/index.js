@@ -11,11 +11,11 @@ const insertDataIntoDynamoDB = async (transformedData) => {
       const params = {
         TableName: tableName,
         Item: {
-          name: item.name,
+          Location: item.name, // Matches the partition key in the table schema
+          Timestamp: new Date().toISOString(), // Matches the sort key in the table schema
           latitude: item.label_location.latitude,
           longitude: item.label_location.longitude,
           forecast: item.forecast,
-          timestamp: new Date().toISOString(), // Optional: Add a timestamp
         },
       };
 
@@ -26,11 +26,10 @@ const insertDataIntoDynamoDB = async (transformedData) => {
     console.error('Error inserting data into DynamoDB:', error);
     throw new Error('Failed to insert data into DynamoDB.');
   }
-  console.log('test')
 };
 
 // Main handler function
-export const handler = async () => {
+exports.handler = async () => {
   const options = {
     method: 'GET',
     url: 'https://api-open.data.gov.sg/v2/real-time/api/two-hr-forecast',
