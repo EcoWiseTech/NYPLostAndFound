@@ -2,7 +2,7 @@ Description: Root Stack, contains all the resources needed for the application
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
-# DynamoDB table stacks
+  # DynamoDB table stacks
   WeatherTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -25,6 +25,7 @@ Resources:
           Value: Production
         - Key: Application
           Value: EcoWise
+
   # Base API gateway stack
   EcoWiseApi:
     Type: AWS::ApiGateway::RestApi
@@ -34,6 +35,36 @@ Resources:
       EndpointConfiguration:
         Types:
           - REGIONAL
+
+  # API endpoints for GET method integration
+  GetWeatherDataResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt EcoWiseApi.RootResourceId
+      PathPart: get-weather-data
+      RestApiId: !Ref EcoWiseApi
+
+  GetWeatherDataMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref EcoWiseApi
+      ResourceId: !Ref GetWeatherDataResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetWeatherDataFunctionStack.Outputs.GetWeatherDataFunction.Arn}/invocations
+        PassthroughBehavior: WHEN_NO_MATCH
+
+  ApiGatewayLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref GetWeatherDataFunctionStack.Outputs.GetWeatherDataFunction
+      Action: 'lambda:InvokeFunction'
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${EcoWiseApi}/GET/get-weather-data"
+
   # Lambda function stacks
   nestedSkeletonStack:
     Type: AWS::CloudFormation::Stack 
@@ -77,4 +108,4 @@ Resources:
       TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/get-weather-data-function.yaml
       Parameters:
         FunctionName: "get-weather-data-function"
-        TemplateBucket: "eco-wise-iac-artifact-bucket" 
+        TemplateBucket: "eco-wise-iac-artifact-bucket"
