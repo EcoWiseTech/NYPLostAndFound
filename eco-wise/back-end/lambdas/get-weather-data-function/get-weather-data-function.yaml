@@ -40,10 +40,10 @@ Resources:
     Type: AWS::Lambda::Function
     DependsOn: GetWeatherDataFunctionRole
     Properties:
-      FunctionName: !Sub "${FunctionName}-get-weather-data-function"
+      FunctionName: !Ref FunctionName
       Runtime: nodejs22.x
       Role: !GetAtt GetWeatherDataFunctionRole.Arn
-      Handler: readWeatherData.handler  # The handler function name
+      Handler: index.handler  # The handler function name
       Code:
         S3Bucket: !Ref TemplateBucket
         S3Key: !Sub lambda-files/${FunctionName}.zip
