@@ -166,6 +166,36 @@ Resources:
                   - iam:ListRoles
                   - iam:PassRole
                 Resource: arn:aws:iam::*:role/flow-logs-*
+              -
+                Effect: Allow
+                Action:
+                  - "dynamodb:CreateTable"
+                  - "dynamodb:UpdateTable"
+                  - "dynamodb:DeleteTable"
+                  - "dynamodb:DescribeTable"
+                  - "dynamodb:Query"
+                  - "dynamodb:Scan"
+                  - "dynamodb:PutItem"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:DeleteItem"
+                  - "dynamodb:UpdateItem"
+                  - "dynamodb:TagResource"
+                  - "dynamodb:UntagResource"
+                  - "dynamodb:ListTagsOfResource"
+                Resource:
+                  - Fn::Sub: "arn:aws:dynamodb:*:${AWS::AccountId}:table/*"
+              -
+                Effect: Allow
+                Action:
+                  - "apigateway:POST"
+                  - "apigateway:PUT"
+                  - "apigateway:DELETE"
+                  - "apigateway:PATCH"
+                  - "apigateway:GET"
+                Resource:
+                  - Fn::Sub: "arn:aws:apigateway:*::/restapis"
+                  - Fn::Sub: "arn:aws:apigateway:*::/restapis/*"
+
 
   CodePipelineRolePolicy:
     Type: AWS::IAM::Policy
