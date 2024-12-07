@@ -31,11 +31,4 @@ Resources:
       Parameters:
         FunctionName: "github-to-lambda-04"
         TemplateBucket: "eco-wise-iac-artifact-bucket" 
-  nestedFunctionFiveStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda-05.yaml
-      Parameters:
-        FunctionName: "github-to-lambda-05"
-        TemplateBucket: "eco-wise-iac-artifact-bucket" 
 
