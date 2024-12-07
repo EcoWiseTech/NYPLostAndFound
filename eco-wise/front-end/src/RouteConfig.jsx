@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import Root from "./Root";
 import Homepage from "./pages/Homepage";
+import Weatherpage from "./pages/Weatherpage";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -9,6 +10,10 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <Homepage />,
+      },
+      {
+        path: "weatherpage",
+        element: <Weatherpage />,
       },
     ],
   },
