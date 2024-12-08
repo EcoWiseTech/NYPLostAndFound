@@ -127,3 +127,38 @@ Resources:
       Principal: events.amazonaws.com
       SourceArn: !GetAtt WeatherApiFunctionTriggerRule.Arn
 
+
+  # KURT
+  EcowiseApiSnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "ecowiseApiTrafficAlert1"
+
+  EcowiseApiTrafficAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: "ecowiseapiTrafficAlarm1"
+      AlarmDescription: "This alarm monitors the number of requests sent to ecowiseapi. If it exceeds 10 requests in 30 seconds, an email is sent to kurrbarr@gmail.com ."
+      MetricName: "Count"
+      Namespace: "AWS/ApiGateway"
+      Statistic: "Sum"
+      Period: 30
+      EvaluationPeriods: 1
+      Threshold: 10
+      ComparisonOperator: "GreaterThanThreshold"
+      Dimensions:
+        - Name: "ApiName"
+          Value: "ecowiseapi"
+      AlarmActions:
+        - Ref: "EcowiseApiSnsTopic"
+      DatapointsToAlarm: 1
+      TreatMissingData: "missing"
+      ActionsEnabled: true
+
+  EcowiseApiSnsSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: "email"
+      Endpoint: "kurrbarr@gmail.com"
+      TopicArn: 
+        Ref: "EcowiseApiSnsTopic"
