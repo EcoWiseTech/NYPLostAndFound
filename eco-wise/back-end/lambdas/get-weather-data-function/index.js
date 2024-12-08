@@ -16,6 +16,11 @@ exports.handler = async () => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Allow all origins
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS", // Allowed methods
+        "Access-Control-Allow-Headers": "Content-Type, Authorization", // Allowed headers
+    },
       body: JSON.stringify({
         message: 'Successfully read data from DynamoDB.',
         data: data.Items,
