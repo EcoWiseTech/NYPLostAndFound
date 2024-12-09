@@ -142,7 +142,7 @@ Resources:
       MetricName: "Count"
       Namespace: "AWS/ApiGateway"
       Statistic: "Sum"
-      Period: 30
+      Period: 21600
       EvaluationPeriods: 1
       Threshold: 10
       ComparisonOperator: "GreaterThanThreshold"
