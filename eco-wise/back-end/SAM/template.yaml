@@ -8,10 +8,10 @@ Globals:
     Timeout: 60
 
 Resources:
-  GetWeatherApiFunction:
+  StoreWeatherApiFunction:
     Type: AWS::Serverless::Function 
     Properties:
-      CodeUri: GetWeatherApiFunction/
+      CodeUri: StoreWeatherApiFunction/
       Policies:
         - DynamoDBCrudPolicy:
             TableName: WeatherTable
@@ -26,13 +26,37 @@ Resources:
             Schedule: rate(30 minutes)
             Description: "Trigger the Lambda function every 30 minutes"
 
+  GetWeatherApiFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: GetWeatherApiFunction/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: WeatherTable
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        GetWeatherApiResource:
+          Type: Api 
+          Properties:
+            Path: /GetWeatherApi
+            Method: get
 Outputs:
-  # HelloWorldApi:
-  #   Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-  #   Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  GetWeatherApiResource:
+    Description: "API Gateway endpoint URL for Prod stage for GetWeatherApiFunction"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/GetWeatherApi/"
   GetWeatherApiFunction:
     Description: "GetWeatherApiFunction ARN"
     Value: !GetAtt GetWeatherApiFunction.Arn
   GetWeatherApiFunctionIamRole:
     Description: "Implicit IAM Role created for GetWeatherApiFunction"
     Value: !GetAtt GetWeatherApiFunctionRole.Arn
+
+  StoreWeatherApiFunction:
+      Description: "StoreWeatherApiFunction ARN"
+      Value: !GetAtt StoreWeatherApiFunction.Arn
+  StoreWeatherApiFunctionIamRole:
+      Description: "Implicit IAM Role created for StoreWeatherApiFunction"
+      Value: !GetAtt StoreWeatherApiFunctionRole.Arn
