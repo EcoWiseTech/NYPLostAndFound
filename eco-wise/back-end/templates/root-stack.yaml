@@ -25,7 +25,7 @@ Resources:
           Value: Production
         - Key: Application
           Value: EcoWise
-    
+  # Weather Table creation
   TemperatureTable:
     Type: AWS::DynamoDB::Table
     Properties:
