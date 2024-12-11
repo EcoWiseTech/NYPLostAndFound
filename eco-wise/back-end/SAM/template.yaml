@@ -31,6 +31,23 @@ Resources:
           Properties:
             Schedule: rate(30 minutes)
             Description: "Trigger the Lambda function every 30 minutes"
+  StoreTemperatureApiFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: StoreTemperatureApiFunction/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: TemperatureTable
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        ScheduledEvent:
+          Type: Schedule
+          Properties:
+            Schedule: rate(5 minutes)
+            Description: "Trigger the Lambda function every 5 minutes"
 
   GetWeatherApiFunction:
     Type: AWS::Serverless::Function 
@@ -67,3 +84,10 @@ Outputs:
   StoreWeatherApiFunctionIamRole:
       Description: "Implicit IAM Role created for StoreWeatherApiFunction"
       Value: !GetAtt StoreWeatherApiFunctionRole.Arn
+
+  StoreTemperatureApiFunction:
+      Description: "StoreTemperatureApiFunction ARN"
+      Value: !GetAtt StoreTemperatureApiFunction.Arn
+  StoreTemperatureApiFunctionIamRole:
+      Description: "Implicit IAM Role created for StoreTemperatureApiFunction"
+      Value: !GetAtt StoreTemperatureApiFunction.Arn
