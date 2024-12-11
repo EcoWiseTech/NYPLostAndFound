@@ -3,9 +3,9 @@ import { Box, createTheme, ThemeProvider, CssBaseline } from '@mui/material';
 import './index.css';
 import { AlertProvider } from './contexts/AlertContext';
 import AlertComponenet from './components/common/Alert';
-import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import SideNav from './components/common/SideNav';
+import { Navbar } from './components/common/Navbar/Navbar';
 
 
 const theme = createTheme({
@@ -32,12 +32,13 @@ function Root() {
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <AlertProvider>
-                    <SideNav />
+                    <Navbar />
                     <AlertComponenet />
                     <Box
                         sx={{
                             minHeight: "84vh",
-                            ml: 8
+                            ml: 8, 
+                            border: "solid 1px green"
                         }}
                     >
                         <Outlet />
