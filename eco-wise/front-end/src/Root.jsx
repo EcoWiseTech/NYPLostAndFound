@@ -6,6 +6,7 @@ import AlertComponenet from './components/common/Alert';
 import Footer from './components/common/Footer';
 import SideNav from './components/common/SideNav';
 import { Navbar } from './components/common/Navbar/Navbar';
+import { SnackbarProvider } from 'notistack';
 
 
 const theme = createTheme({
@@ -30,21 +31,23 @@ function Root() {
     return (
         <>
             <ThemeProvider theme={theme}>
-                <CssBaseline />
-                <AlertProvider>
-                    <Navbar />
-                    {/* <AlertComponenet /> */}
-                    <Box
-                        sx={{
-                            minHeight: "84vh",
-                        }}
-                    >
-                        <Outlet />
-                    </Box>
-                    <Footer />
-                    <ScrollRestoration />
+                <SnackbarProvider maxSnack={3}>
+                    <CssBaseline />
+                    <AlertProvider>
+                        <Navbar />
+                        {/* <AlertComponenet /> */}
+                        <Box
+                            sx={{
+                                minHeight: "84vh",
+                            }}
+                        >
+                            <Outlet />
+                        </Box>
+                        <Footer />
+                        <ScrollRestoration />
 
-                </AlertProvider>
+                    </AlertProvider>
+                </SnackbarProvider>
             </ThemeProvider>
         </>
     );

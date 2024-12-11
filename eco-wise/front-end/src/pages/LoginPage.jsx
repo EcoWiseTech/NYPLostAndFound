@@ -19,6 +19,11 @@ import * as Yup from "yup";
 import CardTitle from "../components/common/CardTitle";
 import LoginImagePath from "../media/images/loginPage.webp"
 import SmallCardTitle from "../components/common/SmallCardTitle";
+import SignInApi from "../api/auth/SignInApi";
+import Alert from '@mui/material/Alert';
+import IconButton from '@mui/material/IconButton';
+import Collapse from '@mui/material/Collapse';
+import ResendAuthCodeApi from "../api/auth/ResendAuthCodeApi";
 
 function LoginPage() {
     const [loading, setLoading] = useState(false);
@@ -33,6 +38,8 @@ function LoginPage() {
     const [otpDialog, setOtpDialog] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
     const navigate = useNavigate();
+    const [open, setOpen] = useState(false)
+    const [errorMessage, setErrorMessage] = useState("")
 
     useEffect(() => {
         document.title = "Login - EnviroGo";
@@ -142,6 +149,34 @@ function LoginPage() {
             setLoading(true);
             data.email = data.email.trim();
             data.password = data.password.trim();
+
+            SignInApi(data.email, data.password)
+                .then((tokens) => {
+                    console.log('Tokens received:', tokens);
+                    // Store tokens in localStorage or secure storage
+                    localStorage.setItem('accessToken', tokens.accessToken);
+                    localStorage.setItem('idToken', tokens.idToken);
+                    localStorage.setItem('refreshToken', tokens.refreshToken);
+
+                    // Redirect to the desired page
+                    navigate('/dashboard');
+                    setLoading(false)
+                })
+                .catch((error) => {
+                    console.error('Error during sign-in:', error);
+                    if (error.code === 'NotAuthorizedException') {
+                        setErrorMessage('Incorrect username or password.')
+                    } else if (error.code === 'UserNotFoundException') {
+                        setErrorMessage('User Does not exist.')
+                    } else if (error.code === 'UserNotConfirmedException') {
+                        setErrorMessage('User Account has not been confirmed. Please check your email.')
+                    } else {
+                        setErrorMessage('An error occurred during sign-in. Please try again later.')
+                    }
+                    setOpen(true);
+                    setLoading(false)
+                });
+
             // http.post("/auth", data).then((res) => {
             //     if (res.status === 200) {
             //         enqueueSnackbar("Login successful. Welcome back!", { variant: "success" });
@@ -178,7 +213,6 @@ function LoginPage() {
         }),
         onSubmit: (data) => {
             setResetLoading(true);
-            data.email = data.email.trim();
             // http.post("/auth/forgot", data).then((res) => {
             //     if (res.status === 200) {
             //         enqueueSnackbar("Password reset e-mail sent!", { variant: "success" });
@@ -205,6 +239,23 @@ function LoginPage() {
         onSubmit: (data) => {
             setResendLoading(true);
             data.email = data.email.trim();
+            console.log('test')
+            data.email = data.email.trim();
+            ResendAuthCodeApi(data.email)
+                .then((res) => {
+                    console.log('success', res)
+                    enqueueSnackbar("Verification e-mail sent!", { variant: "success" });
+                    setResendDialog(false);
+                    setResendLoading(false)
+                })
+                .catch((error) => {
+                    console.error('Error during sign-in:', error);
+                    enqueueSnackbar("Verification e-mail failed! ", { variant: "error" });
+                    if (error.code === 'NotAuthorizedException') {
+                        setErrorMessage('Incorrect username or password.')
+                    }
+                    setResendLoading(false)
+                });
             // http.post("/auth/resend", data).then((res) => {
             //     if (res.status === 200) {
             //         enqueueSnackbar("Verification e-mail sent!", { variant: "success" });
@@ -258,7 +309,7 @@ function LoginPage() {
 
     return (
         <>
-            <Container maxWidth="xl" sx={{ marginY: "1rem" }}>
+            <Container maxWidth="xl" sx={{ marginY: "1rem", marginTop: '3rem', }}>
                 <Grid container spacing={2} justifyContent="center">
                     <Grid item xs={12} sm={6} md={5} lg={4}>
                         <Card sx={{ margin: "auto" }}>
@@ -294,7 +345,25 @@ function LoginPage() {
                                                 helperText={formik.touched.password && formik.errors.password}
                                             />
                                         </Box>
-
+                                        <Collapse in={open}>
+                                            <Alert
+                                                severity="error"
+                                                action={
+                                                    <IconButton
+                                                        aria-label="close"
+                                                        color="inherit"
+                                                        size="small"
+                                                        onClick={() => {
+                                                            setOpen(false);
+                                                        }}
+                                                    >
+                                                        <CloseIcon fontSize="inherit" />
+                                                    </IconButton>
+                                                }
+                                            >
+                                                {errorMessage}
+                                            </Alert>
+                                        </Collapse>
                                     </Stack>
                                 </CardContent>
                                 <CardActions>
@@ -323,7 +392,7 @@ function LoginPage() {
                                 <Typography variant="body2" sx={{ marginTop: 1, fontSize: '0.8rem' }}>
                                     If you have forgotten your password, you can reset it by clicking the button below.
                                 </Typography>
-                                <Button sx={{ marginTop: 1, fontSize: "0.7rem" }} variant="outlined" color="primary" onClick={handleResetPasswordDialog}>Reset Password</Button>
+                                <Button sx={{ marginTop: 1, fontSize: "0.8rem" }} variant="outlined" color="primary" onClick={handleResetPasswordDialog}>Reset Password</Button>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -338,9 +407,14 @@ function LoginPage() {
                             <CardContent>
                                 <SmallCardTitle title="Need Help?" icon={<HelpIcon color="text.secondary" sx={{ fontSize: '1.3rem' }} />} />
                                 <Typography variant="body2" sx={{ marginTop: 1, fontSize: '0.8rem' }}>
+                                    If you have not received your verification e-mail, you can resend it by clicking the button below.
+                                </Typography>
+                                <Button sx={{ marginTop: 1, fontSize: '0.8rem' }} variant="outlined" color="primary" onClick={handleResendDialog}>Resend Verification E-mail</Button>
+                                <Divider sx={{ marginTop: 2 }} />
+                                <Typography variant="body2" sx={{ marginTop: 1, fontSize: '0.8rem' }}>
                                     For other issues such as 2FA, please contact us via the support page.
                                 </Typography>
-                                <Button sx={{ marginTop: 1, fontSize: '0.7rem' }} variant="outlined" color="primary" LinkComponent={Link} to="/support">Go to support</Button>
+                                <Button sx={{ marginTop: 1, fontSize: '0.8rem' }} variant="outlined" color="primary" LinkComponent={Link} to="/support">Go to support</Button>
                             </CardContent>
 
                         </Card>

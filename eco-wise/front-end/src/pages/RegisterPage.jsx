@@ -10,12 +10,12 @@ import { useNavigate } from "react-router-dom";
 import { useAlert } from '../contexts/AlertContext';
 import CardTitle from '../components/common/CardTitle';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import SignUpUserApi from '../api/auth/SignUpApi';
 
 
 const schema = yup.object({
     fullName: yup.string().required("Full name is required"),
     email: yup.string().email("Invalid email address").required("Email is required"),
-    username: yup.string().required("Username is required"),
     password: yup.string()
         .required('Password is required')
         .min(8, 'Password must be at least 8 characters long')
@@ -104,23 +104,32 @@ function RegisterPage() {
         //     });
     };
 
+
     const handleSubmit = (event) => {
         event.preventDefault();
         schema.validate(formData, { abortEarly: false })
             .then(() => {
                 setErrors({});
-                // register(formData)
-                //     .then((res) => {
-                //         navigate('/login');
-                //         showAlert("success", "Account successfully registered.");
-                //     })
-                //     .catch((err) => {
-                //         if (err.response.status === 400) {
-                //             showAlert("error", err.response.data.message);
-                //         } else {
-                //             showAlert('error', 'Server error occurred, please wait or contact us.');
-                //         }
-                //     });
+                SignUpUserApi(formData.email, formData.fullName, formData.password)
+                    .then((res) => {
+                        // Handle successful sign-up
+                        console.log('Sign-up successful:', res);
+                        navigate('/login');
+                        // showAlert("success", "Account successfully registered.");
+                    })
+                    .catch((err) => {
+                        // Handle errors thrown by SignUpUserApi
+                        console.error('Error caught in handleSubmit:', err);
+                        if (err.code) {
+                            console.error(`Error code: ${err.code}, message: ${err.message}`);
+                        }
+                        if (err.code === "UsernameExistsException") {
+                            setErrors({ email: "Email has already been taken" })
+                        }
+                        else {
+                            console.error('An unexpected error occurred:', err);
+                        }
+                    });
             })
             .catch(err => {
                 const newErrors = err.inner.reduce((acc, curr) => {
