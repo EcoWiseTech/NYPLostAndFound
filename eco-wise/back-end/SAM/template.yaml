@@ -31,6 +31,7 @@ Resources:
           Properties:
             Schedule: rate(30 minutes)
             Description: "Trigger the Lambda function every 30 minutes"
+
   StoreTemperatureApiFunction:
     Type: AWS::Serverless::Function 
     Properties:
@@ -66,18 +67,28 @@ Resources:
           Properties:
             Path: /GetWeatherApi
             Method: get
-            RestApiId: !Ref ServerlessRestApi  # Reference to your REST API
-Outputs:
-  GetWeatherApiResource:
-    Description: "API Gateway endpoint URL for Prod stage for GetWeatherApiFunction "
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/GetWeatherApi/"
-  GetWeatherApiFunction:
-    Description: "GetWeatherApiFunction ARN"
-    Value: !GetAtt GetWeatherApiFunction.Arn
-  GetWeatherApiFunctionIamRole:
-    Description: "Implicit IAM Role created for GetWeatherApiFunction"
-    Value: !GetAtt GetWeatherApiFunctionRole.Arn
+            RestApiId: !Ref ServerlessRestApi
 
+  GetTemperatureApiFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: GetTemperatureApiFunction/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: TemperatureTable
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        GetTemperatureApiResource:
+          Type: Api 
+          Properties:
+            Path: /GetTemperatureApi
+            Method: get
+            RestApiId: !Ref ServerlessRestApi
+
+Outputs:
   StoreWeatherApiFunction:
       Description: "StoreWeatherApiFunction ARN"
       Value: !GetAtt StoreWeatherApiFunction.Arn
@@ -91,3 +102,23 @@ Outputs:
   StoreTemperatureApiFunctionIamRole:
       Description: "Implicit IAM Role created for StoreTemperatureApiFunction"
       Value: !GetAtt StoreTemperatureApiFunction.Arn
+
+  GetWeatherApiResource:
+    Description: "API Gateway endpoint URL for Prod stage for GetWeatherApiFunction "
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/GetWeatherApi/"
+  GetWeatherApiFunction:
+    Description: "GetWeatherApiFunction ARN"
+    Value: !GetAtt GetWeatherApiFunction.Arn
+  GetWeatherApiFunctionIamRole:
+    Description: "Implicit IAM Role created for GetWeatherApiFunction"
+    Value: !GetAtt GetWeatherApiFunctionRole.Arn
+
+  GetTemperatureApiResource:
+    Description: "API Gateway endpoint URL for Prod stage for GetTemperatureApiFunction "
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/GetTemperatureApi/"
+  GetTemperatureApiFunction:
+    Description: "GetTemperatureApiFunction ARN"
+    Value: !GetAtt GetTemperatureApiFunction.Arn
+  GetTemperatureApiFunctionIamRole:
+    Description: "Implicit IAM Role created for GetTemperatureApiFunction"
+    Value: !GetAtt GetTemperatureApiFunctionRole.Arn
