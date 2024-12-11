@@ -298,8 +298,8 @@ function LoginPage() {
                                     </Stack>
                                 </CardContent>
                                 <CardActions>
-                                    <LoadingButton type="submit" loadingPosition="start" loading={loading} size="small" variant="text" color="primary" startIcon={<LoginIcon />}>Login</LoadingButton>
-                                    <Button size="small" variant="text" color="primary" href="/" startIcon={<AddIcon />} LinkComponent={Link} to="/register">Register</Button>
+                                    <LoadingButton type="submit" loadingPosition="start" loading={loading} size="small" variant="contained" color="primary" startIcon={<LoginIcon />}>Login</LoadingButton>
+                                    <Button size="small" variant="contained" color="primary" href="/" startIcon={<AddIcon />} LinkComponent={Link} to="/register">Register</Button>
                                 </CardActions>
                             </Box>
                             <Divider />
