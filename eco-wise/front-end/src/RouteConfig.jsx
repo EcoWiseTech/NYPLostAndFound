@@ -1,19 +1,28 @@
 import { createBrowserRouter } from "react-router-dom";
 import Root from "./Root";
-import Homepage from "./pages/Homepage";
-import Weatherpage from "./pages/Weatherpage";
+import PublicRoutes from "./PublicRoutes";
+import ProtectedRoutes from "./ProtectedRoutes";
+import AuthGuard from "./components/utils/AuthGuard";
+import NotFoundPage from "./pages/NotFoundPage";
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
     children: [
+
+      // Publicly accessible routes
+      ...PublicRoutes,
+
+      // Protected Routes
+      ...ProtectedRoutes.map((route) => ({
+        ...route,
+        element: <AuthGuard>{route.element}</AuthGuard>,
+      })),
+
+      // 404 error Page not found
       {
-        path: "",
-        element: <Homepage />,
-      },
-      {
-        path: "weatherpage",
-        element: <Weatherpage />,
+        path: "*",
+        element: <NotFoundPage />,
       },
     ],
   },

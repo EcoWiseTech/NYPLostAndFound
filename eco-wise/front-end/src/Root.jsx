@@ -6,7 +6,6 @@ import AlertComponenet from './components/common/Alert';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import SideNav from './components/common/SideNav';
-import GreyBackground from './components/common/GreyBackground';
 
 
 const theme = createTheme({
@@ -41,7 +40,6 @@ function Root() {
                             ml: 8
                         }}
                     >
-                        <GreyBackground/>
                         <Outlet />
                     </Box>
                     <Footer />
