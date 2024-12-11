@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const baseAPIUrl = "https://i2w4id9tee.execute-api.us-east-1.amazonaws.com/dev";
+const baseAPIUrl = "https://w5o98xbbtf.execute-api.us-east-1.amazonaws.com/Prod/";
 
 const GetWeatherDataApi = async () => {
-  const endpoint = `${baseAPIUrl}/get-weather-data`;
+  const endpoint = `${baseAPIUrl}/GetWeatherApi`;
 
   try {
     const response = await axios.get(endpoint);
