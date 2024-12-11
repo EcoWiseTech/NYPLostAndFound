@@ -6,6 +6,12 @@ Description: >
 Globals:
   Function:
     Timeout: 60
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,OPTIONS'"
+      AllowHeaders: "'content-type'"
+      AllowOrigin: "'*'"
+    # AllowCredentials: true  Uncomment only if you choose a specific origin instead of the * wildcard.
 
 Resources:
   StoreWeatherApiFunction:
@@ -43,9 +49,10 @@ Resources:
           Properties:
             Path: /GetWeatherApi
             Method: get
+            RestApiId: !Ref ServerlessRestApi  # Reference to your REST API
 Outputs:
   GetWeatherApiResource:
-    Description: "API Gateway endpoint URL for Prod stage for GetWeatherApiFunction"
+    Description: "API Gateway endpoint URL for Prod stage for GetWeatherApiFunction "
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/GetWeatherApi/"
   GetWeatherApiFunction:
     Description: "GetWeatherApiFunction ARN"
