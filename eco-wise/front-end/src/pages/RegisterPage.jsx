@@ -16,7 +16,7 @@ import { enqueueSnackbar } from 'notistack';
 
 
 const schema = yup.object({
-    fullName: yup.string().required("Full name is required"),
+    name: yup.string().required("Name is required"),
     email: yup.string().email("Invalid email address").required("Email is required"),
     password: yup.string()
         .required('Password is required')
@@ -32,7 +32,7 @@ const schema = yup.object({
 
 function RegisterPage() {
     const [formData, setFormData] = useState({
-        fullName: '',
+        name: '',
         email: '',
         password: '',
         confirmPassword: ''
@@ -87,7 +87,7 @@ function RegisterPage() {
         schema.validate(formData, { abortEarly: false })
             .then(() => {
                 setErrors({});
-                SignUpUserApi(formData.email, formData.fullName, formData.password)
+                SignUpUserApi(formData.email, formData.name, formData.password)
                     .then((res) => {
                         // Handle successful sign-up
                         console.log('Sign-up successful:', res);
@@ -106,6 +106,7 @@ function RegisterPage() {
                         }
                         else {
                             console.error('An unexpected error occurred:', err);
+                            enqueueSnackbar('An unexpected error occured. Please try again later', {variant: "error"})
                         }
                         setLoading(false);
                     });
