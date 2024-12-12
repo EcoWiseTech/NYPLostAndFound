@@ -27,6 +27,7 @@ import ResendAuthCodeApi from "../api/auth/ResendAuthCodeApi";
 import GetCurrentUserApi from "../api/auth/GetCurrentUserApi";
 import SendPasswordResetApi from "../api/auth/SendPasswordResetApi";
 import { useUserContext } from "../contexts/UserContext";
+import { useAlert } from "../contexts/AlertContext";
 
 function LoginPage() {
     const [loading, setLoading] = useState(false);
@@ -45,6 +46,7 @@ function LoginPage() {
     const [errorMessage, setErrorMessage] = useState("")
 
     const {UserLogIn} = useUserContext();
+    const { showAlert } = useAlert();
 
     const handleResetPasswordDialog = () => {
         setResetPasswordDialog(true);
@@ -147,7 +149,7 @@ function LoginPage() {
                     .then((res) => {
                         console.log('user data fetched', res)
                         UserLogIn(res, tokens.accessToken, tokens.idToken, tokens.refreshToken);
-                        enqueueSnackbar('Log In Successfull.', { variant: 'success' })
+                        showAlert('success', 'Log in successful')
                         navigate('/')
                     })
                     .catch((error) => {
@@ -212,7 +214,7 @@ function LoginPage() {
             SendPasswordResetApi(data.email)
                 .then((res) => {
                     console.log('success', res)
-                    enqueueSnackbar("Reset password e-mail sent!", { variant: "success" });
+                    showAlert('success', 'Reset password e-mail sent!')
                     setResetPasswordDialog(false);
                     setResetLoading(false)
                 })
@@ -238,7 +240,7 @@ function LoginPage() {
             ResendAuthCodeApi(data.email)
                 .then((res) => {
                     console.log('success', res)
-                    enqueueSnackbar("Verification e-mail sent!", { variant: "success" });
+                    showAlert('success', 'Verification e-mail sent!')
                     setResendDialog(false);
                     setResendLoading(false)
                 })

@@ -92,7 +92,7 @@ function RegisterPage() {
                         // Handle successful sign-up
                         console.log('Sign-up successful:', res);
                         navigate('/login');
-                        enqueueSnackbar('Sign up successfull.', { variant: 'success' })
+                        showAlert('success', 'Sign up successfull. Please verify your email.')
                         setLoading(false);
                     })
                     .catch((err) => {

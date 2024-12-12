@@ -89,7 +89,7 @@ function PasswordResetPage() {
                         console.log('Sign-up successful:', res);
                         setLoading(false)
                         navigate('/login');
-                        enqueueSnackbar('Password Reset Successfull.', { variant: 'success' })
+                        showAlert('success', 'Password Reset Successfull.')
                     })
                     .catch((err) => {
                         // Handle errors thrown by ResetPassword API

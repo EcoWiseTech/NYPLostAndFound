@@ -13,12 +13,14 @@ import SupportIcon from '@mui/icons-material/Support';
 import { enqueueSnackbar } from "notistack";
 import { useUserContext } from "../../../contexts/UserContext";
 import SignOutApi from "../../../api/auth/SignOutApi";
+import { useAlert } from "../../../contexts/AlertContext";
 
 export function NavbarProfile() {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
     const navigate = useNavigate()
-    const {user, accessToken, UserLogOut} = useUserContext();
+    const { user, accessToken, UserLogOut } = useUserContext();
+    const { showAlert } = useAlert();
 
     function handlePopoverOpen(event) {
         setAnchorEl(event.currentTarget);
@@ -26,15 +28,15 @@ export function NavbarProfile() {
     }
 
     useEffect(() => {
-      console.log(user.UserAttributes)
+        console.log(user.UserAttributes)
     }, [])
-    
+
 
     function handleLogout() {
         SignOutApi(accessToken)
             .then((res) => {
                 UserLogOut();
-                enqueueSnackbar("Successfully logged out", { variant: "success" })
+                showAlert('success', 'Log out successful')
                 navigate("/")
             })
             .catch((error) => {
