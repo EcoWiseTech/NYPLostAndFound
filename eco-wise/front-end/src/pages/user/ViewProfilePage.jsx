@@ -31,13 +31,12 @@ const schema = yup.object({
     email: yup.string().email("Invalid email address").required("Email is required"),
     phone_number: yup
         .string()
-        .required("Phone number is requred")
+        // .required("Phone number is requred")
         .test(
             'is-valid-phone',
             'Phone number is invalid',
             (value) => !value || isValidPhoneNumber(value)
         ),
-    birthdate: yup.date().nullable().typeError('Invalid date'),
 }).required();
 
 function ViewProfilePage() {
@@ -117,10 +116,10 @@ function ViewProfilePage() {
         const requestObj = {
             email: formData.email,
             given_name: formData.given_name,
-            phone_number: formData.phone_number,
-            birthdate: formData.birthdate,
+            phone_number: formData.phone_number? formData.phone_number : "",
+            birthdate: formData.birthdate? formData.birthdate: "",
         };
-
+console.log('req', requestObj)
         UpdateUserApi({ accessToken, refreshToken, attributes: requestObj })
             .then((res) => {
                 RefreshUser();

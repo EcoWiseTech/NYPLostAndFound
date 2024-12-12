@@ -35,9 +35,9 @@ export function NavbarProfile() {
     function handleLogout() {
         SignOutApi(accessToken)
             .then((res) => {
+                navigate("/")
                 UserLogOut();
                 showAlert('success', 'Log out successful')
-                navigate("/")
             })
             .catch((error) => {
                 console.error('Error when signing out:', error);
