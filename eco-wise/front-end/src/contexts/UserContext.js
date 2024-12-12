@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import GetCurrentUserApi from "../api/auth/GetCurrentUserApi"
 import RefreshTokenApi from "../api/auth/RefreshTokenApi"
+import { useAlert } from "./AlertContext";
 
 const userContext = createContext(null);
 
@@ -17,6 +18,7 @@ export const UserProvider = (props) => {
     const [isReady, setIsReady] = useState(false);
 
     const navigate = useNavigate();
+    const { showAlert } = useAlert();
 
     useEffect(() => {
         const accessTokenCheck = localStorage.getItem('accessToken');
@@ -65,6 +67,7 @@ export const UserProvider = (props) => {
     }
 
     const UserLogOut = () => {
+        navigate('/')
         localStorage.removeItem('accessToken');
         localStorage.removeItem('idToken');
         localStorage.removeItem('refreshToken');
@@ -74,61 +77,54 @@ export const UserProvider = (props) => {
         setIdToken(null);
         setRefreshToken(null);
         setUser(null);
+
+        showAlert('success', 'Log out successful')
     }
 
-    const RefreshUser = () => {
-        // Reset all items and vairables
-        // refresh token is reused, so no need to remove item
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('idToken');
-        localStorage.removeItem('user');
 
-        setAccessToken(null);
-        setIdToken(null);
-
+    const RefreshUser = async () => {
+        // refresh token is reused
         // Get new access and ID tokens
         RefreshTokenApi(refreshToken)
             .then((res) => {
+                console.log('resdata', res)
                 localStorage.setItem('accessToken', res.accessToken);
                 localStorage.setItem('idToken', res.idToken);
                 setAccessToken(res.accessToken);
                 setIdToken(res.idToken);
+                // Fetch user data and store it in context 
+                GetCurrentUserApi(res.accessToken)
+                    .then((res) => {
+                        let formattedUserObject = res;
+                        let formatedUserAttributes = formatUserObject(res);
+                        formattedUserObject.UserAttributes = formatedUserAttributes;
+
+                        localStorage.setItem('user', JSON.stringify(formattedUserObject));
+                        setUser(formattedUserObject)
+                        console.log('fetched new user data')
+                    })
+                    .catch((error) => {
+                        console.error('Error when fetching data:', error);
+                        if (error.name === 'NotAuthorizedException') {
+                            console.warn('Access token is invalid or expired:', error.message);
+                        } else if (error.name === 'InvalidParameterException') {
+                            console.error('Access token is missing or malformed:', error.message);
+                        } else {
+                            console.error('Error fetching user data:', error.message);
+                        }
+                        enqueueSnackbar('Failed to fetch user data. Plesae log in again.', { variant: "error" })
+                    })
             })
             .catch((error) => {
                 if (error.name === 'InvalidRefreshTokenException') {
                     console.error('Refresh token is invalid or expired. Please log in again.');
                     UserLogOut();
-                    enqueueSnackbar('Your session has expired. Please log in again.', { variant: "warning" })
+                    showAlert('warning', 'Your session has expired. Please log in again.')
                     navigate('/login')
                 } else {
                     console.error('Error refreshing tokens:', error);
                 }
-                throw error;
             })
-
-        // Fetch user data and store it in context 
-        GetCurrentUserApi(accessToken)
-            .then((res) => {
-                let formattedUserObject = res;
-                let formatedUserAttributes = formatUserObject(res);
-                formattedUserObject.UserAttributes = formatedUserAttributes;
-
-                localStorage.setItem('user', JSON.stringify(formattedUserObject));
-                setUser(formattedUserObject)
-                console.log('fetched new user data')
-            })
-            .catch((error) => {
-                console.error('Error when fetching data:', error);
-                if (error.name === 'NotAuthorizedException') {
-                    console.error('Access token is invalid or expired:', error.message);
-                } else if (error.name === 'InvalidParameterException') {
-                    console.error('Access token is missing or malformed:', error.message);
-                } else {
-                    console.error('Error fetching user data:', error.message);
-                }
-                enqueueSnackbar('Failed to fetch user data. Plesae log in again.', { varient: "error" })
-            })
-
     }
 
     const IsLoggedIn = () => {

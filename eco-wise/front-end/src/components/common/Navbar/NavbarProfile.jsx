@@ -19,7 +19,7 @@ export function NavbarProfile() {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
     const navigate = useNavigate()
-    const { user, accessToken, UserLogOut } = useUserContext();
+    const { user, accessToken, refreshToken, UserLogOut } = useUserContext();
     const { showAlert } = useAlert();
 
     function handlePopoverOpen(event) {
@@ -27,17 +27,10 @@ export function NavbarProfile() {
         setIsPopoverOpen(true);
     }
 
-    useEffect(() => {
-        console.log(user.UserAttributes)
-    }, [])
-
-
     function handleLogout() {
-        SignOutApi(accessToken)
+        SignOutApi(accessToken, refreshToken)
             .then((res) => {
-                navigate("/")
                 UserLogOut();
-                showAlert('success', 'Log out successful')
             })
             .catch((error) => {
                 console.error('Error when signing out:', error);

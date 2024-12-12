@@ -32,10 +32,10 @@ function Root() {
     return (
         <>
             <ThemeProvider theme={theme}>
-                <UserProvider>
-                    <SnackbarProvider maxSnack={3}>
-                        <CssBaseline />
-                        <AlertProvider>
+                <AlertProvider>
+                    <UserProvider>
+                        <SnackbarProvider maxSnack={3}>
+                            <CssBaseline />
                             <Navbar />
                             <AlertComponenet />
                             <Box
@@ -48,9 +48,9 @@ function Root() {
                             <Footer />
                             <ScrollRestoration />
 
-                        </AlertProvider>
-                    </SnackbarProvider>
-                </UserProvider>
+                        </SnackbarProvider>
+                    </UserProvider>
+                </AlertProvider>
             </ThemeProvider>
         </>
     );

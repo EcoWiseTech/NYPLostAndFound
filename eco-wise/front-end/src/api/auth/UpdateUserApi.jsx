@@ -13,6 +13,7 @@ async function UpdateUserApi({ accessToken, refreshToken, attributes }) {
 
       // Refresh access token
       const newTokens = await RefreshTokenApi(refreshToken);
+      console.log("New tokens:", newTokens)
       return await UpdateUserAction({
         accessToken: newTokens.accessToken,
         attributes,

@@ -21,9 +21,10 @@ import { LoadingButton } from '@mui/lab';
 import UpdateUserApi from '../../api/auth/UpdateUserApi';
 import { useAlert } from "../../contexts/AlertContext";
 import * as yup from 'yup';
-import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import { isValidPhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import '../../css/PhoneInput.css'
+import ProfileInformationCard from '../../components/user/ProfileInformationCard';
 
 // Define the validation schema with yup
 const schema = yup.object({
@@ -116,10 +117,9 @@ function ViewProfilePage() {
         const requestObj = {
             email: formData.email,
             given_name: formData.given_name,
-            phone_number: formData.phone_number? formData.phone_number : "",
-            birthdate: formData.birthdate? formData.birthdate: "",
+            phone_number: formData.phone_number ? formData.phone_number : "",
+            birthdate: formData.birthdate ? formData.birthdate : "",
         };
-console.log('req', requestObj)
         UpdateUserApi({ accessToken, refreshToken, attributes: requestObj })
             .then((res) => {
                 RefreshUser();
@@ -142,102 +142,18 @@ console.log('req', requestObj)
 
     return (
         <Stack direction="column" spacing={2}>
-            <Card>
-                <CardContent>
-                    <CardTitle icon={<BadgeIcon />} title="Profile Information" />
-                    <Grid container spacing={2} marginTop="1rem">
-                        <Grid item container spacing={2} xs={12} sm={7} md={7} lg={7}>
-                            <Grid item xs={12}>
-                                <TextField
-                                    label="Email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    fullWidth
-                                    disabled
-                                    error={!!errors.email}
-                                    helperText={errors.email}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    label="Name"
-                                    name="given_name"
-                                    value={formData.given_name}
-                                    onChange={handleInputChange}
-                                    fullWidth
-                                    error={!!errors.given_name}
-                                    helperText={errors.given_name}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <PhoneInput
-                                    defaultCountry="SG"
-                                    value={formData.phone_number}
-                                    onChange={handlePhoneChange}
-                                    placeholder="Enter phone number"
-                                />
-                                {errors.phone_number && <p style={{ color: '#d32f2f', fontSize: "0.75rem", marginLeft: "14px" }}>{errors.phone_number}</p>}
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    label="Date of Birth"
-                                    name="birthdate"
-                                    type="date"
-                                    value={formData.birthdate}
-                                    onChange={handleInputChange}
-                                    fullWidth
-                                    error={!!errors.birthdate}
-                                    helperText={errors.birthdate}
-                                    InputLabelProps={{ shrink: true }}
-                                />
-                            </Grid>
-                        </Grid>
-                        <Grid item xs={12} sm={5} md={5} lg={5} textAlign="center">
-                            <Avatar
-                                src={selectedFile || user.profilePicture || '/default-avatar.png'}
-                                alt="Profile Picture"
-                                sx={{ width: 150, height: 150, margin: '0 auto' }}
-                            />
-                            <Box marginTop="0.5rem" marginBottom="1rem">
-                                <Typography variant="h8" color="black">
-                                    Profile Picture
-                                </Typography>
-                            </Box>
-                            <Box marginTop="1rem">
-                                <Typography variant="subtitle2" color="darkgray">
-                                    File Size no larger than 5MB
-                                </Typography>
-                            </Box>
-                            <Box>
-                                <LoadingButton
-                                    style={{ justifyContent: 'flex-end' }}
-                                    loadingPosition="start"
-                                    variant="contained"
-                                    color="primary"
-                                    startIcon={<FileUploadIcon />}
-                                    component="label"
-                                >
-                                    Upload Image
-                                    <input type="file" onChange={handleFileChange} hidden />
-                                </LoadingButton>
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </CardContent>
-                <CardActions sx={{ paddingX: '16px' }}>
-                    <LoadingButton
-                        loading={isLoading}
-                        variant="contained"
-                        color="primary"
-                        startIcon={<EditIcon />}
-                        onClick={handleEditProfile}
-                        disabled={!isModified}
-                    >
-                        Save
-                    </LoadingButton>
-                </CardActions>
-            </Card>
+            <ProfileInformationCard
+                formData={formData}
+                handleInputChange={handleInputChange}
+                handlePhoneChange={handlePhoneChange}
+                handleFileChange={handleFileChange}
+                handleEditProfile={handleEditProfile}
+                errors={errors}
+                isLoading={isLoading}
+                isModified={isModified}
+                selectedFile={selectedFile}
+                user={user}
+            />
         </Stack>
     );
 }
