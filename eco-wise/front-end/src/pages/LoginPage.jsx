@@ -151,28 +151,30 @@ function LoginPage() {
                 GetCurrentUserApi(tokens.accessToken)
                     .then((res) => {
                         console.log('user data fetched', res)
+                        enqueueSnackbar('Log In Successfull.', { variant: 'success' })
                     })
                     .catch((error) => {
                         console.error('Error when fetching data:', error);
-                        if (error.code === 'NotAuthorizedException') {
+                        if (error.name === 'NotAuthorizedException') {
                             console.error('Access token is invalid or expired:', error.message);
-                        } else if (error.code === 'InvalidParameterException') {
+                        } else if (error.name === 'InvalidParameterException') {
                             console.error('Access token is missing or malformed:', error.message);
                         } else {
                             console.error('Error fetching user data:', error.message);
                         }
+                        enqueueSnackbar('Failed to fetch user data. Plesae log in again.', { varient: "error" })
                     })
                 // Redirect to the desired page
                 // navigate('/dashboard');
                 setLoading(false)
             })
             .catch((error) => {
-                console.error('Error during sign-in:', error);
-                if (error.code === 'NotAuthorizedException') {
+                console.error('Error during sign-in:', error.name);
+                if (error.name === 'NotAuthorizedException') {
                     setErrorMessage('Incorrect username or password.')
-                } else if (error.code === 'UserNotFoundException') {
+                } else if (error.name === 'UserNotFoundException') {
                     setErrorMessage('User Does not exist.')
-                } else if (error.code === 'UserNotConfirmedException') {
+                } else if (error.name === 'UserNotConfirmedException') {
                     setErrorMessage('User Account has not been confirmed. Please check your email.')
                 } else {
                     setErrorMessage('An error occurred during sign-in. Please try again later.')
@@ -197,30 +199,6 @@ function LoginPage() {
             data.password = data.password.trim();
 
             handleSignIn(data.email, data.password);
-
-            // http.post("/auth", data).then((res) => {
-            //     if (res.status === 200) {
-            //         enqueueSnackbar("Login successful. Welcome back!", { variant: "success" });
-            //         // Store token in local storage
-            //         localStorage.setItem("token", res.data.token);
-            //         // Set user context
-            //         setUser(res.data.user);
-            //         navigate("/")
-            //     } else {
-            //         enqueueSnackbar("Login failed! Check your e-mail and password.", { variant: "error" });
-            //         setLoading(false);
-            //     }
-            // }).catch((err) => {
-            //     if (err.response.status === 409) {
-            //         setEmail(data.email);
-            //         setPassword(data.password);
-            //         setOtpDialog(true);
-            //         setLoading(false);
-            //     } else {
-            //         enqueueSnackbar("Login failed! " + err.response.data.message, { variant: "error" });
-            //         setLoading(false);
-            //     }
-            // })
         }
 
     })
@@ -246,19 +224,6 @@ function LoginPage() {
                     enqueueSnackbar("Reset password e-mail failed! ", { variant: "error" });
                     setResetLoading(false)
                 });
-            // http.post("/auth/forgot", data).then((res) => {
-            //     if (res.status === 200) {
-            //         enqueueSnackbar("Password reset e-mail sent!", { variant: "success" });
-            //         setResetPasswordDialog(false);
-            //         setResetLoading(false);
-            //     } else {
-            //         enqueueSnackbar("Password reset failed! Check your e-mail.", { variant: "error" });
-            //         setResetLoading(false);
-            //     }
-            // }).catch((err) => {
-            //     enqueueSnackbar("Password reset failed! " + err.response.data.message, { variant: "error" });
-            //     setResetLoading(false);
-            // })
         }
     })
 

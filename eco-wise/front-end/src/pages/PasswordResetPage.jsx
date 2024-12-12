@@ -6,18 +6,16 @@ import registerImage from '../media/images/registerPage.webp';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import * as yup from 'yup';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from '../contexts/AlertContext';
 import CardTitle from '../components/common/CardTitle';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import SignUpUserApi from '../api/auth/SignUpApi';
-import LoadingButton from '@mui/lab/LoadingButton';
+import ResetPasswordApi from '../api/auth/ResetPasswordApi';
 import { enqueueSnackbar } from 'notistack';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 
 const schema = yup.object({
-    fullName: yup.string().required("Full name is required"),
-    email: yup.string().email("Invalid email address").required("Email is required"),
     password: yup.string()
         .required('Password is required')
         .min(8, 'Password must be at least 8 characters long')
@@ -30,10 +28,9 @@ const schema = yup.object({
         .oneOf([yup.ref('password'), null], 'Passwords do not match')
 }).required();
 
-function RegisterPage() {
+function PasswordResetPage() {
+    const { email, code } = useParams();
     const [formData, setFormData] = useState({
-        fullName: '',
-        email: '',
         password: '',
         confirmPassword: ''
     });
@@ -43,7 +40,7 @@ function RegisterPage() {
     const [loading, setLoading] = useState(false)
 
     const navigate = useNavigate();
-    const { showAlert } = useAlert();
+    const { showAlert } = useAlert()
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -72,7 +69,6 @@ function RegisterPage() {
         }
     };
 
-
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
@@ -87,27 +83,33 @@ function RegisterPage() {
         schema.validate(formData, { abortEarly: false })
             .then(() => {
                 setErrors({});
-                SignUpUserApi(formData.email, formData.fullName, formData.password)
+                ResetPasswordApi(email, code, formData.password)
                     .then((res) => {
-                        // Handle successful sign-up
+                        // Handle successful password reset
                         console.log('Sign-up successful:', res);
+                        setLoading(false)
                         navigate('/login');
-                        enqueueSnackbar('Sign up successfull.', { variant: 'success' })
-                        setLoading(false);
+                        enqueueSnackbar('Password Reset Successfull.', { variant: 'success' })
                     })
                     .catch((err) => {
-                        // Handle errors thrown by SignUpUserApi
+                        // Handle errors thrown by ResetPassword API
                         console.error('Error caught in handleSubmit:', err);
                         if (err.name) {
-                            console.error(`Error code: ${err.name}, message: ${err.message}`);
+                            console.error(`Error code: ${err.code}, message: ${err.message}`);
                         }
-                        if (err.name === "UsernameExistsException") {
-                            setErrors({ email: "Email has already been taken" })
+                        if (err.name === "CodeMismatchException") {
+                            console.log('reachjed')
+                            enqueueSnackbar('Expired link, please request password reset again.', { variant: 'error' })
+                        }
+                        else if (err.name === "LimitExceededException") {
+                            console.log('reachjed')
+                            enqueueSnackbar('Reset Attempt limit exceeded, please try again later.', { variant: 'error' })
                         }
                         else {
                             console.error('An unexpected error occurred:', err);
+                            enqueueSnackbar('An unexpected error occured, please try again later.', { variant: 'error' })
                         }
-                        setLoading(false);
+                        setLoading(false)
                     });
             })
             .catch(err => {
@@ -116,7 +118,7 @@ function RegisterPage() {
                     return acc;
                 }, {});
                 setErrors(newErrors);
-                setLoading(false);
+                setLoading(false)
             });
     };
 
@@ -158,7 +160,7 @@ function RegisterPage() {
                         alignItems: 'center'
                     }} />
                     <Grid item xs={12} md={6} sx={{ padding: 3 }}>
-                        <CardTitle title="Register an account" icon={<PersonAddIcon />} />
+                        <CardTitle title="Reset Password" icon={<PersonAddIcon />} />
                         <Divider />
                         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                             {Object.keys(formData).map(key => (
@@ -222,7 +224,7 @@ function RegisterPage() {
                                     </ListItem>
                                 ))}
                             </List>
-                            <LoadingButton type="submit" loadingPosition="start" fullWidth loading={loading} variant="contained" color="primary" sx={{ mt: 3, mb: 2,}} >Sign up</LoadingButton>
+                            <LoadingButton type="submit" loadingPosition="start" fullWidth loading={loading} variant="contained" color="primary" sx={{ mt: 3, mb: 2,}} >Reset Password</LoadingButton>
                         </Box>
                     </Grid>
                 </Grid>
@@ -231,4 +233,4 @@ function RegisterPage() {
     );
 }
 
-export default RegisterPage;
+export default PasswordResetPage;

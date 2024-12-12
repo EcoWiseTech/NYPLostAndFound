@@ -4,6 +4,7 @@ Description: >
   SAM template for mass resources ( Lambda + api gateway + custom events)
 
 Globals:
+# Global settings configuration
   Function:
     Timeout: 60
   Api:
@@ -14,6 +15,7 @@ Globals:
     # AllowCredentials: true  Uncomment only if you choose a specific origin instead of the * wildcard.
 
 Resources:
+# Lambda + api gateway resource + event triggers (eventbridge, customMessage)
   StoreWeatherApiFunction:
     Type: AWS::Serverless::Function 
     Properties:
@@ -88,6 +90,16 @@ Resources:
             Method: get
             RestApiId: !Ref ServerlessRestApi
 
+  FormatPasswordResetEmailFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: FormatPasswordResetEmailFunction/
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+
+
 Outputs:
   StoreWeatherApiFunction:
       Description: "StoreWeatherApiFunction ARN"
@@ -122,3 +134,10 @@ Outputs:
   GetTemperatureApiFunctionIamRole:
     Description: "Implicit IAM Role created for GetTemperatureApiFunction"
     Value: !GetAtt GetTemperatureApiFunctionRole.Arn
+
+  FormatPasswordResetEmailFunction:
+    Description: "FormatPasswordResetEmailFunction ARN"
+    Value: !GetAtt FormatPasswordResetEmailFunction.Arn
+  FormatPasswordResetEmailFunctionIamRole:
+    Description: "Implicit IAM Role created for FormatPasswordResetEmailFunction"
+    Value: !GetAtt FormatPasswordResetEmailFunctionRole.Arn

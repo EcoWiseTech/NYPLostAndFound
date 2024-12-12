@@ -28,7 +28,6 @@ async function SignInApi(email, password) {
       refreshToken: RefreshToken,
     };
   } catch (error) {
-    console.error('Error during sign-in:', error);
     throw error; // Rethrow error to be handled by the calling function
   }
 }
