@@ -24,6 +24,8 @@ import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import ResendAuthCodeApi from "../api/auth/ResendAuthCodeApi";
+import GetCurrentUserApi from "../api/auth/GetCurrentUserApi";
+import SendPasswordResetApi from "../api/auth/SendPasswordResetApi";
 
 function LoginPage() {
     const [loading, setLoading] = useState(false);
@@ -136,6 +138,50 @@ function LoginPage() {
     //     },
     // });
 
+    const handleSignIn = (email, password) => {
+        SignInApi(email, password)
+            .then((tokens) => {
+                console.log('Tokens received:', tokens);
+                // Store tokens in localStorage or secure storage
+                localStorage.setItem('accessToken', tokens.accessToken);
+                localStorage.setItem('idToken', tokens.idToken);
+                localStorage.setItem('refreshToken', tokens.refreshToken);
+
+                // GetUserApi to fetch user details
+                GetCurrentUserApi(tokens.accessToken)
+                    .then((res) => {
+                        console.log('user data fetched', res)
+                    })
+                    .catch((error) => {
+                        console.error('Error when fetching data:', error);
+                        if (error.code === 'NotAuthorizedException') {
+                            console.error('Access token is invalid or expired:', error.message);
+                        } else if (error.code === 'InvalidParameterException') {
+                            console.error('Access token is missing or malformed:', error.message);
+                        } else {
+                            console.error('Error fetching user data:', error.message);
+                        }
+                    })
+                // Redirect to the desired page
+                // navigate('/dashboard');
+                setLoading(false)
+            })
+            .catch((error) => {
+                console.error('Error during sign-in:', error);
+                if (error.code === 'NotAuthorizedException') {
+                    setErrorMessage('Incorrect username or password.')
+                } else if (error.code === 'UserNotFoundException') {
+                    setErrorMessage('User Does not exist.')
+                } else if (error.code === 'UserNotConfirmedException') {
+                    setErrorMessage('User Account has not been confirmed. Please check your email.')
+                } else {
+                    setErrorMessage('An error occurred during sign-in. Please try again later.')
+                }
+                setOpen(true);
+                setLoading(false)
+            });
+    }
+
     const formik = useFormik({
         initialValues: {
             email: "",
@@ -150,32 +196,7 @@ function LoginPage() {
             data.email = data.email.trim();
             data.password = data.password.trim();
 
-            SignInApi(data.email, data.password)
-                .then((tokens) => {
-                    console.log('Tokens received:', tokens);
-                    // Store tokens in localStorage or secure storage
-                    localStorage.setItem('accessToken', tokens.accessToken);
-                    localStorage.setItem('idToken', tokens.idToken);
-                    localStorage.setItem('refreshToken', tokens.refreshToken);
-
-                    // Redirect to the desired page
-                    navigate('/dashboard');
-                    setLoading(false)
-                })
-                .catch((error) => {
-                    console.error('Error during sign-in:', error);
-                    if (error.code === 'NotAuthorizedException') {
-                        setErrorMessage('Incorrect username or password.')
-                    } else if (error.code === 'UserNotFoundException') {
-                        setErrorMessage('User Does not exist.')
-                    } else if (error.code === 'UserNotConfirmedException') {
-                        setErrorMessage('User Account has not been confirmed. Please check your email.')
-                    } else {
-                        setErrorMessage('An error occurred during sign-in. Please try again later.')
-                    }
-                    setOpen(true);
-                    setLoading(false)
-                });
+            handleSignIn(data.email, data.password);
 
             // http.post("/auth", data).then((res) => {
             //     if (res.status === 200) {
@@ -213,6 +234,18 @@ function LoginPage() {
         }),
         onSubmit: (data) => {
             setResetLoading(true);
+            SendPasswordResetApi(data.email)
+                .then((res) => {
+                    console.log('success', res)
+                    enqueueSnackbar("Reset password e-mail sent!", { variant: "success" });
+                    setResetPasswordDialog(false);
+                    setResetLoading(false)
+                })
+                .catch((error) => {
+                    console.error('Error during password reset:', error);
+                    enqueueSnackbar("Reset password e-mail failed! ", { variant: "error" });
+                    setResetLoading(false)
+                });
             // http.post("/auth/forgot", data).then((res) => {
             //     if (res.status === 200) {
             //         enqueueSnackbar("Password reset e-mail sent!", { variant: "success" });
@@ -239,7 +272,6 @@ function LoginPage() {
         onSubmit: (data) => {
             setResendLoading(true);
             data.email = data.email.trim();
-            console.log('test')
             data.email = data.email.trim();
             ResendAuthCodeApi(data.email)
                 .then((res) => {
@@ -249,11 +281,8 @@ function LoginPage() {
                     setResendLoading(false)
                 })
                 .catch((error) => {
-                    console.error('Error during sign-in:', error);
+                    console.error('Error during resend email:', error);
                     enqueueSnackbar("Verification e-mail failed! ", { variant: "error" });
-                    if (error.code === 'NotAuthorizedException') {
-                        setErrorMessage('Incorrect username or password.')
-                    }
                     setResendLoading(false)
                 });
             // http.post("/auth/resend", data).then((res) => {

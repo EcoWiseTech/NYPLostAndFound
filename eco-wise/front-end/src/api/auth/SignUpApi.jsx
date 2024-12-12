@@ -1,17 +1,10 @@
-import AWS from 'aws-sdk';
-
-AWS.config.update({
-  region: 'us-east-1'
-});
-
-// Initialize Cognito service provider
-const cognito = new AWS.CognitoIdentityServiceProvider();
+import { SignUpCommand } from "@aws-sdk/client-cognito-identity-provider"; // Import the required SDK v3 components
+import cognitoClient from "./AwsCognitoInit";
 
 async function SignUpUserApi(email, fullName, password) {
-  console.log('reached');
   try {
     const params = {
-      ClientId: '2e5rh184m1r9akathdhmckttb',
+      ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
       Username: email,
       Password: password,
       UserAttributes: [
@@ -26,8 +19,11 @@ async function SignUpUserApi(email, fullName, password) {
       ],
     };
 
-    const data = await cognito.signUp(params).promise();
-    console.log('Sign up successful:', data);
+    // Create the command using the provided parameters
+    const command = new SignUpCommand(params);
+
+    // Send the sign-up request and wait for the response
+    const data = await cognitoClient.send(command);
     return data; // Return the successful response
   } catch (error) {
     console.error('Error during sign-up:', error);

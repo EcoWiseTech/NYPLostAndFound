@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.710.0",
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
     "@greatsumini/react-facebook-login": "^3.3.3",
@@ -16,6 +17,7 @@
     "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",
     "chart.js": "^4.4.7",
+    "dotenv": "^16.4.7",
     "formik": "^2.4.6",
     "notistack": "^3.0.1",
     "oidc-client-ts": "^3.1.0",

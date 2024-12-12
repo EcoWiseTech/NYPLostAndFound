@@ -1,26 +1,24 @@
-import AWS from 'aws-sdk';
-
-AWS.config.update({
-    region: 'us-east-1',
-});
-
-// Initialize Cognito service provider
-const cognito = new AWS.CognitoIdentityServiceProvider();
+import { ResendConfirmationCodeCommand } from "@aws-sdk/client-cognito-identity-provider"; // Import SDK v3 components
+import cognitoClient from "./AwsCognitoInit";
 
 async function ResendAuthCodeApi(email) {
-    console.log('reached')
     try {
+        // Define the parameters for the resend confirmation code request
         const params = {
-            ClientId: '2e5rh184m1r9akathdhmckttb',
-            Username: email,
+            ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
+            Username: email, // The username (email in this case)
         };
 
-        const response = await cognito.resendConfirmationCode(params).promise();
-        console.log('Confirmation code resent successfully:', response);
-        return response;
+        // Create the command using the provided parameters
+        const command = new ResendConfirmationCodeCommand(params);
+
+        // Send the request and wait for the response
+        const response = await cognitoClient.send(command);
+
+        return response; // Return the response containing the confirmation code details
     } catch (error) {
-        console.error('Error resending confirmation code:', error);
-        throw error
+        console.error('Error during resend auth code:', error);
+        throw error; // Rethrow error to be handled by the calling function
     }
 }
 

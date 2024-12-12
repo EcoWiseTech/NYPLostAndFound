@@ -1,28 +1,27 @@
-import AWS from 'aws-sdk';
-
-AWS.config.update({
-  region: 'us-east-1',
-});
-
-// Initialize Cognito service provider
-const cognito = new AWS.CognitoIdentityServiceProvider();
+import {InitiateAuthCommand } from "@aws-sdk/client-cognito-identity-provider"; // Import SDK v3 components
+import cognitoClient from "./AwsCognitoInit";
 
 async function SignInApi(email, password) {
   try {
+    // Define the parameters for the sign-in
     const params = {
-      AuthFlow: 'USER_PASSWORD_AUTH', // Auth flow for username and password
-      ClientId: '2e5rh184m1r9akathdhmckttb',
+      AuthFlow: process.env.REACT_APP_COGNITO_AUTH_FLOW,
+      ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
       AuthParameters: {
         USERNAME: email,
         PASSWORD: password,
       },
     };
 
-    const response = await cognito.initiateAuth(params).promise();
-    console.log('Sign-in successful:', response);
+    // Create the command using the provided parameters
+    const command = new InitiateAuthCommand(params);
+
+    // Send the sign-in request and wait for the response
+    const response = await cognitoClient.send(command);
 
     // Extract tokens from response
     const { IdToken, AccessToken, RefreshToken } = response.AuthenticationResult;
+
     return {
       idToken: IdToken,
       accessToken: AccessToken,
@@ -30,7 +29,7 @@ async function SignInApi(email, password) {
     };
   } catch (error) {
     console.error('Error during sign-in:', error);
-    throw error; // Rethrow error to be handled by calling function
+    throw error; // Rethrow error to be handled by the calling function
   }
 }
 
