@@ -132,8 +132,7 @@ function RegisterPage() {
         <Box
             sx={{
                 display: 'flex',
-                marginTop: '3rem',
-                marginBottom: '3rem',
+                marginTop: '2rem',
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>

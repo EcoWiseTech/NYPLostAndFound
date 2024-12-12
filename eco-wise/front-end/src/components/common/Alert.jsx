@@ -17,23 +17,27 @@ function AlertComponent() {
     }, [alert, hideAlert]);
 
     return (
-        <Fade in={alert.show} timeout={300}>
-            <Alert
-                variant="filled"
-                severity={alert.severity}
-                onClose={hideAlert}
-                sx={{
-                    width: '60%',
-                    margin: '0 auto',
-                    marginTop: '10px',
-                    ...(alert.severity === 'success' && {
-                        bgcolor: '#4caf50', 
-                    }),
-                }}
-            >
-                {alert.message}
-            </Alert>
-        </Fade>
+        <>
+            {alert.show && (
+                <Fade in={alert.show} timeout={300}>
+                    <Alert
+                        variant="filled"
+                        severity={alert.severity}
+                        onClose={hideAlert}
+                        sx={{
+                            width: '60%',
+                            margin: '0 auto',
+                            marginTop: '10px',
+                            ...(alert.severity === 'success' && {
+                                bgcolor: '#4caf50',
+                            }),
+                        }}
+                    >
+                        {alert.message}
+                    </Alert>
+                </Fade>
+            )}
+        </>
     );
 }
 

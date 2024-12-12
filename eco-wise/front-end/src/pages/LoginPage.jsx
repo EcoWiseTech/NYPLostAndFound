@@ -300,7 +300,7 @@ function LoginPage() {
 
     return (
         <>
-            <Container maxWidth="xl" sx={{ marginY: "1rem", marginTop: '3rem', }}>
+            <Container maxWidth="xl" sx={{ marginY: "1rem", marginTop: '2rem', }}>
                 <Grid container spacing={2} justifyContent="center">
                     <Grid item xs={12} sm={6} md={5} lg={4}>
                         <Card sx={{ margin: "auto" }}>

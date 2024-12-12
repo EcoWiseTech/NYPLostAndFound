@@ -37,7 +37,7 @@ function Root() {
                         <CssBaseline />
                         <AlertProvider>
                             <Navbar />
-                            {/* <AlertComponenet /> */}
+                            <AlertComponenet />
                             <Box
                                 sx={{
                                     minHeight: "84vh",

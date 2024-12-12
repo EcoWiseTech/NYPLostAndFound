@@ -16,7 +16,7 @@ const router = createBrowserRouter([
       // Protected Routes
       ...ProtectedRoutes.map((route) => ({
         ...route,
-        element: <AuthGuard>{route.element}</AuthGuard>,
+        element: <AuthGuard type={1}>{route.element}</AuthGuard>,
       })),
 
       // 404 error Page not found
