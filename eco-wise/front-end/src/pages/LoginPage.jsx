@@ -1,4 +1,4 @@
-import { Box, Button, Container, Card, CardContent, CardActions, Stack, Typography, TextField, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, Grid, Divider } from "@mui/material"
+import { Box, Button, Container, Card, CardContent, CardActions, Stack, Typography, TextField, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, Grid, Divider, InputAdornment } from "@mui/material"
 import { useGoogleLogin } from "@react-oauth/google";
 import FacebookLogin from '@greatsumini/react-facebook-login';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -28,6 +28,7 @@ import GetCurrentUserApi from "../api/auth/GetCurrentUserApi";
 import SendPasswordResetApi from "../api/auth/SendPasswordResetApi";
 import { useUserContext } from "../contexts/UserContext";
 import { useAlert } from "../contexts/AlertContext";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 function LoginPage() {
     const [loading, setLoading] = useState(false);
@@ -44,9 +45,14 @@ function LoginPage() {
     const navigate = useNavigate();
     const [open, setOpen] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
+    const [showPassword, setShowPassword] = useState(false);
 
-    const {UserLogIn} = useUserContext();
+    const { UserLogIn } = useUserContext();
     const { showAlert } = useAlert();
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
 
     const handleResetPasswordDialog = () => {
         setResetPasswordDialog(true);
@@ -327,7 +333,7 @@ function LoginPage() {
                                             alignItems: "center",
                                         }}>
                                             <TextField
-                                                type="password"
+                                                type={showPassword ? 'text' : 'password'}
                                                 fullWidth
                                                 label="Password"
                                                 variant="outlined"
@@ -336,6 +342,15 @@ function LoginPage() {
                                                 onChange={formik.handleChange}
                                                 error={formik.touched.password && Boolean(formik.errors.password)}
                                                 helperText={formik.touched.password && formik.errors.password}
+                                                InputProps={{
+                                                    endAdornment: (
+                                                        <InputAdornment position="end">
+                                                            <IconButton onClick={togglePasswordVisibility}>
+                                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                            </IconButton>
+                                                        </InputAdornment>
+                                                    )
+                                                }}
                                             />
                                         </Box>
                                         <Collapse in={open}>
