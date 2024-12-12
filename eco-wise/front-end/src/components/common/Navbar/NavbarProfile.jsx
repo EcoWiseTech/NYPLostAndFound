@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Box, IconButton, List, ListItem, ListItemIcon, ListItemText, ListItemButton, Popover, Divider, Typography } from "@mui/material"
 import { Link, useNavigate } from "react-router-dom"
 import ProfilePicture from "./ProfilePicture";
@@ -11,28 +11,49 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import PersonIcon from '@mui/icons-material/Person';
 import SupportIcon from '@mui/icons-material/Support';
 import { enqueueSnackbar } from "notistack";
+import { useUserContext } from "../../../contexts/UserContext";
+import SignOutApi from "../../../api/auth/SignOutApi";
 
 export function NavbarProfile() {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
     const navigate = useNavigate()
+    const {user, accessToken, UserLogOut} = useUserContext();
 
     function handlePopoverOpen(event) {
         setAnchorEl(event.currentTarget);
         setIsPopoverOpen(true);
     }
 
+    useEffect(() => {
+      console.log(user.UserAttributes)
+    }, [])
+    
+
     function handleLogout() {
+        SignOutApi(accessToken)
+            .then((res) => {
+                UserLogOut();
+                enqueueSnackbar("Successfully logged out", { variant: "success" })
+                navigate("/")
+            })
+            .catch((error) => {
+                console.error('Error when signing out:', error);
+                if (error.name === 'NotAuthorizedException') {
+                    console.error('Access token is invalid or expired:', error.message);
+                } else {
+                    console.error('Error fetching user data:', error.message);
+                }
+                enqueueSnackbar('Failed to Log out. Plesae try again.', { variant: "error" })
+            })
         setIsPopoverOpen(false)
-        localStorage.removeItem("token")
-        enqueueSnackbar("Successfully logged out", { variant: "success" })
-        navigate("/")
+
     }
 
     return (
         <>
             <IconButton onClick={(e) => handlePopoverOpen(e)}>
-                {/* <ProfilePicture user={user} /> */}
+                <ProfilePicture user={user} />
             </IconButton>
             <Popover
                 id={"userPopover"}
@@ -48,10 +69,10 @@ export function NavbarProfile() {
                 }}
             >
                 <Box sx={{ display: "flex", alignItems: "center", margin: "1rem" }}>
-                    {/* <ProfilePicture user={user} /> */}
+                    <ProfilePicture user={user} />
                     <Box marginLeft={"1rem"}>
-                        <Typography variant="subtitle1">username</Typography>
-                        <Typography variant="body2">email</Typography>
+                        <Typography variant="subtitle1">{user.UserAttributes.given_name}</Typography>
+                        <Typography variant="body2">{user.UserAttributes.email}</Typography>
                     </Box>
                 </Box>
                 <Divider sx={{ marginTop: "1rem" }} />

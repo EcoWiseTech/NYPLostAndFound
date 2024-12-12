@@ -7,6 +7,7 @@ import Footer from './components/common/Footer';
 import SideNav from './components/common/SideNav';
 import { Navbar } from './components/common/Navbar/Navbar';
 import { SnackbarProvider } from 'notistack';
+import { UserProvider } from './contexts/UserContext';
 
 
 const theme = createTheme({
@@ -31,23 +32,25 @@ function Root() {
     return (
         <>
             <ThemeProvider theme={theme}>
-                <SnackbarProvider maxSnack={3}>
-                    <CssBaseline />
-                    <AlertProvider>
-                        <Navbar />
-                        {/* <AlertComponenet /> */}
-                        <Box
-                            sx={{
-                                minHeight: "84vh",
-                            }}
-                        >
-                            <Outlet />
-                        </Box>
-                        <Footer />
-                        <ScrollRestoration />
+                <UserProvider>
+                    <SnackbarProvider maxSnack={3}>
+                        <CssBaseline />
+                        <AlertProvider>
+                            <Navbar />
+                            {/* <AlertComponenet /> */}
+                            <Box
+                                sx={{
+                                    minHeight: "84vh",
+                                }}
+                            >
+                                <Outlet />
+                            </Box>
+                            <Footer />
+                            <ScrollRestoration />
 
-                    </AlertProvider>
-                </SnackbarProvider>
+                        </AlertProvider>
+                    </SnackbarProvider>
+                </UserProvider>
             </ThemeProvider>
         </>
     );

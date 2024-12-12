@@ -8,10 +8,13 @@ import StoreIcon from '@mui/icons-material/Store';
 import LoginIcon from '@mui/icons-material/Login';
 import { Link } from "react-router-dom"
 import { NavbarProfile } from "./NavbarProfile";
+import { useUserContext } from "../../../contexts/UserContext";
 
 export function Navbar() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isAdminDrawerOpen, setIsAdminDrawerOpen] = useState(false)
+    const {IsLoggedIn} = useUserContext();
+    
 
     return (
         <>
@@ -27,10 +30,8 @@ export function Navbar() {
                                     <Button startIcon={<DirectionsCarIcon/>} LinkComponent={Link} variant="text" color="inherit" to="/weatherpage">weather</Button>
                                 </Stack>
                             </Box>
-                            {/* {!user && <Button LinkComponent={Link} variant="text" color="inherit" to="/login" startIcon={<LoginIcon/>}>Login</Button>}
-                            {user && <NavbarProfile />} */}
-                            {<Button LinkComponent={Link} variant="text" color="inherit" to="/login" startIcon={<LoginIcon/>}>Login</Button>}
-                            {<NavbarProfile />}
+                            {!IsLoggedIn() && <Button LinkComponent={Link} variant="text" color="inherit" to="/login" startIcon={<LoginIcon/>}>Login</Button>}
+                            {IsLoggedIn() && <NavbarProfile />}
                         </Toolbar>
                     </AppBar>
             }

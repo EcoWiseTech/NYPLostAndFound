@@ -26,6 +26,7 @@ import Collapse from '@mui/material/Collapse';
 import ResendAuthCodeApi from "../api/auth/ResendAuthCodeApi";
 import GetCurrentUserApi from "../api/auth/GetCurrentUserApi";
 import SendPasswordResetApi from "../api/auth/SendPasswordResetApi";
+import { useUserContext } from "../contexts/UserContext";
 
 function LoginPage() {
     const [loading, setLoading] = useState(false);
@@ -43,9 +44,7 @@ function LoginPage() {
     const [open, setOpen] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
 
-    useEffect(() => {
-        document.title = "Login - EnviroGo";
-    }, []);
+    const {UserLogIn} = useUserContext();
 
     const handleResetPasswordDialog = () => {
         setResetPasswordDialog(true);
@@ -142,16 +141,14 @@ function LoginPage() {
         SignInApi(email, password)
             .then((tokens) => {
                 console.log('Tokens received:', tokens);
-                // Store tokens in localStorage or secure storage
-                localStorage.setItem('accessToken', tokens.accessToken);
-                localStorage.setItem('idToken', tokens.idToken);
-                localStorage.setItem('refreshToken', tokens.refreshToken);
 
                 // GetUserApi to fetch user details
                 GetCurrentUserApi(tokens.accessToken)
                     .then((res) => {
                         console.log('user data fetched', res)
+                        UserLogIn(res, tokens.accessToken, tokens.idToken, tokens.refreshToken);
                         enqueueSnackbar('Log In Successfull.', { variant: 'success' })
+                        navigate('/')
                     })
                     .catch((error) => {
                         console.error('Error when fetching data:', error);
