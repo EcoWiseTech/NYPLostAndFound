@@ -82,7 +82,7 @@ export function NavbarProfile() {
                             <ListItemText primary={"My Profile"} />
                         </ListItemButton>
                     </ListItem>
-                    <ListItem key={"Wishlist"} disablePadding>
+                    {/* <ListItem key={"Wishlist"} disablePadding>
                         <ListItemButton component={Link} to="/wishlist" onClick={() => setIsPopoverOpen(false)}>
                             <ListItemIcon><FavoriteBorderOutlinedIcon /></ListItemIcon>
                             <ListItemText primary={"Wishlist"} />
@@ -99,7 +99,7 @@ export function NavbarProfile() {
                             <ListItemIcon><SupportIcon /></ListItemIcon>
                             <ListItemText primary={"Support"} />
                         </ListItemButton>
-                    </ListItem>
+                    </ListItem> */}
                     <ListItem key={"Logout"} disablePadding>
                         <ListItemButton onClick={() => handleLogout()}>
                             <ListItemIcon><LogoutIcon /></ListItemIcon>

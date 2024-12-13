@@ -17,6 +17,7 @@ async function GetCurrentUserApi(token) {
 
     // Send the request and wait for the response
     const data = await cognitoClient.send(command);
+    console.log('userdata', data)
     return data; // Return the user data
   } catch (error) {
     console.error('Error fetching user data:', error);

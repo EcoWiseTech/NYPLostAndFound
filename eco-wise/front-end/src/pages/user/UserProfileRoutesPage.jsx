@@ -53,10 +53,10 @@ function UserProfileRoutesPage() {
                                         <ListItemText primary={"Account Overview"} />
                                     </ListItemButton>
                                 </ListItem>
-                                <ListItem key={"Logins & 2FA"} disablePadding>
+                                <ListItem key={"Phone & 2FA"} disablePadding>
                                     <ListItemButton component={Link} to="/profile/mfa" selected={(location.pathname == "/profile/mfa")}>
                                         <ListItemIcon><KeyIcon /></ListItemIcon>
-                                        <ListItemText primary={"Logins & 2FA"} />
+                                        <ListItemText primary={"Phone & 2FA"} />
                                     </ListItemButton>
                                 </ListItem>
                                 {/* <ListItem key={"Driver Information"} disablePadding>
