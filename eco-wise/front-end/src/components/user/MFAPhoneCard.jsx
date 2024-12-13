@@ -1,4 +1,4 @@
-import {  Step, Stepper, StepLabel, Box, Card, CardContent,  Typography, Stack, Grid, Divider, Alert } from '@mui/material'
+import { Step, Stepper, StepLabel, Box, Card, CardContent, Typography, Stack, Grid, Divider, Alert } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import LockIcon from '@mui/icons-material/Lock';
 import SecurityIcon from '@mui/icons-material/Security';
@@ -103,8 +103,7 @@ function MFAPhoneCard(props) {
                                 fontSize: { xs: '0.85rem', sm: '1rem', md: '1.1rem' }
                             }}
                         >
-                            {/* Render this paragraph only if not on mobile */}
-                            {!isMobile && "After enabling 2FA, you will be required to enter a unique code that is sent to your messages."}
+                            To enable 2FA, You need a <b>verified</b>  phone number
                         </Typography>
                         <Typography
                             variant="body1"
@@ -115,7 +114,8 @@ function MFAPhoneCard(props) {
                                 fontSize: { xs: '0.85rem', sm: '1rem', md: '1.1rem' }
                             }}
                         >
-                            This code will be required in addition to your password to log in to your account. By enabling 2FA, you protect your account from unauthorized access, providing peace of mind.
+                            {/* Render this paragraph only if not on mobile */}
+                            {!isMobile && "After you log in with email/password, you will be required to enter a unique code sent to your messages. "}
                         </Typography>
 
                         {/* Stepper for SMS-based 2FA steps */}

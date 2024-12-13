@@ -1,23 +1,50 @@
-import {InitiateAuthCommand } from "@aws-sdk/client-cognito-identity-provider"; // Import SDK v3 components
+import { InitiateAuthCommand, RespondToAuthChallengeCommand } from "@aws-sdk/client-cognito-identity-provider"; // Import SDK v3 components
 import cognitoClient from "./AwsCognitoInit";
 
-async function SignInApi(email, password) {
+async function SignInApi(email, password, mfaCode = null, session = null) {
   try {
-    // Define the parameters for the sign-in
-    const params = {
-      AuthFlow: process.env.REACT_APP_COGNITO_AUTH_FLOW,
-      ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-      AuthParameters: {
-        USERNAME: email,
-        PASSWORD: password,
-      },
-    };
+    let params;
+    let command;
+    // initial sign in
+    if (!mfaCode) {
+      params = {
+        AuthFlow: process.env.REACT_APP_COGNITO_AUTH_FLOW,
+        ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
+        AuthParameters: {
+          USERNAME: email,
+          PASSWORD: password,
+        },
+      };
 
-    // Create the command using the provided parameters
-    const command = new InitiateAuthCommand(params);
+      command = new InitiateAuthCommand(params);
 
-    // Send the sign-in request and wait for the response
+      // Send the sign-in request and wait for the response
+      const response = await cognitoClient.send(command);
+    }
+    // User has input mfa code
+    else {
+      params = {
+        ChallengeName: process.env.REACT_APP_COGNITO_SMS_MFA_CHALLENGE,
+        ClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
+        ChallengeResponses: {
+          USERNAME: email,
+          SMS_MFA_CODE: mfaCode,
+        },
+        Session: session, // Use the session returned from the initial sign-in
+      };
+      command = new RespondToAuthChallengeCommand(params);
+    }
+
     const response = await cognitoClient.send(command);
+
+    // Handle MFA challenge
+    if (response.ChallengeName === "SMS_MFA") {
+      // Return the session and challenge for MFA verification
+      return {
+        challengeName: response.ChallengeName,
+        session: response.Session,
+      };
+    }
 
     // Extract tokens from response
     const { IdToken, AccessToken, RefreshToken } = response.AuthenticationResult;
@@ -28,7 +55,7 @@ async function SignInApi(email, password) {
       refreshToken: RefreshToken,
     };
   } catch (error) {
-    throw error; // Rethrow error to be handled by the calling function
+    throw error; 
   }
 }
 

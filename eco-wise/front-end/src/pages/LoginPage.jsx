@@ -7,6 +7,7 @@ import AddIcon from '@mui/icons-material/Add';
 import HelpIcon from '@mui/icons-material/Help';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import LockResetIcon from '@mui/icons-material/LockReset';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import CloseIcon from '@mui/icons-material/Close';
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -46,6 +47,9 @@ function LoginPage() {
     const [open, setOpen] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
     const [showPassword, setShowPassword] = useState(false);
+    const [mfaCode, setMfaCode] = useState('');
+    const [session, setSession] = useState(null);
+    const [isMfaRequired, setIsMfaRequired] = useState(false);
 
     const { UserLogIn } = useUserContext();
     const { showAlert } = useAlert();
@@ -146,48 +150,56 @@ function LoginPage() {
     // });
 
     const handleSignIn = (email, password) => {
-        SignInApi(email, password)
-            .then((tokens) => {
-                console.log('Tokens received:', tokens);
+        setLoading(true);
+        console.log("email", email)
+        SignInApi(email, password, isMfaRequired ? mfaCode : null, session)
+            .then((response) => {
+                if (response.challengeName === 'SMS_MFA') {
+                    // MFA challenge triggered
+                    setSession(response.session);
+                    setIsMfaRequired(true);
+                    showAlert('info', 'MFA required. Please enter the code sent to your phone.');
+                } else {
+                    // Successfully signed in
+                    const { accessToken, idToken, refreshToken } = response;
 
-                // GetUserApi to fetch user details
-                GetCurrentUserApi(tokens.accessToken)
-                    .then((res) => {
-                        console.log('user data fetched', res)
-                        UserLogIn(res, tokens.accessToken, tokens.idToken, tokens.refreshToken);
-                        showAlert('success', 'Log in successful')
-                        navigate('/')
-                    })
-                    .catch((error) => {
-                        console.error('Error when fetching data:', error);
-                        if (error.name === 'NotAuthorizedException') {
-                            console.error('Access token is invalid or expired:', error.message);
-                        } else if (error.name === 'InvalidParameterException') {
-                            console.error('Access token is missing or malformed:', error.message);
-                        } else {
-                            console.error('Error fetching user data:', error.message);
-                        }
-                        enqueueSnackbar('Failed to fetch user data. Plesae log in again.', { varient: "error" })
-                    })
-                // Redirect to the desired page
-                // navigate('/dashboard');
-                setLoading(false)
+                    // Fetch user details
+                    GetCurrentUserApi(accessToken)
+                        .then((user) => {
+                            console.log('User data fetched:', user);
+                            UserLogIn(user, accessToken, idToken, refreshToken); // Handle successful login
+                            showAlert('success', 'Log in successful');
+                            navigate('/'); // Redirect to home page
+                        })
+                        .catch((error) => {
+                            console.error('Error when fetching user data:', error);
+                            enqueueSnackbar('Failed to fetch user data. Please log in again.', { variant: 'error' });
+                        });
+                }
             })
             .catch((error) => {
-                console.error('Error during sign-in:', error.name);
+                console.error('Error during sign-in:', error);
                 if (error.name === 'NotAuthorizedException') {
-                    setErrorMessage('Incorrect username or password.')
+                    if (error.message == "Invalid session for the user, session is expired.") {
+                        showAlert('error', 'MFA code has expired, please try again.')
+                        setIsMfaRequired(false);
+                        setMfaCode("");
+                        setSession("");
+                    }
+                    setErrorMessage('Incorrect username, password.');
                 } else if (error.name === 'UserNotFoundException') {
-                    setErrorMessage('User Does not exist.')
+                    setErrorMessage('User does not exist.');
                 } else if (error.name === 'UserNotConfirmedException') {
-                    setErrorMessage('User Account has not been confirmed. Please check your email.')
+                    setErrorMessage('User account has not been confirmed. Please check your email.');
+                } else if (error.name === 'CodeMismatchException') {
+                    setErrorMessage('Invalid MFA code. Please try again.');
                 } else {
-                    setErrorMessage('An error occurred during sign-in. Please try again later.')
+                    setErrorMessage('An error occurred during sign-in. Please try again later.');
                 }
                 setOpen(true);
-                setLoading(false)
-            });
-    }
+            })
+            .finally(() => setLoading(false));
+    };
 
     const formik = useFormik({
         initialValues: {
@@ -353,6 +365,24 @@ function LoginPage() {
                                                 }}
                                             />
                                         </Box>
+                                        {isMfaRequired && (
+                                            <Box mb={2}>
+                                                <TextField
+                                                    type="number"
+                                                    label="MFA Code"
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <VpnKeyIcon color="primary" sx={{ marginRight: 1 }} />
+                                                        ),
+                                                    }}
+                                                    value={mfaCode}
+                                                    onChange={(e) => setMfaCode(e.target.value)}
+                                                    required
+                                                />
+                                            </Box>
+                                        )}
                                         <Collapse in={open}>
                                             <Alert
                                                 severity="error"
