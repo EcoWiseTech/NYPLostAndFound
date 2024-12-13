@@ -1,10 +1,10 @@
 import React from 'react'
-import UserProfilePage from './pages/user/UserProfilePage'
+import UserProfileRoutesPage from './pages/user/UserProfileRoutesPage'
 
 const ProtectedRoutes = [
     {
-        path: "profile",
-        element: <UserProfilePage />,
+        path: "profile/*",
+        element: <UserProfileRoutesPage />,
     },
 ]
 

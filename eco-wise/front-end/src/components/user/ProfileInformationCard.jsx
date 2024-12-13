@@ -5,14 +5,10 @@ import FileUploadIcon from '@mui/icons-material/UploadFile';
 import BadgeIcon from '@mui/icons-material/Badge';
 import EditIcon from '@mui/icons-material/Edit';
 import CardTitle from '../common/CardTitle';
-import PhoneInput from 'react-phone-number-input';
-import 'react-phone-number-input/style.css';
-import '../../css/PhoneInput.css'
 
 const ProfileInformationCard = ({
   formData,
   handleInputChange,
-  handlePhoneChange,
   handleFileChange,
   handleEditProfile,
   errors,
@@ -49,19 +45,6 @@ const ProfileInformationCard = ({
                 error={!!errors.given_name}
                 helperText={errors.given_name}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <PhoneInput
-                defaultCountry="SG"
-                value={formData.phone_number}
-                onChange={handlePhoneChange}
-                placeholder="Enter phone number"
-              />
-              {errors.phone_number && (
-                <p style={{ color: '#d32f2f', fontSize: '0.75rem', marginLeft: '14px' }}>
-                  {errors.phone_number}
-                </p>
-              )}
             </Grid>
             <Grid item xs={12}>
               <TextField

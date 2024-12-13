@@ -19,7 +19,7 @@ export function NavbarProfile() {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
     const navigate = useNavigate()
-    const { user, accessToken, refreshToken, UserLogOut } = useUserContext();
+    const { user, accessToken, refreshToken, UserLogOut, SessionRefreshError } = useUserContext();
     const { showAlert } = useAlert();
 
     function handlePopoverOpen(event) {
@@ -28,6 +28,7 @@ export function NavbarProfile() {
     }
 
     function handleLogout() {
+        navigate('/')
         SignOutApi(accessToken, refreshToken)
             .then((res) => {
                 UserLogOut();
@@ -35,11 +36,14 @@ export function NavbarProfile() {
             .catch((error) => {
                 console.error('Error when signing out:', error);
                 if (error.name === 'NotAuthorizedException') {
-                    console.error('Access token is invalid or expired:', error.message);
+                    if (error.message == "Refresh Token has expired" || error.message.includes('Refresh'))
+                    {
+                        SessionRefreshError()
+                    }
                 } else {
                     console.error('Error fetching user data:', error.message);
+                    enqueueSnackbar('Failed to Log out. Plesae try again.', { variant: "error" })
                 }
-                enqueueSnackbar('Failed to Log out. Plesae try again.', { variant: "error" })
             })
         setIsPopoverOpen(false)
 

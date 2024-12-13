@@ -81,50 +81,70 @@ export const UserProvider = (props) => {
         showAlert('success', 'Log out successful')
     }
 
+    const SessionRefreshError = () => {
+        navigate('/login')
+        UserLogOut();
+        showAlert('warning', 'Your session has expired. Please log in again.')
+    }
 
-    const RefreshUser = async () => {
-        // refresh token is reused
-        // Get new access and ID tokens
-        RefreshTokenApi(refreshToken)
+    const SetNewTokens = (inputAccessToken, inputIdToken) => {
+        localStorage.setItem('accessToken', inputAccessToken);
+        localStorage.setItem('idToken', inputIdToken);
+        setAccessToken(inputAccessToken);
+        setIdToken(inputIdToken);
+        console.log('new tokens set')
+    }
+
+    const RefreshUser = async (retryCount = 0) => {
+        const MAX_RETRIES = 2;
+
+        // Fetch user data and store it in context 
+        GetCurrentUserApi(localStorage.getItem('accessToken'))
             .then((res) => {
-                console.log('resdata', res)
-                localStorage.setItem('accessToken', res.accessToken);
-                localStorage.setItem('idToken', res.idToken);
-                setAccessToken(res.accessToken);
-                setIdToken(res.idToken);
-                // Fetch user data and store it in context 
-                GetCurrentUserApi(res.accessToken)
-                    .then((res) => {
-                        let formattedUserObject = res;
-                        let formatedUserAttributes = formatUserObject(res);
-                        formattedUserObject.UserAttributes = formatedUserAttributes;
+                let formattedUserObject = res;
+                let formatedUserAttributes = formatUserObject(res);
+                formattedUserObject.UserAttributes = formatedUserAttributes;
 
-                        localStorage.setItem('user', JSON.stringify(formattedUserObject));
-                        setUser(formattedUserObject)
-                        console.log('fetched new user data')
-                    })
-                    .catch((error) => {
-                        console.error('Error when fetching data:', error);
-                        if (error.name === 'NotAuthorizedException') {
-                            console.warn('Access token is invalid or expired:', error.message);
-                        } else if (error.name === 'InvalidParameterException') {
-                            console.error('Access token is missing or malformed:', error.message);
-                        } else {
-                            console.error('Error fetching user data:', error.message);
-                        }
-                        enqueueSnackbar('Failed to fetch user data. Plesae log in again.', { variant: "error" })
-                    })
+                localStorage.setItem('user', JSON.stringify(formattedUserObject));
+                setUser(formattedUserObject)
+                console.log('fetched new user data')
             })
             .catch((error) => {
-                if (error.name === 'InvalidRefreshTokenException') {
-                    console.error('Refresh token is invalid or expired. Please log in again.');
-                    UserLogOut();
-                    showAlert('warning', 'Your session has expired. Please log in again.')
-                    navigate('/login')
+                console.error('Error when fetching data:', error);
+                if (error.name === 'NotAuthorizedException') {
+                    console.warn('Access token is invalid or expired, attempting to refresh token...', error.message);
+                    // refresh token is reused
+                    // Get new access and ID tokens
+                    if (retryCount < MAX_RETRIES) {
+                        RefreshTokenApi(refreshToken)
+                            .then((res) => {
+                                console.log('resdata', res)
+                                localStorage.setItem('accessToken', res.accessToken);
+                                localStorage.setItem('idToken', res.idToken);
+                                setAccessToken(res.accessToken);
+                                setIdToken(res.idToken);
+                                RefreshUser(retryCount = retryCount + 1);
+                            })
+                            .catch((error) => {
+                                if (error.name === 'NotAuthorizedException') {
+                                    if (error.message === 'Refresh Token has expired') {
+                                        console.error('Refresh token is invalid or expired. Please log in again.');
+                                        SessionRefreshError();
+                                    }
+
+                                } else {
+                                    console.error('Error refreshing tokens:', error);
+                                }
+                            })
+                    }
+                } else if (error.name === 'InvalidParameterException') {
+                    console.error('Access token is missing or malformed:', error.message);
                 } else {
-                    console.error('Error refreshing tokens:', error);
+                    console.error('Error fetching user data:', error.message);
+                    enqueueSnackbar('Failed to fetch user data. Plesae log in again.', { variant: "error" })
                 }
             })
+
     }
 
     const IsLoggedIn = () => {
@@ -145,7 +165,9 @@ export const UserProvider = (props) => {
                 UserLogIn,
                 UserLogOut,
                 IsLoggedIn,
-                RefreshUser
+                RefreshUser,
+                SessionRefreshError,
+                SetNewTokens,
             }}
         >
             {isReady ? children : null}

@@ -30,22 +30,13 @@ import ProfileInformationCard from '../../components/user/ProfileInformationCard
 const schema = yup.object({
     given_name: yup.string().required("Name is required"),
     email: yup.string().email("Invalid email address").required("Email is required"),
-    phone_number: yup
-        .string()
-        // .required("Phone number is requred")
-        .test(
-            'is-valid-phone',
-            'Phone number is invalid',
-            (value) => !value || isValidPhoneNumber(value)
-        ),
 }).required();
 
 function ViewProfilePage() {
-    const { user, accessToken, refreshToken, RefreshUser } = useUserContext();
+    const { user, accessToken, refreshToken, RefreshUser, SessionRefreshError } = useUserContext();
     const [formData, setFormData] = useState({
         given_name: '',
         email: '',
-        phone_number: '',
         birthdate: '',
     });
     const [errors, setErrors] = useState({});
@@ -61,7 +52,6 @@ function ViewProfilePage() {
             setFormData({
                 given_name: user.UserAttributes.given_name || '',
                 email: user.UserAttributes.email || '',
-                phone_number: user.UserAttributes.phone_number || '',
                 birthdate: user.UserAttributes.birthdate || '',
             });
         }
@@ -91,14 +81,6 @@ function ViewProfilePage() {
         setIsModified(true);
     };
 
-    const handlePhoneChange = (value) => {
-        setFormData((prevData) => ({
-            ...prevData,
-            phone_number: value,
-        }));
-        setIsModified(true);
-    };
-
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -117,7 +99,6 @@ function ViewProfilePage() {
         const requestObj = {
             email: formData.email,
             given_name: formData.given_name,
-            phone_number: formData.phone_number ? formData.phone_number : "",
             birthdate: formData.birthdate ? formData.birthdate : "",
         };
         UpdateUserApi({ accessToken, refreshToken, attributes: requestObj })
@@ -128,9 +109,11 @@ function ViewProfilePage() {
             })
             .catch((error) => {
                 console.error("Error updating user:", error);
-                if (error.name === 'InvalidRefreshTokenException') {
-                    showAlert('warning', 'Session has expired. Please log in again.');
-                    navigate('/login');
+                if (error.name === 'NotAuthorizedException') {
+                    if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh'))
+                    {
+                        SessionRefreshError();
+                    }
                 } else {
                     showAlert('error', 'Unexpected error occurred. Please try again.');
                 }
@@ -145,7 +128,6 @@ function ViewProfilePage() {
             <ProfileInformationCard
                 formData={formData}
                 handleInputChange={handleInputChange}
-                handlePhoneChange={handlePhoneChange}
                 handleFileChange={handleFileChange}
                 handleEditProfile={handleEditProfile}
                 errors={errors}

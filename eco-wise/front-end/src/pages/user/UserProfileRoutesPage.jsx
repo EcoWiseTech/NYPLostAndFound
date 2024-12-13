@@ -14,9 +14,10 @@ import PublicIcon from '@mui/icons-material/Public';
 import { useSnackbar } from 'notistack'
 import { useUserContext } from '../../contexts/UserContext';
 import ViewProfilePage from './ViewProfilePage';
+import UserMFAPage from './UserMFAPage';
 
 export const ProfileContext = createContext(null)
-function UserProfilePage() {
+function UserProfileRoutesPage() {
     const {user} = useUserContext();
     const location = useLocation()
     const [profile, setProfile] = useState({
@@ -52,7 +53,13 @@ function UserProfilePage() {
                                         <ListItemText primary={"Account Overview"} />
                                     </ListItemButton>
                                 </ListItem>
-                                <ListItem key={"Driver Information"} disablePadding>
+                                <ListItem key={"Logins & 2FA"} disablePadding>
+                                    <ListItemButton component={Link} to="/profile/mfa" selected={(location.pathname == "/profile/mfa")}>
+                                        <ListItemIcon><KeyIcon /></ListItemIcon>
+                                        <ListItemText primary={"Logins & 2FA"} />
+                                    </ListItemButton>
+                                </ListItem>
+                                {/* <ListItem key={"Driver Information"} disablePadding>
                                     <ListItemButton component={Link} to="/profile/driverInformation" selected={(location.pathname == "/profile/driverInformation")}>
                                         <ListItemIcon><DriveEtaIcon /></ListItemIcon>
                                         <ListItemText primary={"Driver Information"} />
@@ -62,12 +69,6 @@ function UserProfilePage() {
                                     <ListItemButton component={Link} to="/profile/wallet" selected={(location.pathname == "/profile/wallet")}>
                                         <ListItemIcon><AccountBalanceWalletIcon /></ListItemIcon>
                                         <ListItemText primary={"Wallet"} />
-                                    </ListItemButton>
-                                </ListItem>
-                                <ListItem key={"Logins & 2FA"} disablePadding>
-                                    <ListItemButton component={Link} to="/profile/logins" selected={(location.pathname == "/profile/logins")}>
-                                        <ListItemIcon><KeyIcon /></ListItemIcon>
-                                        <ListItemText primary={"Logins & 2FA"} />
                                     </ListItemButton>
                                 </ListItem>
                                 <ListItem key={"Transaction History"} disablePadding>
@@ -81,17 +82,17 @@ function UserProfilePage() {
                                         <ListItemIcon><ReceiptLongIcon /></ListItemIcon>
                                         <ListItemText primary={"Orders History"} />
                                     </ListItemButton>
-                                </ListItem>
+                                </ListItem> */}
                             </List>
                         </Card>
                     </Grid>
                     <Grid item xs={12} md={9}>
-                        <ProfileContext.Provider value={{ profile: profile, setProfile: setProfile }}>
                             <Routes>
                                 <Route path="/" element={<ViewProfilePage />} />
                             </Routes>
-                        </ProfileContext.Provider>
-
+                            <Routes>
+                                <Route path="/mfa" element={<UserMFAPage />} />
+                            </Routes>
                     </Grid>
                 </Grid>
             </Container>
@@ -100,4 +101,4 @@ function UserProfilePage() {
     )
 }
 
-export default UserProfilePage
+export default UserProfileRoutesPage
