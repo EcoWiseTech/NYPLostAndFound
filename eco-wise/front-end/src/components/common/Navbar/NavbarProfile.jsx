@@ -36,8 +36,7 @@ export function NavbarProfile() {
             .catch((error) => {
                 console.error('Error when signing out:', error);
                 if (error.name === 'NotAuthorizedException') {
-                    if (error.message == "Refresh Token has expired" || error.message.includes('Refresh'))
-                    {
+                    if (error.message == "Refresh Token has expired" || error.message.includes('Refresh')) {
                         SessionRefreshError()
                     }
                 } else {
@@ -55,6 +54,7 @@ export function NavbarProfile() {
                 <ProfilePicture user={user} />
             </IconButton>
             <Popover
+                disableScrollLock
                 id={"userPopover"}
                 open={isPopoverOpen}
                 anchorEl={anchorEl}

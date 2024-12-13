@@ -81,8 +81,8 @@ export const UserProvider = (props) => {
         showAlert('success', 'Log out successful')
     }
 
-    const SessionRefreshError = () => {
-        navigate('/login')
+    const SessionRefreshError = async () => {
+        await navigate('/login')
         UserLogOut();
         showAlert('warning', 'Your session has expired. Please log in again.')
     }
