@@ -13,7 +13,7 @@ function LogInRightCard(props) {
             <Box
                 component="img"
                 src="/images/loginPage.webp"
-                alt="Descriptive text"
+                alt="EcoWise Register image"
                 sx={{ maxWidth: "100%", maxHeight: "100%", objectFit: "cover" }}
             />
             <CardContent>
