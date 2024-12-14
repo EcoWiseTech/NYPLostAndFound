@@ -34,6 +34,7 @@ function LoginPage() {
     const { showAlert } = useAlert();
 
     const togglePasswordVisibility = () => {
+        console.log('test')
         setShowPassword(!showPassword);
     };
 
@@ -184,7 +185,7 @@ function LoginPage() {
                     <Grid item xs={12} sm={6} md={5} lg={4}>
                         <LogInLeftCard
                             formik={formik}
-                            togglePasswordVisbility={togglePasswordVisibility}
+                            togglePasswordVisibility={togglePasswordVisibility}
                             showPassword={showPassword}
                             mfaCode={mfaCode}
                             setMfaCode={setMfaCode}

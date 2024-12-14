@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, Paper, Typography, Grid, List, ListItem, ListItemIcon, ListItemText, IconButton, InputAdornment, Divider } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
-import registerImage from '../media/images/registerPage.webp';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import * as yup from 'yup';
@@ -150,7 +149,7 @@ function RegisterPage() {
                 }}>
                 <Grid container>
                     <Grid item xs={12} md={6} sx={{
-                        backgroundImage: `url(${registerImage})`,
+                        backgroundImage: `url(/images/registerPage.webp)`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         display: 'flex',

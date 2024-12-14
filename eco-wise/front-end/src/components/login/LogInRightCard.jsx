@@ -1,6 +1,5 @@
 import { Box, Button, Card, CardContent, Typography, Divider } from "@mui/material"
 import HelpIcon from '@mui/icons-material/Help';
-import LoginImagePath from "../../media/images/loginPage.webp"
 import { Link } from "react-router-dom";
 import SmallCardTitle from "../common/SmallCardTitle";
 
@@ -13,7 +12,7 @@ function LogInRightCard(props) {
         <Card sx={{ margin: "auto" }}>
             <Box
                 component="img"
-                src={LoginImagePath}
+                src="/images/loginPage.webp"
                 alt="Descriptive text"
                 sx={{ maxWidth: "100%", maxHeight: "100%", objectFit: "cover" }}
             />
