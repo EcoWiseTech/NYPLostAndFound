@@ -5,8 +5,6 @@ import AddIcon from '@mui/icons-material/Add';
 import HelpIcon from '@mui/icons-material/Help';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import CloseIcon from '@mui/icons-material/Close';
-import GoogleIcon from '@mui/icons-material/Google';
-import FacebookIcon from '@mui/icons-material/Facebook';
 import { Link } from "react-router-dom";
 import CardTitle from "../../components/common/CardTitle";
 import SmallCardTitle from "../../components/common/SmallCardTitle";
@@ -17,6 +15,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useAlert } from "../../contexts/AlertContext";
 import GoogleSSOButton from "./GoogleSSOButton";
 import { useState } from "react";
+import FacebookSSOButton from "./FacebookSSOButton";
 
 function LogInLeftCard(props) {
     const {
@@ -35,24 +34,43 @@ function LogInLeftCard(props) {
     const { showAlert } = useAlert()
 
     const [googleLoading, setGoogleLoading] = useState(false)
+    const [facebookLoading, setFacebookLoading] = useState(false);
 
     const handleGoogleLogin = () => {
+        setGoogleLoading(true);
         // Construct the URL using environment variables
         const clientId = process.env.REACT_APP_COGNITO_CLIENT_ID;
-        const redirectUri = encodeURIComponent(process.env.REACT_APP_REDIRECT_URI); 
+        const redirectUri = encodeURIComponent(process.env.REACT_APP_REDIRECT_URI);
         const cognitoDomain = process.env.REACT_APP_COGNITO_OAUTH_DOMAIN;
         const identityProvider = "Google";
         const responseType = "token";
         const prompt = "select_account";
-      
+
         // Generate the URL
         const oauthUrl = `${cognitoDomain}/oauth2/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${redirectUri}&identity_provider=${identityProvider}&prompt=${prompt}`;
-      
+
         // Redirect to the constructed URL
         window.location.href = oauthUrl;
-      };
+    };
 
-      
+    const handleFacebookLogin = () => {
+        setFacebookLoading(true)
+        // Construct the URL using environment variables
+        const clientId = process.env.REACT_APP_COGNITO_CLIENT_ID;
+        const redirectUri = encodeURIComponent(process.env.REACT_APP_REDIRECT_URI);
+        const cognitoDomain = process.env.REACT_APP_COGNITO_OAUTH_DOMAIN;
+        const identityProvider = "Facebook";
+        const responseType = "token";
+        const prompt = "select_account";
+
+        // Generate the URL
+        const oauthUrl = `${cognitoDomain}/oauth2/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${redirectUri}&identity_provider=${identityProvider}&prompt=${prompt}`;
+
+        // Redirect to the constructed URL
+        window.location.href = oauthUrl;
+    };
+
+
     return (
         <Card sx={{ margin: "auto" }}>
 
@@ -146,6 +164,10 @@ function LogInLeftCard(props) {
                     <GoogleSSOButton
                         onClick={handleGoogleLogin}
                         loading={googleLoading}
+                    />
+                    <FacebookSSOButton
+                        onClick={handleFacebookLogin}
+                        loading={facebookLoading}
                     />
                 </Stack>
             </CardContent>

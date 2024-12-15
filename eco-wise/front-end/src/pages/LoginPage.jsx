@@ -40,7 +40,6 @@ function LoginPage() {
         const params = new URLSearchParams(hash);
         const idToken = params.get("id_token");
         const accessToken = params.get("access_token");
-        console.log("ID Token:", idToken, "Access Token:", accessToken);
 
         // Store tokens securely
         if (idToken && accessToken) {
@@ -219,7 +218,6 @@ function LoginPage() {
                             setMfaCode={setMfaCode}
                             errorMessage={errorMessage}
                             loading={loading}
-                            googleAuth={googleAuth}
                             handleResetPasswordDialog={handleResetPasswordDialog}
                             isMfaRequired={isMfaRequired}
                             open={open}

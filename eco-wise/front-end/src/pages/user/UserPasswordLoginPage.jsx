@@ -1,5 +1,5 @@
 import { Box, Button, Card, CardContent, Divider, Grid, Typography } from '@mui/material'
-import React from 'react'
+import React, { useState } from 'react'
 import CardTitle from '../../components/common/CardTitle'
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import UserSocialLoginCard from '../../components/user/UserSocialLoginCard';
@@ -13,6 +13,7 @@ function UserPasswordLoginPage() {
 
     const { user, RefreshUser } = useUserContext()
     const { showAlert } = useAlert()
+    const [loading, setLoading] = useState({ googleLoading: false, facebookLoading: false })
 
     const getFederatedIdentitySub = (userAttributes, provider) => {
         if (!userAttributes || !userAttributes.identities) {
@@ -30,14 +31,27 @@ function UserPasswordLoginPage() {
     };
 
     const unlinkGoogle = () => {
+        setLoading((prev) => ({
+            ...prev, 
+            googleLoading: true, 
+        }));
+
         const sub = getFederatedIdentitySub(user.UserAttributes, "Google")
         UnlinkUserSSOApi(sub, "Google")
             .then((res) => {
                 RefreshUser();
                 showAlert('success', 'Google Account has been unlinked')
+                setLoading((prev) => ({
+                    ...prev, 
+                    googleLoading: false, 
+                }));
             })
             .catch((error) => {
                 showAlert('error', 'An unexpected error occured, please try again.')
+                setLoading((prev) => ({
+                    ...prev, 
+                    googleLoading: false, 
+                }));
             })
     }
 
@@ -50,12 +64,57 @@ function UserPasswordLoginPage() {
             })
             .catch((error) => {
                 if (error.name == "InvalidParameterException" && error.message.includes('SourceUser is already linked to DestinationUser')) {
-                    return showAlert('error', 'Google Account has already been linked to another account.')
+                    return showAlert('warning', 'Google Account has already been linked to another account.')
                 }
                 if (error.name == "InvalidParameterException" && error.message.includes('Merging is not currently supported')) {
-                    return showAlert('error', 'Google Account already registered on EcoWise. Sign in with the google account and delete it first.')
+                    return showAlert('warning', 'Google Account already registered on EcoWise. Sign in with the google account and delete it first.')
                 }
                 showAlert('error', 'An unexpected error occured, please try again.')
+            })
+    }
+
+    const linkFacebook = (credentials) => {
+        LinkUserSSOApi(credentials.userID, "Facebook")
+            .then((res) => {
+                RefreshUser();
+                showAlert('success', 'Facebook Account has been linked')
+                setLoading((prev) => ({
+                    ...prev, 
+                    facebookLoading: false, 
+                }));
+            })
+            .catch((error) => {
+                if (error.name == "InvalidParameterException" && error.message.includes('SourceUser is already linked to DestinationUser')) {
+                    return showAlert('warning', 'Facebook Account has already been linked to another account.')
+                }
+                if (error.name == "InvalidParameterException" && error.message.includes('Merging is not currently supported')) {
+                    return showAlert('warning', 'Facebook Account already registered on EcoWise. Sign in with the Facebook account and delete it first.')
+                }
+                showAlert('error', 'An unexpected error occured, please try again.')
+            })
+    }
+
+    const unlinkFacebook = () => {
+        setLoading((prev) => ({
+            ...prev, 
+            facebookLoading: true, 
+        }));
+        const sub = getFederatedIdentitySub(user.UserAttributes, "Facebook")
+        UnlinkUserSSOApi(sub, "Facebook")
+            .then((res) => {
+                RefreshUser();
+                showAlert('success', 'Facebook Account has been unlinked')
+                setLoading((prev) => ({
+                    ...prev, 
+                    facebookLoading: false, 
+                }));
+            })
+            .catch((error) => {
+                showAlert('error', 'An unexpected error occured, please try again.')
+                setLoading((prev) => ({
+                    ...prev, 
+                    facebookLoading: false, 
+                }));
             })
     }
 
@@ -66,6 +125,10 @@ function UserPasswordLoginPage() {
             <UserSocialLoginCard
                 unlinkGoogle={unlinkGoogle}
                 linkGoogle={linkGoogle}
+                linkFacebook={linkFacebook}
+                unlinkFacebook={unlinkFacebook}
+                googleLoading={loading.googleLoading}
+                facebookLoading={loading.facebookLoading}
             />
         </>
     )

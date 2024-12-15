@@ -6,17 +6,20 @@ import { GoogleLogin } from '@react-oauth/google';
 import { useUserContext } from '../../contexts/UserContext';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import { useAlert } from '../../contexts/AlertContext';
-
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
+import LoadingButton from '@mui/lab/LoadingButton';
 
 function UserSocialLoginCard(props) {
     const {
         unlinkGoogle,
         linkGoogle,
         unlinkFacebook,
-        linkFacebook
+        linkFacebook,
+        facebookLoading,
+        googleLoading,
     } = props;
     const { user } = useUserContext()
-    const {showAlert} = useAlert()
+    const { showAlert } = useAlert()
 
     useEffect(() => {
 
@@ -83,9 +86,9 @@ function UserSocialLoginCard(props) {
                                         </Grid>
                                         <Grid xs={3} md={4} lg={5} item>
                                             <Box display={"flex"} justifyContent="right">
-                                                <Button onClick={unlinkGoogle} variant='contained' color='info' >
+                                                <LoadingButton loading={googleLoading} onClick={unlinkGoogle} variant='contained' color='info' >
                                                     Unlink
-                                                </Button>
+                                                </LoadingButton>
                                             </Box>
                                         </Grid>
                                     </Grid>
@@ -136,7 +139,7 @@ function UserSocialLoginCard(props) {
                                 backgroundColor: "#f9f9f9",
                             }}
                         >
-                            {shouldRender("Google") ?
+                            {shouldRender("Facebook") ?
                                 <Box sx={{ width: "100%" }}>
                                     <Grid container spacing={1} alignItems="center">
                                         <Grid xs={2} md={2} lg={1} item>
@@ -151,9 +154,10 @@ function UserSocialLoginCard(props) {
                                         </Grid>
                                         <Grid xs={3} md={4} lg={5} item>
                                             <Box display={"flex"} justifyContent="right">
-                                                <Button variant='contained' color='info' >
+                                                
+                                                <LoadingButton loading={facebookLoading} onClick={unlinkFacebook} variant='contained' color='info' >
                                                     Unlink
-                                                </Button>
+                                                </LoadingButton>
                                             </Box>
                                         </Grid>
                                     </Grid>
@@ -173,17 +177,37 @@ function UserSocialLoginCard(props) {
                                         </Grid>
                                         <Grid xs={12} md={12} lg={6} item>
                                             <Box display={"flex"} justifyContent="right">
-                                                <GoogleLogin
-                                                    onSuccess={(response) => console.log(response)}
-                                                    onFailure={(error) => console.error(error)}
-                                                    theme='outline'
-                                                    text='continue_with'
-                                                    size='medium'
+                                                <FacebookLogin
+                                                    appId="1102481824997025"
+                                                    autoLoad={true}
+                                                    fields="name,email"
+                                                    callback={(response) => linkFacebook(response)}
+                                                    render={renderProps => (
+                                                        <Button
+                                                            onClick={renderProps.onClick}
+                                                            variant="contained"
+                                                            startIcon={<FacebookIcon sx={{ fontSize: "20px" }} />}
+                                                            sx={{
+                                                                backgroundColor: "#4267B2",
+                                                                color: "#FFFFFF",
+                                                                textTransform: "none",
+                                                                padding: "6px 14px",
+                                                                fontSize: "13px",
+                                                                "&:hover": {
+                                                                    backgroundColor: "#365899",
+                                                                },
+                                                            }}
+                                                        >
+                                                            Continue with Facebook
+                                                        </Button>
+                                                    )}
                                                 />
                                             </Box>
+
                                         </Grid>
                                     </Grid>
                                 </Box>
+
                             }
                         </Box>
                     </Grid>
