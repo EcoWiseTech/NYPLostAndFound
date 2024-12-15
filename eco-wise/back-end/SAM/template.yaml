@@ -1,10 +1,10 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   SAM template for mass resources ( Lambda + api gateway + custom events)
 
 Globals:
-# Global settings configuration
+  # Global settings configuration
   Function:
     Timeout: 60
   Api:
@@ -15,9 +15,9 @@ Globals:
     # AllowCredentials: true  Uncomment only if you choose a specific origin instead of the * wildcard.
 
 Resources:
-# Lambda + api gateway resource + event triggers (eventbridge, customMessage)
+  # Lambda + api gateway resource + event triggers (eventbridge, customMessage)
   StoreWeatherApiFunction:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: StoreWeatherApiFunction/
       Policies:
@@ -35,7 +35,7 @@ Resources:
             Description: "Trigger the Lambda function every 30 minutes"
 
   StoreTemperatureApiFunction:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: StoreTemperatureApiFunction/
       Policies:
@@ -53,7 +53,7 @@ Resources:
             Description: "Trigger the Lambda function every 5 minutes"
 
   GetWeatherApiFunction:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: GetWeatherApiFunction/
       Policies:
@@ -65,14 +65,14 @@ Resources:
         - x86_64
       Events:
         GetWeatherApiResource:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /GetWeatherApi
             Method: get
             RestApiId: !Ref ServerlessRestApi
 
   GetTemperatureApiFunction:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: GetTemperatureApiFunction/
       Policies:
@@ -84,14 +84,14 @@ Resources:
         - x86_64
       Events:
         GetTemperatureApiResource:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /GetTemperatureApi
             Method: get
             RestApiId: !Ref ServerlessRestApi
 
   FormatPasswordResetEmailFunction:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: FormatPasswordResetEmailFunction/
       Handler: app.lambdaHandler
@@ -99,21 +99,68 @@ Resources:
       Architectures:
         - x86_64
 
+  AdminGetUserApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: AdminGetUserApiFunction/
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        AdminGetUserApiResource:
+          Type: Api
+          Properties:
+            Path: /admin/getuser
+            Method: post
+            RestApiId: !Ref ServerlessRestApi
+
+  AdminGetUserByIDPSubApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: AdminGetUserByIDPSubApiFunction/
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        AdminGetUserByIDPSubApiResource:
+          Type: Api
+          Properties:
+            Path: /admin/getuserbyidpsub
+            Method: post
+            RestApiId: !Ref ServerlessRestApi
+
+  SSOCheckEmailApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: SSOCheckEmailApiFunction/
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        SSOCheckEmailApiResource:
+          Type: Api
+          Properties:
+            Path: /SSO/checkEmail
+            Method: post
+            RestApiId: !Ref ServerlessRestApi
 
 Outputs:
   StoreWeatherApiFunction:
-      Description: "StoreWeatherApiFunction ARN"
-      Value: !GetAtt StoreWeatherApiFunction.Arn
+    Description: "StoreWeatherApiFunction ARN"
+    Value: !GetAtt StoreWeatherApiFunction.Arn
   StoreWeatherApiFunctionIamRole:
-      Description: "Implicit IAM Role created for StoreWeatherApiFunction"
-      Value: !GetAtt StoreWeatherApiFunctionRole.Arn
+    Description: "Implicit IAM Role created for StoreWeatherApiFunction"
+    Value: !GetAtt StoreWeatherApiFunctionRole.Arn
 
   StoreTemperatureApiFunction:
-      Description: "StoreTemperatureApiFunction ARN"
-      Value: !GetAtt StoreTemperatureApiFunction.Arn
+    Description: "StoreTemperatureApiFunction ARN"
+    Value: !GetAtt StoreTemperatureApiFunction.Arn
   StoreTemperatureApiFunctionIamRole:
-      Description: "Implicit IAM Role created for StoreTemperatureApiFunction"
-      Value: !GetAtt StoreTemperatureApiFunction.Arn
+    Description: "Implicit IAM Role created for StoreTemperatureApiFunction"
+    Value: !GetAtt StoreTemperatureApiFunction.Arn
 
   GetWeatherApiResource:
     Description: "API Gateway endpoint URL for Prod stage for GetWeatherApiFunction "
@@ -141,3 +188,33 @@ Outputs:
   FormatPasswordResetEmailFunctionIamRole:
     Description: "Implicit IAM Role created for FormatPasswordResetEmailFunction"
     Value: !GetAtt FormatPasswordResetEmailFunctionRole.Arn
+
+  AdminGetUserApiResource:
+    Description: "API Gateway endpoint URL for AdminGetUserApiFunction"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/admin/getuser/"
+  AdminGetUserApiFunction:
+    Description: "AdminGetUserApiFunction ARN"
+    Value: !GetAtt AdminGetUserApiFunction.Arn
+  AdminGetUserApiFunctionIamRole:
+    Description: "Implicit IAM Role created for AdminGetUserApiFunction"
+    Value: !GetAtt AdminGetUserApiFunctionRole.Arn
+
+  AdminGetUserByIDPSubApiResource:
+    Description: "API Gateway endpoint URL for AdminGetUserByIDPSubApiFunction"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/admin/getuserbyidpsub/"
+  AdminGetUserByIDPSubApiFunction:
+    Description: "AdminGetUserByIDPSubApiFunction ARN"
+    Value: !GetAtt AdminGetUserByIDPSubApiFunction.Arn
+  AdminGetUserByIDPSubrApiFunctionIamRole:
+    Description: "Implicit IAM Role created for AdminGetUserByIDPSubApiFunction"
+    Value: !GetAtt AdminGetUserByIDPSubApiFunction.Arn
+
+  SSOCheckEmailApiResource:
+    Description: "API Gateway endpoint URL for SSOCheckEmailApiFunction"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/SSO/checkEmail/"
+  SSOCheckEmailApiFunction:
+    Description: "SSOCheckEmailApiFunction ARN"
+    Value: !GetAtt SSOCheckEmailApiFunction.Arn
+  SSOCheckEmailApiFunctionIamRole:
+    Description: "Implicit IAM Role created for SSOCheckEmailApiFunction"
+    Value: !GetAtt SSOCheckEmailApiFunctionRole.Arn

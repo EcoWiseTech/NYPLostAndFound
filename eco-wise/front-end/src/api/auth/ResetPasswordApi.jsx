@@ -1,5 +1,5 @@
 import { ConfirmForgotPasswordCommand } from "@aws-sdk/client-cognito-identity-provider";
-import cognitoClient from "./AwsCognitoInit";
+import cognitoProviderClient from "./AwsCognitoInit";
 
 async function ResetPasswordApi(email, code, newPassword) {
     try {
@@ -12,7 +12,7 @@ async function ResetPasswordApi(email, code, newPassword) {
         };
 
         const command = new ConfirmForgotPasswordCommand(params);
-        const response = await cognitoClient.send(command);
+        const response = await cognitoProviderClient.send(command);
 
         return response; // Success response
     } catch (error) {

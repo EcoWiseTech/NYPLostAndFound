@@ -1,5 +1,5 @@
 import { UpdateUserAttributesCommand } from "@aws-sdk/client-cognito-identity-provider";
-import cognitoClient from "./AwsCognitoInit";
+import cognitoProviderClient from "./AwsCognitoInit";
 import RefreshTokenApi from "./RefreshTokenApi";
 
 async function UpdateUserApi({ accessToken, refreshToken, attributes }) {
@@ -37,7 +37,7 @@ const UpdateUserAction = async ({ accessToken, attributes }) => {
       };
   
       const command = new UpdateUserAttributesCommand(params);
-      const response = await cognitoClient.send(command);
+      const response = await cognitoProviderClient.send(command);
   
       return response;
 }

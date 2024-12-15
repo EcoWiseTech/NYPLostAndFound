@@ -14,6 +14,9 @@ import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useAlert } from "../../contexts/AlertContext";
+import GoogleSSOButton from "./GoogleSSOButton";
+import { useState } from "react";
 
 function LogInLeftCard(props) {
     const {
@@ -24,12 +27,32 @@ function LogInLeftCard(props) {
         setMfaCode,
         errorMessage,
         loading,
-        googleAuth,
         handleResetPasswordDialog,
         isMfaRequired,
         open,
         setOpen
     } = props
+    const { showAlert } = useAlert()
+
+    const [googleLoading, setGoogleLoading] = useState(false)
+
+    const handleGoogleLogin = () => {
+        // Construct the URL using environment variables
+        const clientId = process.env.REACT_APP_COGNITO_CLIENT_ID;
+        const redirectUri = encodeURIComponent(process.env.REACT_APP_REDIRECT_URI); 
+        const cognitoDomain = process.env.REACT_APP_COGNITO_OAUTH_DOMAIN;
+        const identityProvider = "Google";
+        const responseType = "token";
+        const prompt = "select_account";
+      
+        // Generate the URL
+        const oauthUrl = `${cognitoDomain}/oauth2/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${redirectUri}&identity_provider=${identityProvider}&prompt=${prompt}`;
+      
+        // Redirect to the constructed URL
+        window.location.href = oauthUrl;
+      };
+
+      
     return (
         <Card sx={{ margin: "auto" }}>
 
@@ -120,16 +143,10 @@ function LogInLeftCard(props) {
             <Divider />
             <CardContent>
                 <Stack spacing={1}>
-                    <Button variant="outlined" color="primary" startIcon={<GoogleIcon />} fullWidth onClick={googleAuth}>Login with Google</Button>
-                    <Button variant="outlined" color="primary" startIcon={<FacebookIcon />} fullWidth onClick={googleAuth}>Login with FaceBook</Button>
-                    {/* <FacebookLogin
-                                        appId={import.meta.env.VITE_FACEBOOK_APP_ID}
-                                        onSuccess={handleFacebookSuccess}
-                                        onFail={handleFacebookFailure}
-                                        render={({ onClick, logout }) => (
-                                            <Button variant="outlined" color="primary" startIcon={<FacebookIcon />} onClick={onClick} fullWidth>Login with Facebook</Button>
-                                        )}
-                                    /> */}
+                    <GoogleSSOButton
+                        onClick={handleGoogleLogin}
+                        loading={googleLoading}
+                    />
                 </Stack>
             </CardContent>
             <Divider />

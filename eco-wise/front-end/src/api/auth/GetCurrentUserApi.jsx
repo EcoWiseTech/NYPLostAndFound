@@ -1,5 +1,5 @@
 import { GetUserCommand } from "@aws-sdk/client-cognito-identity-provider"; // Import SDK v3 components
-import cognitoClient from "./AwsCognitoInit";
+import cognitoProviderClient from "./AwsCognitoInit";
 
 async function GetCurrentUserApi(token) {
   try {
@@ -16,7 +16,7 @@ async function GetCurrentUserApi(token) {
     const command = new GetUserCommand(params);
 
     // Send the request and wait for the response
-    const data = await cognitoClient.send(command);
+    const data = await cognitoProviderClient.send(command);
     console.log('userdata', data)
     return data; // Return the user data
   } catch (error) {

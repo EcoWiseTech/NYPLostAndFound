@@ -1,5 +1,5 @@
 import { InitiateAuthCommand, RespondToAuthChallengeCommand } from "@aws-sdk/client-cognito-identity-provider"; // Import SDK v3 components
-import cognitoClient from "./AwsCognitoInit";
+import cognitoProviderClient from "./AwsCognitoInit";
 
 async function SignInApi(email, password, mfaCode = null, session = null) {
   try {
@@ -19,7 +19,7 @@ async function SignInApi(email, password, mfaCode = null, session = null) {
       command = new InitiateAuthCommand(params);
 
       // Send the sign-in request and wait for the response
-      const response = await cognitoClient.send(command);
+      const response = await cognitoProviderClient.send(command);
     }
     // User has input mfa code
     else {
@@ -35,7 +35,7 @@ async function SignInApi(email, password, mfaCode = null, session = null) {
       command = new RespondToAuthChallengeCommand(params);
     }
 
-    const response = await cognitoClient.send(command);
+    const response = await cognitoProviderClient.send(command);
 
     // Handle MFA challenge
     if (response.ChallengeName === "SMS_MFA") {

@@ -8,6 +8,7 @@ import SideNav from './components/common/SideNav';
 import { Navbar } from './components/common/Navbar/Navbar';
 import { SnackbarProvider } from 'notistack';
 import { UserProvider } from './contexts/UserContext';
+import { GoogleSSOProvider } from './contexts/GoogleSSOContext';
 
 
 const theme = createTheme({
@@ -31,27 +32,29 @@ const theme = createTheme({
 function Root() {
     return (
         <>
-            <ThemeProvider theme={theme}>
-                <AlertProvider>
-                    <UserProvider>
-                        <SnackbarProvider maxSnack={3}>
-                            <CssBaseline />
-                            <Navbar />
-                            <AlertComponenet />
-                            <Box
-                                sx={{
-                                    minHeight: "84vh",
-                                }}
-                            >
-                                <Outlet />
-                            </Box>
-                            <Footer />
-                            <ScrollRestoration />
+            <GoogleSSOProvider>
+                <ThemeProvider theme={theme}>
+                    <AlertProvider>
+                        <UserProvider>
+                            <SnackbarProvider maxSnack={3}>
+                                <CssBaseline />
+                                <Navbar />
+                                <AlertComponenet />
+                                <Box
+                                    sx={{
+                                        minHeight: "84vh",
+                                    }}
+                                >
+                                    <Outlet />
+                                </Box>
+                                <Footer />
+                                <ScrollRestoration />
 
-                        </SnackbarProvider>
-                    </UserProvider>
-                </AlertProvider>
-            </ThemeProvider>
+                            </SnackbarProvider>
+                        </UserProvider>
+                    </AlertProvider>
+                </ThemeProvider>
+            </GoogleSSOProvider>
         </>
     );
 }

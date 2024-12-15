@@ -1,5 +1,5 @@
 import { GlobalSignOutCommand } from "@aws-sdk/client-cognito-identity-provider";
-import cognitoClient from "./AwsCognitoInit";
+import cognitoProviderClient from "./AwsCognitoInit";
 import RefreshTokenApi from "./RefreshTokenApi";
 
 async function SignOutApi(accessToken, refreshToken) {
@@ -28,7 +28,7 @@ const SignOutFunction = async (accessToken) => {
   };
 
   const command = new GlobalSignOutCommand(params);
-  const response = await cognitoClient.send(command);
+  const response = await cognitoProviderClient.send(command);
 
   console.log('Sign-out successful:', response);
   return response;

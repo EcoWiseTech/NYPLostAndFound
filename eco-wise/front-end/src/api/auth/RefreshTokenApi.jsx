@@ -1,5 +1,5 @@
 import { InitiateAuthCommand } from "@aws-sdk/client-cognito-identity-provider";
-import cognitoClient from "./AwsCognitoInit";
+import cognitoProviderClient from "./AwsCognitoInit";
 
 async function RefreshTokenApi(refreshToken) {
   try {
@@ -12,7 +12,7 @@ async function RefreshTokenApi(refreshToken) {
     };
 
     const command = new InitiateAuthCommand(params);
-    const response = await cognitoClient.send(command);
+    const response = await cognitoProviderClient.send(command);
     const { IdToken, AccessToken } = response.AuthenticationResult;
     return {
       idToken: IdToken,

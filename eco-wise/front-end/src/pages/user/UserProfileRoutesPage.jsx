@@ -15,10 +15,13 @@ import { useSnackbar } from 'notistack'
 import { useUserContext } from '../../contexts/UserContext';
 import ViewProfilePage from './ViewProfilePage';
 import UserMFAPage from './UserMFAPage';
+import PhoneLockedIcon from '@mui/icons-material/PhoneLocked';
+import UserPasswordLoginPage from './UserPasswordLoginPage';
+import NotFoundPage from '../NotFoundPage'
 
 export const ProfileContext = createContext(null)
 function UserProfileRoutesPage() {
-    const {user} = useUserContext();
+    const { user } = useUserContext();
     const location = useLocation()
     const [profile, setProfile] = useState({
         id: 1,
@@ -42,7 +45,7 @@ function UserProfileRoutesPage() {
 
     return (
         <>
-            <Container maxWidth="xl" sx={{ marginTop:"2rem", marginBottom: "1rem" }}>
+            <Container maxWidth="xl" sx={{ marginTop: "2rem", marginBottom: "1rem" }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={3}>
                         <Card>
@@ -55,8 +58,14 @@ function UserProfileRoutesPage() {
                                 </ListItem>
                                 <ListItem key={"Phone & 2FA"} disablePadding>
                                     <ListItemButton component={Link} to="/profile/mfa" selected={(location.pathname == "/profile/mfa")}>
-                                        <ListItemIcon><KeyIcon /></ListItemIcon>
+                                        <ListItemIcon><PhoneLockedIcon /></ListItemIcon>
                                         <ListItemText primary={"Phone & 2FA"} />
+                                    </ListItemButton>
+                                </ListItem>
+                                <ListItem key={"Password & login"} disablePadding>
+                                    <ListItemButton component={Link} to="/profile/passwordlogin" selected={(location.pathname == "/profile/passswordlogin")}>
+                                        <ListItemIcon><KeyIcon /></ListItemIcon>
+                                        <ListItemText primary={"Password & login"} />
                                     </ListItemButton>
                                 </ListItem>
                                 {/* <ListItem key={"Driver Information"} disablePadding>
@@ -87,12 +96,15 @@ function UserProfileRoutesPage() {
                         </Card>
                     </Grid>
                     <Grid item xs={12} md={9}>
-                            <Routes>
-                                <Route path="/" element={<ViewProfilePage />} />
-                            </Routes>
-                            <Routes>
-                                <Route path="/mfa" element={<UserMFAPage />} />
-                            </Routes>
+                        <Routes>
+                            <Route path="/" element={<ViewProfilePage />} />
+                        </Routes>
+                        <Routes>
+                            <Route path="/mfa" element={<UserMFAPage />} />
+                        </Routes>
+                        <Routes>
+                            <Route path="/passwordlogin" element={<UserPasswordLoginPage />} />
+                        </Routes>
                     </Grid>
                 </Grid>
             </Container>

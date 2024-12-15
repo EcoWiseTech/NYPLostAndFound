@@ -14,6 +14,7 @@ import ResendVerificationEmailDialog from "../components/login/ResendVerificatio
 import ResetPasswordDialog from "../components/login/ResetPasswordDialog";
 import LogInRightCard from "../components/login/LogInRightCard";
 import LogInLeftCard from "../components/login/LogInLeftCard";
+import { useLocation } from "react-router-dom"; // Import useLocation
 
 function LoginPage() {
     const [loading, setLoading] = useState(false);
@@ -32,7 +33,35 @@ function LoginPage() {
 
     const { UserLogIn } = useUserContext();
     const { showAlert } = useAlert();
+    const location = useLocation(); // Access the current URL location
+    
+    useEffect(() => {
+        const hash = window.location.hash.substring(1); // Remove the #
+        const params = new URLSearchParams(hash);
+        const idToken = params.get("id_token");
+        const accessToken = params.get("access_token");
+        console.log("ID Token:", idToken, "Access Token:", accessToken);
 
+        // Store tokens securely
+        if (idToken && accessToken) {
+            localStorage.setItem("id_token", idToken);
+            localStorage.setItem("access_token", accessToken);
+            GetCurrentUserApi(accessToken)
+                .then((user) => {
+                    console.log('User data fetched:', user);
+                    UserLogIn(user, accessToken, idToken, null); // Handle successful login
+                    showAlert('success', 'Log in successful');
+                    navigate('/'); // Redirect to home page
+                })
+                .catch((error) => {
+                    console.error('Error when fetching user data:', error);
+                    enqueueSnackbar('Failed to fetch user data. Please log in again.', { variant: 'error' });
+                });
+        }
+
+        // Clear hash to prevent duplicate parsing
+        window.history.replaceState(null, null, " ");
+    }, []);
     const togglePasswordVisibility = () => {
         console.log('test')
         setShowPassword(!showPassword);
@@ -53,7 +82,6 @@ function LoginPage() {
     const handleResendDialogClose = () => {
         setResendDialog(false);
     }
-
 
     const googleAuth = null;
 

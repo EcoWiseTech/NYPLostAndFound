@@ -1,5 +1,5 @@
 import { SetUserMFAPreferenceCommand } from "@aws-sdk/client-cognito-identity-provider";
-import cognitoClient from "./AwsCognitoInit";
+import cognitoProviderClient from "./AwsCognitoInit";
 import RefreshTokenApi from "./RefreshTokenApi";
 
 async function EnableMFAApi(accessToken, refreshToken) {
@@ -44,7 +44,7 @@ const enableMFAAction = async (accessToken) => {
       };
 
     const command = new SetUserMFAPreferenceCommand(params);
-    const response = await cognitoClient.send(command);
+    const response = await cognitoProviderClient.send(command);
 
     console.log("MFA enabled successfully:", response);
     return response;

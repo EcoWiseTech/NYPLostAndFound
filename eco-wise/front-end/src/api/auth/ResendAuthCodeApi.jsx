@@ -1,5 +1,5 @@
 import { ResendConfirmationCodeCommand } from "@aws-sdk/client-cognito-identity-provider"; // Import SDK v3 components
-import cognitoClient from "./AwsCognitoInit";
+import cognitoProviderClient from "./AwsCognitoInit";
 
 async function ResendAuthCodeApi(email) {
     try {
@@ -13,7 +13,7 @@ async function ResendAuthCodeApi(email) {
         const command = new ResendConfirmationCodeCommand(params);
 
         // Send the request and wait for the response
-        const response = await cognitoClient.send(command);
+        const response = await cognitoProviderClient.send(command);
 
         return response; // Return the response containing the confirmation code details
     } catch (error) {

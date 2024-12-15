@@ -1,5 +1,5 @@
 import { SignUpCommand } from "@aws-sdk/client-cognito-identity-provider"; // Import the required SDK v3 components
-import cognitoClient from "./AwsCognitoInit";
+import cognitoProviderClient from "./AwsCognitoInit";
 
 async function SignUpUserApi(email, fullName, password) {
   try {
@@ -23,7 +23,7 @@ async function SignUpUserApi(email, fullName, password) {
     const command = new SignUpCommand(params);
 
     // Send the sign-up request and wait for the response
-    const data = await cognitoClient.send(command);
+    const data = await cognitoProviderClient.send(command);
     return data; // Return the successful response
   } catch (error) {
     console.error('Error during sign-up:', error);

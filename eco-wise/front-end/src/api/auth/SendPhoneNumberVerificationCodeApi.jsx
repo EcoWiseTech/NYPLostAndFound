@@ -1,5 +1,5 @@
 import { GetUserAttributeVerificationCodeCommand } from "@aws-sdk/client-cognito-identity-provider";
-import cognitoClient from "./AwsCognitoInit";
+import cognitoProviderClient from "./AwsCognitoInit";
 import RefreshTokenApi from "./RefreshTokenApi";
 import { useUserContext } from "../../contexts/UserContext";
 
@@ -28,7 +28,7 @@ const sendCodeAction = async (accessToken) => {
     };
 
     const command = new GetUserAttributeVerificationCodeCommand(params);
-    const response = await cognitoClient.send(command);
+    const response = await cognitoProviderClient.send(command);
 
     console.log("Verification code sent successfully:", response);
     return response;
