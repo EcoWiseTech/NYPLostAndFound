@@ -157,10 +157,10 @@ function MFAPhoneCard(props) {
                             </Stepper>
                         </Box>
                         <Box>
-                            {!user.UserMFASettingList && user.UserAttributes.phone_number_verified == "true" && user.UserAttributes.email_verified == "true" &&
+                            {!user.UserMFASettingList && user.UserAttributes.phone_number_verified == "true" &&
                                 <LoadingButton sx={{ marginLeft: "-0.5rem" }} loading={loading} variant="contained" color="primary" loadingPosition='start' startIcon={<LockIcon />} onClick={() => setshowEnableMFAModal(true)}>Enable 2FA</LoadingButton>
                             }
-                            {(user.MFAOptions || user.UserMFASettingList) && user.UserAttributes.phone_number_verified == "true" && user.UserAttributes.email_verified == "true" &&
+                            {(user.MFAOptions || user.UserMFASettingList) && user.UserAttributes.phone_number_verified == "true" &&
 
                                 <LoadingButton sx={{ marginLeft: "-0.5rem" }} loading={loading} variant="contained" color="warning" loadingPosition='start' startIcon={<KeyOffIcon />} onClick={() => setShowDisable(true)}>Disable 2FA</LoadingButton>
 
