@@ -37,11 +37,11 @@ export function NavbarProfile() {
                 console.error('Error when signing out:', error);
                 if (error.name === 'NotAuthorizedException') {
                     if (error.message == "Refresh Token has expired" || error.message.includes('Refresh')) {
-                        SessionRefreshError()
+                        UserLogOut();
                     }
                 } else {
                     console.error('Error fetching user data:', error.message);
-                    enqueueSnackbar('Failed to Log out. Plesae try again.', { variant: "error" })
+                    UserLogOut();
                 }
             })
         setIsPopoverOpen(false)

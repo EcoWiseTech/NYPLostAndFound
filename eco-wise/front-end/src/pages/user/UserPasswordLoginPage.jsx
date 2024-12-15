@@ -52,6 +52,9 @@ function UserPasswordLoginPage() {
                 if (error.name == "InvalidParameterException" && error.message.includes('SourceUser is already linked to DestinationUser')) {
                     return showAlert('error', 'Google Account has already been linked to another account.')
                 }
+                if (error.name == "InvalidParameterException" && error.message.includes('Merging is not currently supported')) {
+                    return showAlert('error', 'Google Account already registered on EcoWise. Sign in with the google account and delete it first.')
+                }
                 showAlert('error', 'An unexpected error occured, please try again.')
             })
     }
