@@ -178,7 +178,7 @@ function UserSocialLoginCard(props) {
                                         <Grid xs={12} md={12} lg={6} item>
                                             <Box display={"flex"} justifyContent="right">
                                                 <FacebookLogin
-                                                    appId="1102481824997025"
+                                                    appId={process.env.REACT_APP_FACEBOOK_SSO_APP_ID}
                                                     autoLoad={true}
                                                     fields="name,email"
                                                     callback={(response) => linkFacebook(response)}
