@@ -6,8 +6,8 @@ import { GoogleLogin } from '@react-oauth/google';
 import { useUserContext } from '../../contexts/UserContext';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import { useAlert } from '../../contexts/AlertContext';
-import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
 import LoadingButton from '@mui/lab/LoadingButton';
+import FacebookLinkButton from '../login/FacebookLinkButton';
 
 function UserSocialLoginCard(props) {
     const {
@@ -20,11 +20,6 @@ function UserSocialLoginCard(props) {
     } = props;
     const { user } = useUserContext()
     const { showAlert } = useAlert()
-
-    useEffect(() => {
-
-        console.log(user)
-    }, [])
 
     // Conditional render logic
     const shouldRender = (provider) => {
@@ -154,7 +149,7 @@ function UserSocialLoginCard(props) {
                                         </Grid>
                                         <Grid xs={3} md={4} lg={5} item>
                                             <Box display={"flex"} justifyContent="right">
-                                                
+
                                                 <LoadingButton loading={facebookLoading} onClick={unlinkFacebook} variant='contained' color='info' >
                                                     Unlink
                                                 </LoadingButton>
@@ -177,30 +172,8 @@ function UserSocialLoginCard(props) {
                                         </Grid>
                                         <Grid xs={12} md={12} lg={6} item>
                                             <Box display={"flex"} justifyContent="right">
-                                                <FacebookLogin
-                                                    appId={process.env.REACT_APP_FACEBOOK_SSO_APP_ID}
-                                                    autoLoad={true}
-                                                    fields="name,email"
-                                                    callback={(response) => linkFacebook(response)}
-                                                    render={renderProps => (
-                                                        <Button
-                                                            onClick={renderProps.onClick}
-                                                            variant="contained"
-                                                            startIcon={<FacebookIcon sx={{ fontSize: "20px" }} />}
-                                                            sx={{
-                                                                backgroundColor: "#4267B2",
-                                                                color: "#FFFFFF",
-                                                                textTransform: "none",
-                                                                padding: "6px 14px",
-                                                                fontSize: "13px",
-                                                                "&:hover": {
-                                                                    backgroundColor: "#365899",
-                                                                },
-                                                            }}
-                                                        >
-                                                            Continue with Facebook
-                                                        </Button>
-                                                    )}
+                                                <FacebookLinkButton
+                                                    onSuccess={(response) => linkFacebook(response)}
                                                 />
                                             </Box>
 

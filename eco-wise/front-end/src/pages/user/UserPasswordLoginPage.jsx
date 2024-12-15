@@ -74,7 +74,7 @@ function UserPasswordLoginPage() {
     }
 
     const linkFacebook = (credentials) => {
-        LinkUserSSOApi(credentials.userID, "Facebook")
+        LinkUserSSOApi(credentials.id, "Facebook")
             .then((res) => {
                 RefreshUser();
                 showAlert('success', 'Facebook Account has been linked')
