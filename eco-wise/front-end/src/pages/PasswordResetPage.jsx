@@ -151,7 +151,7 @@ function PasswordResetPage() {
                 }}>
                 <Grid container>
                     <Grid item xs={12} md={6} sx={{
-                        backgroundImage: `url(/images/registerPage.webp})`,
+                        backgroundImage: `url(/images/registerPage.webp)`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         display: 'flex',
