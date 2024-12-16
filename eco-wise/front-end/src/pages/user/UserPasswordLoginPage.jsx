@@ -11,6 +11,9 @@ import LinkUserSSOApi from '../../api/auth/LinkUserSSOApi';
 import UserPasswordCard from '../../components/user/UserPasswordCard';
 import ChangePasswordApi from '../../api/auth/ChangePasswordApi';
 import SendPasswordResetApi from '../../api/auth/SendPasswordResetApi';
+import GetUserTypeFromUsername from '../../functions/GetUserTypeFromUsername';
+import SSORootSocialLoginCard from '../../components/user/SSORootSocialLoginCard';
+import SSORootPasswordCard from '../../components/user/SSORootPasswordCard';
 
 function UserPasswordLoginPage() {
 
@@ -177,21 +180,46 @@ function UserPasswordLoginPage() {
 
     return (
         <>
+            {
+                GetUserTypeFromUsername(user.Username) === "Cognito" ? (
+                    <UserSocialLoginCard
+                        unlinkGoogle={unlinkGoogle}
+                        linkGoogle={linkGoogle}
+                        linkFacebook={linkFacebook}
+                        unlinkFacebook={unlinkFacebook}
+                        googleLoading={loading.googleLoading}
+                        facebookLoading={loading.facebookLoading}
+                    />
+                ) : GetUserTypeFromUsername(user.Username) === "Google" ? (
+                    <SSORootSocialLoginCard
+                        provider="Google"
+                    />
+                ) : (
+                    <SSORootSocialLoginCard
+                        provider='Facebook'
+                    />
+                )
+            }
 
-            <UserSocialLoginCard
-                unlinkGoogle={unlinkGoogle}
-                linkGoogle={linkGoogle}
-                linkFacebook={linkFacebook}
-                unlinkFacebook={unlinkFacebook}
-                googleLoading={loading.googleLoading}
-                facebookLoading={loading.facebookLoading}
-            />
+
             <Box sx={{ marginTop: "1.3rem" }} />
-            <UserPasswordCard
-                changePassword={changePassword}
-                loading={loading}
-                forgetPassword={forgetPassword}
-            />
+            {
+                GetUserTypeFromUsername(user.Username) === "Cognito" ? (
+                    <UserPasswordCard
+                        changePassword={changePassword}
+                        loading={loading}
+                        forgetPassword={forgetPassword}
+                    />
+                ) : GetUserTypeFromUsername(user.Username) === "Google" ? (
+                    <SSORootPasswordCard
+                        provider="Google"
+                    />
+                ) : (
+                    <SSORootPasswordCard
+                        provider='Facebook'
+                    />
+                )
+            }
         </>
     )
 }

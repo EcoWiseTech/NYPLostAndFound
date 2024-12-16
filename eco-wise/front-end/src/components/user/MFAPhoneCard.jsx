@@ -12,6 +12,7 @@ import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import '../../css/PhoneInput.css'
 import { Link } from 'react-router-dom'
+import GetUserTypeFromUsername from '../../functions/GetUserTypeFromUsername';
 
 function MFAPhoneCard(props) {
 
@@ -156,16 +157,22 @@ function MFAPhoneCard(props) {
                                 </Step>
                             </Stepper>
                         </Box>
-                        <Box>
-                            {!user.UserMFASettingList && user.UserAttributes.phone_number_verified == "true" &&
-                                <LoadingButton sx={{ marginLeft: "-0.5rem" }} loading={loading} variant="contained" color="primary" loadingPosition='start' startIcon={<LockIcon />} onClick={() => setshowEnableMFAModal(true)}>Enable 2FA</LoadingButton>
-                            }
-                            {(user.MFAOptions || user.UserMFASettingList) && user.UserAttributes.phone_number_verified == "true" &&
+                        {GetUserTypeFromUsername(user.Username) === "Cognito" ?
+                            <Box>
+                                {!user.UserMFASettingList && user.UserAttributes.phone_number_verified == "true" &&
+                                    <LoadingButton sx={{ marginLeft: "-0.5rem" }} loading={loading} variant="contained" color="primary" loadingPosition='start' startIcon={<LockIcon />} onClick={() => setshowEnableMFAModal(true)}>Enable 2FA</LoadingButton>
+                                }
+                                {(user.MFAOptions || user.UserMFASettingList) && user.UserAttributes.phone_number_verified == "true" &&
 
-                                <LoadingButton sx={{ marginLeft: "-0.5rem" }} loading={loading} variant="contained" color="warning" loadingPosition='start' startIcon={<KeyOffIcon />} onClick={() => setShowDisable(true)}>Disable 2FA</LoadingButton>
+                                    <LoadingButton sx={{ marginLeft: "-0.5rem" }} loading={loading} variant="contained" color="warning" loadingPosition='start' startIcon={<KeyOffIcon />} onClick={() => setShowDisable(true)}>Disable 2FA</LoadingButton>
 
-                            }
-                        </Box>
+                                }
+                            </Box>
+                            :
+                            <Box>
+                                <Alert severity='info'> Your account cannot use 2FA features as it is created by a {GetUserTypeFromUsername(user.Username)} account. Create an account via email/password to access 2FA features. To learn more, click <a href="#">here</a></Alert>
+                            </Box>
+                        }
                     </Box>
                 </CardContent>
             </Card>
