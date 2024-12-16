@@ -1,4 +1,4 @@
-import { Logout } from "@mui/icons-material";
+import { Delete, Logout } from "@mui/icons-material";
 import { enqueueSnackbar } from "notistack";
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -64,6 +64,20 @@ export const UserProvider = (props) => {
             formatedUserAttributes[attribute.Name] = attribute.Value;
         });
         return formatedUserAttributes;
+    }
+
+    const DeleteUser = () => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('idToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+
+        setAccessToken(null);
+        setIdToken(null);
+        setRefreshToken(null);
+        setUser(null);
+        showAlert('info', 'Your account has been deleted')
+        navigate('/')
     }
 
     const UserLogOut = () => {
@@ -168,6 +182,7 @@ export const UserProvider = (props) => {
                 RefreshUser,
                 SessionRefreshError,
                 SetNewTokens,
+                DeleteUser
             }}
         >
             {isReady ? children : null}

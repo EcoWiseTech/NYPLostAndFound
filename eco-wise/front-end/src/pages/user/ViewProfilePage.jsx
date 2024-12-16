@@ -25,6 +25,8 @@ import { isValidPhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import '../../css/PhoneInput.css'
 import ProfileInformationCard from '../../components/user/ProfileInformationCard';
+import DeleteUserCard from '../../components/user/DeleteUserCard';
+import DeleteUserApi from '../../api/auth/DeleteUserApi';
 
 // Define the validation schema with yup
 const schema = yup.object({
@@ -33,7 +35,7 @@ const schema = yup.object({
 }).required();
 
 function ViewProfilePage() {
-    const { user, accessToken, refreshToken, RefreshUser, SessionRefreshError } = useUserContext();
+    const { user, accessToken, refreshToken, RefreshUser, SessionRefreshError, DeleteUser } = useUserContext();
     const [formData, setFormData] = useState({
         given_name: '',
         email: '',
@@ -110,8 +112,7 @@ function ViewProfilePage() {
             .catch((error) => {
                 console.error("Error updating user:", error);
                 if (error.name === 'NotAuthorizedException') {
-                    if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh'))
-                    {
+                    if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh')) {
                         SessionRefreshError();
                     }
                 } else {
@@ -121,6 +122,23 @@ function ViewProfilePage() {
             });
 
         setIsModified(false);
+    };
+
+    const deleteUser = async () => {
+        DeleteUserApi(refreshToken, accessToken)
+            .then((res) => {
+                DeleteUser()
+            })
+            .catch((error) => {
+                console.error("Error Deleting user:", error);
+                if (error.name === 'NotAuthorizedException') {
+                    if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh')) {
+                        SessionRefreshError();
+                    }
+                } else {
+                    showAlert('error', 'Unexpected error occurred. Please try again.');
+                }
+            })
     };
 
     return (
@@ -135,6 +153,9 @@ function ViewProfilePage() {
                 isModified={isModified}
                 selectedFile={selectedFile}
                 user={user}
+            />
+            <DeleteUserCard
+                deleteUser={deleteUser}
             />
         </Stack>
     );
