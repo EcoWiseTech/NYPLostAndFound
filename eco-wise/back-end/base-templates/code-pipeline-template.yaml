@@ -12,50 +12,26 @@ Parameters:
     AllowedPattern: ".+"
     Type: String
     Description: "Github repo owner"
+    Default: "EcoWiseTech"
 
   ResourceNamePrefix:
     Description: Please specify the application name prefix for all the resources
     Type: String
-    Default: ""
+    Default: "eco-wise"
 
   TemplateBucket:
     Type: String
-    Default: ""
-
-  # CodeBuildProjectRoleARN:
-  #   Description: Please specify the Code Build Project Role ARN
-  #   Type: String
-  #   Default: ""
-  
-  # CodePipelineRoleARN:
-  #   Description: Please specify the Code Pipeline Role ARN
-  #   Type: String
-  #   Default: ""
-
-  # CloudWatchEventRoleARN:
-  #   Description: CloudWatch Event Role ARN for Code Pipeline
-  #   Type: String
-  #   Default: ""
+    Default: "eco-wise-iac-artifacts"
 
   AppRepositoryName:
     Description: Name of the Github Repository
     Type: String
-    Default: ""
+    Default: "EcoWise"
 
   AppRepositoryDescription:
     Description: Description of the Github Repository
     Type: String
-    Default: ""
-
-  # TESTApprovalSNSARN:
-  #   Type: String
-  #   Description: TEST SNS Notification ARN
-  #   Default: ""
-
-  # ProdApprovalSNSARN:
-  #   Type: String
-  #   Description: Prod SNS Notification ARN
-  #   Default: ""
+    Default: "EcoWise Repository"
 
 Resources:
   S3Bucket:
@@ -185,42 +161,9 @@ Resources:
                 - cd eco-wise/back-end
                 - ls
                 - gem install cfn-nag
-                - echo "Installing dependencies for lamda..."
-                - npm ci
                 
             pre_build:
               commands:
-                - cd lambdas
-                - pwd
-                - |
-                  export CODEBUILD=true
-                  for function in */ ; do
-                    echo ${function%/}
-                    cd ${function}
-                  
-                    if [ -f "${function%/}.yaml" ]; then
-                      pwd
-                      rel_url=$ARTIFACTS_BUCKET/templates/${function%/}.yaml;
-                      aws s3 cp ./${function%/}.yaml s3://$rel_url --acl bucket-owner-full-control;
-                    fi
-                    
-                    if [ -f "index.js" ]; then
-                      rel_url=$ARTIFACTS_BUCKET/lambda-files/${function%/}.zip;
-                      echo "Compiling code to single file for ${function%/} lambda function..."
-                      npx ncc build index.js
-            
-                      echo "Zipping ${function%/} handler code..."
-                      zip -j deploy.zip ./dist/*
-                      
-                      ls
-                      
-                      aws s3 cp ./deploy.zip s3://$rel_url --acl bucket-owner-full-control;
-                    fi
-                
-                    cd ..
-                  done
-                - pwd
-                - cd ..
                 - cfn_nag_scan --input-path ./templates
                 - for tmplt in $(ls ./templates); 
                   do
