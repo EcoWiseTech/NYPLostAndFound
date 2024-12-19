@@ -48,7 +48,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:group/Administrators
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
             Action:
               - s3:PutObject
               - s3:GetObject*
@@ -58,7 +58,7 @@ Resources:
 
           - Effect: Allow
             Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:group/Administrators
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
             Action:
               - s3:GetBucket*
               - s3:List*
@@ -181,7 +181,7 @@ Resources:
                       - "CloudFormationRole"
                 Capabilities: CAPABILITY_NAMED_IAM
                 StackName:
-                  Fn::Sub: Test-${AWS::StackName}
+                  Fn::Sub: root-stack-${AWS::StackName}
                 TemplatePath: SourceArtifact::eco-wise/back-end/templates/root-stack.yaml
               RunOrder: 1
           Name: Deploy
