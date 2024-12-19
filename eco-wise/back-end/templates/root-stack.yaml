@@ -87,25 +87,6 @@ Resources:
       FunctionName: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:get-weather-data-function
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
-  # EventBridge Events
-  WeatherApiFunctionTriggerRule:
-    Type: AWS::Events::Rule
-    Properties:
-      Name: WeatherApiFunctionTriggerRule
-      Description: Trigger WeatherApiFunction every 30 minutes
-      ScheduleExpression: rate(30 minutes)
-      State: ENABLED
-      Targets:
-        - Arn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:weather-api-function
-          Id: WeatherApiFunctionTarget
-
-  WeatherApiFunctionPermissionForEvent:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:weather-api-function
-      Action: lambda:InvokeFunction
-      Principal: events.amazonaws.com
-      SourceArn: !GetAtt WeatherApiFunctionTriggerRule.Arn
 
 
   # KURT
