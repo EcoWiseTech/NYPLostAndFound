@@ -5,22 +5,17 @@ Parameters:
   ResourceNamePrefix:
     Description: Please specify the prefix for all the resources
     Type: String
-    Default: ""
+    Default: "eco-wise"
 
-  # TESTApprovalSNSARN:
-  #   Description: Please specify SNS Topic ARN for TEST Approval Communication
-  #   Type: String
-  #   Default: ""
-
-  # ProdApprovalSNSARN:
-  #   Description: Please specify SNS Topic ARN for Production Approval Communication
-  #   Type: String
-  #   Default: ""
-  
   PermissionBoundaryARN:
     Description: Please specify Permission Boundary Policy ARN
     Type: String
-    Default: ""    
+    Default: "arn:aws:iam::aws:policy/AdministratorAccess"    
+  
+  TemplateBucket:
+    Description: Please specify the S3 bucket name for the templates
+    Type: String
+    Default: "eco-wise-iac-artifact-bucket"
 
 Resources:
   EcoWiseConnection:
@@ -225,7 +220,7 @@ Resources:
               - "s3:PutObject"
               - "s3:GetBucketPolicy"
             Resource:
-              - arn:aws:s3:::eco-wise-iac-artifact-bucket
+              - !Sub arn:aws:s3:::${TemplateBucket}
           -
             Effect: Allow
             Action:
