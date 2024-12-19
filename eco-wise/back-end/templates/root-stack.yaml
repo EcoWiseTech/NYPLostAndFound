@@ -91,46 +91,46 @@ Resources:
   nestedSkeletonStack:
     Type: AWS::CloudFormation::Stack 
     Properties:
-      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda.yaml
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifacts/templates/github-to-lambda.yaml
       Parameters:
         FunctionName: "github-to-lambda"
-        TemplateBucket: "eco-wise-iac-artifact-bucket"
+        TemplateBucket: "eco-wise-iac-artifacts"
   nestedFunctionStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda-02.yaml
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifacts/templates/github-to-lambda-02.yaml
       Parameters:
         FunctionName: "github-to-lambda-02"
-        TemplateBucket: "eco-wise-iac-artifact-bucket"
+        TemplateBucket: "eco-wise-iac-artifacts"
 
   nestedFunctionThreeStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda-03.yaml
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifacts/templates/github-to-lambda-03.yaml
       Parameters:
         FunctionName: "github-to-lambda-03"
-        TemplateBucket: "eco-wise-iac-artifact-bucket" 
+        TemplateBucket: "eco-wise-iac-artifacts" 
   nestedFunctionFourStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda-04.yaml
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifacts/templates/github-to-lambda-04.yaml
       Parameters:
         FunctionName: "github-to-lambda-04"
-        TemplateBucket: "eco-wise-iac-artifact-bucket" 
+        TemplateBucket: "eco-wise-iac-artifacts" 
   WeatherApiFunctionStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/weather-api-function.yaml
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifacts/templates/weather-api-function.yaml
       Parameters:
         FunctionName: "weather-api-function"
-        TemplateBucket: "eco-wise-iac-artifact-bucket" 
+        TemplateBucket: "eco-wise-iac-artifacts" 
   GetWeatherDataFunctionStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/get-weather-data-function.yaml
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifacts/templates/get-weather-data-function.yaml
       Parameters:
         FunctionName: "get-weather-data-function"
-        TemplateBucket: "eco-wise-iac-artifact-bucket"
+        TemplateBucket: "eco-wise-iac-artifacts"
   # EventBridge Events
   WeatherApiFunctionTriggerRule:
     Type: AWS::Events::Rule

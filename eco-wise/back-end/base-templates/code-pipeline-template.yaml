@@ -65,67 +65,6 @@ Resources:
             Resource:
               - !Sub arn:aws:s3:::${TemplateBucket}
 
-  LambdaUpdater:
-    Type: AWS::CodeBuild::Project
-    Properties:
-      Artifacts:
-        Type: CODEPIPELINE
-      Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
-        EnvironmentVariables:
-          - Name: DEPLOY_ENV
-            Type: PLAINTEXT
-            Value: prod
-          - Name: AWS_REGION
-            Value:
-              Ref: AWS::Region
-          - Name: ARTIFACTS_BUCKET
-            Value:
-              Ref: TemplateBucket
-          - Name: REPOSITORY_NAME
-            Value:
-              Ref: AppRepositoryName
-        Image: aws/codebuild/standard:7.0
-        ImagePullCredentialsType: CODEBUILD
-        PrivilegedMode: true
-        Type: LINUX_CONTAINER
-      ServiceRole: !ImportValue CodePipelineBuildProjectRoleOutput
-      Source:
-        Type: CODEPIPELINE
-        BuildSpec: |
-          version: 0.2
-
-          phases:
-            build:
-              commands:
-                - cd eco-wise/back-end/lambdas
-                - echo "Looking for all lambda functions..."
-                - |
-                  export CODEBUILD=true
-                  pwd
-                  for function in */ ; do
-                    echo ${function%/}
-                    cd ${function}
-
-                    if [ -f "index.js" ]; then
-                      aws lambda get-function --function-name=${function%/} > /dev/null 2>&1
-                      status=$?
-                      echo $status
-                      if [ $status -eq 0 ]; then
-                        echo "Lambda '${function%/} ' exists"      
-                        echo "Updating Lambda ${function%/}..."      
-                        aws lambda update-function-code --function-name=${function%/} --s3-bucket=$ARTIFACTS_BUCKET --s3-key=lambda-files/${function%/}.zip
-                        echo "Update Complete for Lambda ${function%/}!"   
-                        
-                      else
-                        echo "Lambda ${function%/} DOES NOT exist"
-                      fi
-                    fi
-
-                    cd ..
-                  done
-      EncryptionKey: alias/aws/s3
-      Name: !Sub '${ResourceNamePrefix}-lambda-updater'
   CICDTemplateScanner:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -242,20 +181,9 @@ Resources:
                       - "CloudFormationRole"
                 Capabilities: CAPABILITY_NAMED_IAM
                 StackName:
-                  Fn::Sub: Test-${AWS::StackName}
+                  Fn::Sub: root-stack-${AWS::StackName}
                 TemplatePath: SourceArtifact::eco-wise/back-end/templates/root-stack.yaml
               RunOrder: 1
-            - ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: "1"
-              Configuration:
-                ProjectName: !Ref LambdaUpdater
-              InputArtifacts:
-                - Name: SourceArtifact
-              Name: UpdateLambda
-              RunOrder: 2
           Name: Deploy
       ArtifactStore:
         Location:
