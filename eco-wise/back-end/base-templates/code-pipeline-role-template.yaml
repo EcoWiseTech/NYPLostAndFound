@@ -15,7 +15,7 @@ Parameters:
   TemplateBucket:
     Description: Please specify the S3 bucket name for the templates
     Type: String
-    Default: "eco-wise-iac-artifact-bucket"
+    Default: "eco-wise-iac-artifacts"
 
 Resources:
   EcoWiseConnection:
