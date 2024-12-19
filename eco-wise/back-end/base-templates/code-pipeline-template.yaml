@@ -48,7 +48,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:group/Administrators
             Action:
               - s3:PutObject
               - s3:GetObject*
@@ -58,7 +58,7 @@ Resources:
 
           - Effect: Allow
             Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:group/Administrators
             Action:
               - s3:GetBucket*
               - s3:List*
