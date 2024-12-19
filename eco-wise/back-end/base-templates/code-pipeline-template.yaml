@@ -1,0 +1,325 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: OU CI/CD pipeline
+
+Parameters:
+  GithubBranch:
+    AllowedPattern: ".+"
+    Type: String
+    Description: "Github branch name e.g. development"
+    Default: "main"
+
+  GithubOwner:
+    AllowedPattern: ".+"
+    Type: String
+    Description: "Github repo owner"
+
+  ResourceNamePrefix:
+    Description: Please specify the application name prefix for all the resources
+    Type: String
+    Default: ""
+
+  TemplateBucket:
+    Type: String
+    Default: ""
+
+  # CodeBuildProjectRoleARN:
+  #   Description: Please specify the Code Build Project Role ARN
+  #   Type: String
+  #   Default: ""
+  
+  # CodePipelineRoleARN:
+  #   Description: Please specify the Code Pipeline Role ARN
+  #   Type: String
+  #   Default: ""
+
+  # CloudWatchEventRoleARN:
+  #   Description: CloudWatch Event Role ARN for Code Pipeline
+  #   Type: String
+  #   Default: ""
+
+  AppRepositoryName:
+    Description: Name of the Github Repository
+    Type: String
+    Default: ""
+
+  AppRepositoryDescription:
+    Description: Description of the Github Repository
+    Type: String
+    Default: ""
+
+  # TESTApprovalSNSARN:
+  #   Type: String
+  #   Description: TEST SNS Notification ARN
+  #   Default: ""
+
+  # ProdApprovalSNSARN:
+  #   Type: String
+  #   Description: Prod SNS Notification ARN
+  #   Default: ""
+
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Ref TemplateBucket
+  MyBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref TemplateBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - s3:PutObject
+              - s3:GetObject*
+              - s3:DeleteObject
+            Resource:
+              - !Sub arn:aws:s3:::${TemplateBucket}/*
+
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - s3:GetBucket*
+              - s3:List*
+            Resource:
+              - !Sub arn:aws:s3:::${TemplateBucket}
+
+  LambdaUpdater:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+          - Name: DEPLOY_ENV
+            Type: PLAINTEXT
+            Value: prod
+          - Name: AWS_REGION
+            Value:
+              Ref: AWS::Region
+          - Name: ARTIFACTS_BUCKET
+            Value:
+              Ref: TemplateBucket
+          - Name: REPOSITORY_NAME
+            Value:
+              Ref: AppRepositoryName
+        Image: aws/codebuild/standard:7.0
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: true
+        Type: LINUX_CONTAINER
+      ServiceRole: !ImportValue CodePipelineBuildProjectRoleOutput
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+
+          phases:
+            build:
+              commands:
+                - cd eco-wise/back-end/lambdas
+                - echo "Looking for all lambda functions..."
+                - |
+                  export CODEBUILD=true
+                  pwd
+                  for function in */ ; do
+                    echo ${function%/}
+                    cd ${function}
+
+                    if [ -f "index.js" ]; then
+                      aws lambda get-function --function-name=${function%/} > /dev/null 2>&1
+                      status=$?
+                      echo $status
+                      if [ $status -eq 0 ]; then
+                        echo "Lambda '${function%/} ' exists"      
+                        echo "Updating Lambda ${function%/}..."      
+                        aws lambda update-function-code --function-name=${function%/} --s3-bucket=$ARTIFACTS_BUCKET --s3-key=lambda-files/${function%/}.zip
+                        echo "Update Complete for Lambda ${function%/}!"   
+                        
+                      else
+                        echo "Lambda ${function%/} DOES NOT exist"
+                      fi
+                    fi
+
+                    cd ..
+                  done
+      EncryptionKey: alias/aws/s3
+      Name: !Sub '${ResourceNamePrefix}-lambda-updater'
+  CICDTemplateScanner:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+          - Name: DEPLOY_ENV
+            Type: PLAINTEXT
+            Value: prod
+          - Name: AWS_REGION
+            Value:
+              Ref: AWS::Region
+          - Name: ARTIFACTS_BUCKET
+            Value:
+              Ref: TemplateBucket
+          - Name: REPOSITORY_NAME
+            Value:
+              Ref: AppRepositoryName
+        Image: aws/codebuild/standard:7.0
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: true
+        Type: LINUX_CONTAINER
+      ServiceRole: !ImportValue CodePipelineBuildProjectRoleOutput
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            install:
+              commands:
+                - cd eco-wise/back-end
+                - ls
+                - gem install cfn-nag
+                - echo "Installing dependencies for lamda..."
+                - npm ci
+                
+            pre_build:
+              commands:
+                - cd lambdas
+                - pwd
+                - |
+                  export CODEBUILD=true
+                  for function in */ ; do
+                    echo ${function%/}
+                    cd ${function}
+                  
+                    if [ -f "${function%/}.yaml" ]; then
+                      pwd
+                      rel_url=$ARTIFACTS_BUCKET/templates/${function%/}.yaml;
+                      aws s3 cp ./${function%/}.yaml s3://$rel_url --acl bucket-owner-full-control;
+                    fi
+                    
+                    if [ -f "index.js" ]; then
+                      rel_url=$ARTIFACTS_BUCKET/lambda-files/${function%/}.zip;
+                      echo "Compiling code to single file for ${function%/} lambda function..."
+                      npx ncc build index.js
+            
+                      echo "Zipping ${function%/} handler code..."
+                      zip -j deploy.zip ./dist/*
+                      
+                      ls
+                      
+                      aws s3 cp ./deploy.zip s3://$rel_url --acl bucket-owner-full-control;
+                    fi
+                
+                    cd ..
+                  done
+                - pwd
+                - cd ..
+                - cfn_nag_scan --input-path ./templates
+                - for tmplt in $(ls ./templates); 
+                  do
+                      rel_url=$ARTIFACTS_BUCKET/templates/$tmplt;
+                      aws s3 cp ./templates/$tmplt s3://$rel_url --acl bucket-owner-full-control;
+                      aws cloudformation validate-template --template-url https://s3.amazonaws.com/$rel_url;
+                  done
+      EncryptionKey: alias/aws/s3
+      Name: !Sub '${ResourceNamePrefix}-cfn-scanner-codebuild-project'
+  CICDPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !ImportValue CodePipelineRoleOutput
+      Name: !Sub '${ResourceNamePrefix}-cicd-pipeline'
+      PipelineType: "V2" 
+      Triggers:
+        - GitConfiguration: 
+            SourceActionName: "Source-Action"
+            Push:
+              - Branches:
+                  Includes: 
+                    - !Ref GithubBranch
+                FilePaths:
+                  Includes:
+                    - "eco-wise/back-end/**"
+                  Excludes:
+                    - "eco-wise/front-end/**"
+                
+          ProviderType: "CodeStarSourceConnection"
+      Stages:
+        - Actions:
+            - ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: "1"
+              Configuration:
+                ConnectionArn: !ImportValue EcoWiseConnection
+                FullRepositoryId: !Sub "${GithubOwner}/${AppRepositoryName}"
+                BranchName: !Ref GithubBranch
+              Name: Source-Action
+              OutputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+          Name: Source
+        - Actions:
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName: !Ref CICDTemplateScanner
+              InputArtifacts:
+                - Name: SourceArtifact
+              Name: Build-Action
+              OutputArtifacts:
+                - Name: ScannedArtifact
+              RunOrder: 1
+          Name: CFN-Scanner
+        - Actions:
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1              
+              InputArtifacts:
+                - Name: SourceArtifact
+              Name: CreateCFNStack
+              Configuration:
+                ActionMode: REPLACE_ON_FAILURE
+                RoleArn:
+                  !Join
+                    - ""
+                    - - Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/
+                      - "CloudFormationRole"
+                Capabilities: CAPABILITY_NAMED_IAM
+                StackName:
+                  Fn::Sub: Test-${AWS::StackName}
+                TemplatePath: SourceArtifact::eco-wise/back-end/templates/root-stack.yaml
+              RunOrder: 1
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName: !Ref LambdaUpdater
+              InputArtifacts:
+                - Name: SourceArtifact
+              Name: UpdateLambda
+              RunOrder: 2
+          Name: Deploy
+      ArtifactStore:
+        Location:
+          Ref: TemplateBucket
+        Type: S3
+
+Outputs:
+  CICDPipelineName:
+    Value: !Ref CICDPipeline
+    Description: CICD Pipeline Name

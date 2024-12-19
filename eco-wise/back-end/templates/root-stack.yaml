@@ -1,0 +1,188 @@
+Description: Root Stack, contains all the resources needed for the application
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  # DynamoDB table stacks
+  WeatherTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: WeatherTable
+      AttributeDefinitions:
+        - AttributeName: Location
+          AttributeType: S
+        - AttributeName: Timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Location
+          KeyType: HASH
+        - AttributeName: Timestamp
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      Tags:
+        - Key: Environment
+          Value: Production
+        - Key: Application
+          Value: EcoWise
+          
+  # Weather Table creation
+  TemperatureTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TemperatureTable
+      AttributeDefinitions:
+        - AttributeName: Location
+          AttributeType: S
+        - AttributeName: Timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Location
+          KeyType: HASH
+        - AttributeName: Timestamp
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      Tags:
+        - Key: Environment
+          Value: Production
+        - Key: Application
+          Value: EcoWise
+
+  # Base API gateway stack
+  EcoWiseApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: ecowiseapi
+      Description: "API Gateway for the EcoWise project"
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  # API endpoints for GET method integration
+  GetWeatherDataResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt EcoWiseApi.RootResourceId
+      PathPart: get-weather-data
+      RestApiId: !Ref EcoWiseApi
+
+  GetWeatherDataMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref EcoWiseApi
+      ResourceId: !Ref GetWeatherDataResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:get-weather-data-function/invocations
+        PassthroughBehavior: WHEN_NO_MATCH
+
+  GetWeatherDataApiPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:get-weather-data-function
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+  # Lambda function stacks
+  nestedSkeletonStack:
+    Type: AWS::CloudFormation::Stack 
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda.yaml
+      Parameters:
+        FunctionName: "github-to-lambda"
+        TemplateBucket: "eco-wise-iac-artifact-bucket"
+  nestedFunctionStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda-02.yaml
+      Parameters:
+        FunctionName: "github-to-lambda-02"
+        TemplateBucket: "eco-wise-iac-artifact-bucket"
+
+  nestedFunctionThreeStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda-03.yaml
+      Parameters:
+        FunctionName: "github-to-lambda-03"
+        TemplateBucket: "eco-wise-iac-artifact-bucket" 
+  nestedFunctionFourStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/github-to-lambda-04.yaml
+      Parameters:
+        FunctionName: "github-to-lambda-04"
+        TemplateBucket: "eco-wise-iac-artifact-bucket" 
+  WeatherApiFunctionStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/weather-api-function.yaml
+      Parameters:
+        FunctionName: "weather-api-function"
+        TemplateBucket: "eco-wise-iac-artifact-bucket" 
+  GetWeatherDataFunctionStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/eco-wise-iac-artifact-bucket/templates/get-weather-data-function.yaml
+      Parameters:
+        FunctionName: "get-weather-data-function"
+        TemplateBucket: "eco-wise-iac-artifact-bucket"
+  # EventBridge Events
+  WeatherApiFunctionTriggerRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: WeatherApiFunctionTriggerRule
+      Description: Trigger WeatherApiFunction every 30 minutes
+      ScheduleExpression: rate(30 minutes)
+      State: ENABLED
+      Targets:
+        - Arn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:weather-api-function
+          Id: WeatherApiFunctionTarget
+
+  WeatherApiFunctionPermissionForEvent:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:weather-api-function
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt WeatherApiFunctionTriggerRule.Arn
+
+
+  # KURT
+  EcowiseApiSnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "ecowiseApiTrafficAlert1"
+
+  EcowiseApiTrafficAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: "ecowiseapiTrafficAlarm1"
+      AlarmDescription: "This alarm monitors the number of requests sent to ecowiseapi. If it exceeds 10 requests in 30 seconds, an email is sent to kurrbarr@gmail.com ."
+      MetricName: "Count"
+      Namespace: "AWS/ApiGateway"
+      Statistic: "Sum"
+      Period: 21600
+      EvaluationPeriods: 1
+      Threshold: 10
+      ComparisonOperator: "GreaterThanThreshold"
+      Dimensions:
+        - Name: "ApiName"
+          Value: "ecowiseapi"
+      AlarmActions:
+        - Ref: "EcowiseApiSnsTopic"
+      DatapointsToAlarm: 1
+      TreatMissingData: "missing"
+      ActionsEnabled: true
+
+  EcowiseApiSnsSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: "email"
+      Endpoint: "kurrbarr@gmail.com"
+      TopicArn: 
+        Ref: "EcowiseApiSnsTopic"
