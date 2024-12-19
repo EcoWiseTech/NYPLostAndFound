@@ -68,26 +68,6 @@ Resources:
       PathPart: get-weather-data
       RestApiId: !Ref EcoWiseApi
 
-  GetWeatherDataMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref EcoWiseApi
-      ResourceId: !Ref GetWeatherDataResource
-      HttpMethod: GET
-      AuthorizationType: NONE
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:get-weather-data-function/invocations
-        PassthroughBehavior: WHEN_NO_MATCH
-
-  GetWeatherDataApiPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:get-weather-data-function
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-
 
   # KURT
   EcowiseApiSnsTopic:
