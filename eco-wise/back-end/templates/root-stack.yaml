@@ -392,7 +392,6 @@ Resources:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       UserPoolId: !GetAtt CognitoUserPool.UserPoolId
-      AWSAccountId: !Sub '${AWS::AccountId}'
       Domain: eco-wise
       ManagedLoginVersion: 2
 
