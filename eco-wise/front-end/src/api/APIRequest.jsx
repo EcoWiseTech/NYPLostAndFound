@@ -18,7 +18,7 @@ export class APIRequest {
             const response = await this.apiClient.get(endpoint, { params });
             return response
         } catch (error) {
-            throw error
+            throw error 
         }
     }
 

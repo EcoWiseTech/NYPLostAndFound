@@ -2,65 +2,6 @@ Description: Root Stack, contains all the resources needed for the application
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
-  # ------------------------------  START Amplify Stack ------------------------------  #
-  AmplifyApp:
-    UpdateReplacePolicy: "Retain"
-    Type: "AWS::Amplify::App"
-    DeletionPolicy: "Retain"
-    Properties:
-      AccessToken: "{{resolve:secretsmanager:GithubAccessToken:SecretString:GithubAccessToken}}"
-      Repository: "https://github.com/EcoWiseTech/EcoWise"
-      Platform: "WEB"
-      EnableBranchAutoDeletion: false
-      BuildSpec: |
-        version: 1
-        applications:
-          - frontend:
-              phases:
-                preBuild:
-                  commands:
-                    - npm ci --cache .npm --prefer-offline
-                build:
-                  commands:
-                    - npm run build
-              artifacts:
-                baseDirectory: build
-                files:
-                  - "**/*"
-              cache:
-                paths:
-                  - .npm/**/*
-            appRoot: eco-wise/front-end
-      CustomRules:
-      - Status: "404-200"
-        Target: "/index.html"
-        Source: "/<*>"
-      - Status: "200"
-        Target: "/index.html"
-        Source: "</^[^.]+$|\\.(?!(css|gif|ico|jpg|jpeg|webp|js|png|txt|svg|woff|ttf|map|json)$)([^.]+$)/>"
-      CacheConfig:
-        Type: "AMPLIFY_MANAGED"
-      CustomHeaders: ""
-      Name: "EcoWise"
-      
-  AmplifyBranch:
-    UpdateReplacePolicy: "Retain"
-    Type: "AWS::Amplify::Branch"
-    DeletionPolicy: "Retain"
-    DependsOn:
-      - AmplifyApp
-    Properties:
-      Backend: {}
-      AppId: !GetAtt AmplifyApp.AppId
-      EnablePullRequestPreview: false
-      EnableAutoBuild: true
-      EnablePerformanceMode: false
-      Stage: "PRODUCTION"
-      BranchName: "main"
-      Framework: "React"
-  # ------------------------------  END Amplify Stack  ------------------------------  #
-
-  # ------------------------------  Start Cognito Stack  ------------------------------  #
   CognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -342,8 +283,10 @@ Resources:
         - Google
       CallbackURLs:
         - http://localhost:3000/login
-        - !Sub >-
-          ${AmplifyApp.DefaultDomain}/login
+        - >-
+          https://main.d3pvr6ge2y2t7f.amplifyapp.com/login
+        # - !Sub >-
+        #   ${AmplifyApp.DefaultDomain}/login
       AllowedOAuthFlows:
         - implicit
       AllowedOAuthScopes:
@@ -357,110 +300,3 @@ Resources:
       EnableTokenRevocation: true
       EnablePropagateAdditionalUserContextData: false
       AuthSessionValidity: 3
-  # ------------------------------  END Cognito Stack  ------------------------------  #
-
-  # ------------------------------  START DynamoDB table stacks ------------------------------  #
-  WeatherTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: WeatherTable
-      AttributeDefinitions:
-        - AttributeName: Location
-          AttributeType: S
-        - AttributeName: Timestamp
-          AttributeType: S
-      KeySchema:
-        - AttributeName: Location
-          KeyType: HASH
-        - AttributeName: Timestamp
-          KeyType: RANGE
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      Tags:
-        - Key: Environment
-          Value: Production
-        - Key: Application
-          Value: EcoWise
-  # ------------------------------ END DynamoDB table stacks ------------------------------  #   
-
-  # ------------------------------ START Weather Table creation------------------------------  # 
-  TemperatureTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: TemperatureTable
-      AttributeDefinitions:
-        - AttributeName: Location
-          AttributeType: S
-        - AttributeName: Timestamp
-          AttributeType: S
-      KeySchema:
-        - AttributeName: Location
-          KeyType: HASH
-        - AttributeName: Timestamp
-          KeyType: RANGE
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      Tags:
-        - Key: Environment
-          Value: Production
-        - Key: Application
-          Value: EcoWise
-  # ------------------------------ END Weather Table creation------------------------------  # 
-
-  # ------------------------------ START Base API gateway stack------------------------------  # 
-  EcoWiseApi:
-    Type: AWS::ApiGateway::RestApi
-    Properties:
-      Name: ecowiseapi
-      Description: "API Gateway for the EcoWise project"
-      EndpointConfiguration:
-        Types:
-          - REGIONAL
-
-  # API endpoints for GET method integration
-  GetWeatherDataResource:
-    Type: AWS::ApiGateway::Resource
-    Properties:
-      ParentId: !GetAtt EcoWiseApi.RootResourceId
-      PathPart: get-weather-data
-      RestApiId: !Ref EcoWiseApi
-  # ------------------------------ END Base API gateway stack------------------------------  # 
-
-  # ------------------------------ START SNS+CloudWatch stacks ------------------------------  # 
-  # KURT
-  EcowiseApiSnsTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: "ecowiseApiTrafficAlert1"
-
-  EcowiseApiTrafficAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: "ecowiseapiTrafficAlarm1"
-      AlarmDescription: "This alarm monitors the number of requests sent to ecowiseapi. If it exceeds 10 requests in 30 seconds, an email is sent to kurrbarr@gmail.com ."
-      MetricName: "Count"
-      Namespace: "AWS/ApiGateway"
-      Statistic: "Sum"
-      Period: 21600
-      EvaluationPeriods: 1
-      Threshold: 10
-      ComparisonOperator: "GreaterThanThreshold"
-      Dimensions:
-        - Name: "ApiName"
-          Value: "ecowiseapi"
-      AlarmActions:
-        - Ref: "EcowiseApiSnsTopic"
-      DatapointsToAlarm: 1
-      TreatMissingData: "missing"
-      ActionsEnabled: true
-
-  EcowiseApiSnsSubscription:
-    Type: AWS::SNS::Subscription
-    Properties:
-      Protocol: "email"
-      Endpoint: "kurrbarr@gmail.com"
-      TopicArn: 
-        Ref: "EcowiseApiSnsTopic"
-  # ------------------------------ END SNS+CloudWatch stacks ------------------------------  # 
