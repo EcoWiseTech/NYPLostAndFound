@@ -403,7 +403,7 @@ Resources:
     Properties:
       ClientId: !GetAtt CognitoUserPoolClient.ClientId
       UserPoolId: !GetAtt CognitoUserPool.UserPoolId
-      UseCognitoProvidedValues: false
+      UseCognitoProvidedValues: true
 
   # ------------------------------  END Cognito Stack  ------------------------------  #
 
