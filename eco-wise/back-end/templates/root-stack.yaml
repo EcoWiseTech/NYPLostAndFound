@@ -8,6 +8,7 @@ Resources:
     Type: "AWS::Amplify::App"
     DeletionPolicy: "Retain"
     Properties:
+      AccessToken: {{resolve:ssm-secure:GithubAccessToken:}}
       Repository: "https://github.com/EcoWiseTech/EcoWise"
       Platform: "WEB"
       EnableBranchAutoDeletion: false
