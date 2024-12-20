@@ -343,7 +343,7 @@ Resources:
       CallbackURLs:
         - http://localhost:3000/login
         - !Sub >-
-          ${AmplifyApp.DefaultDomain}/login
+          https://main.${AmplifyApp.DefaultDomain}/login
       AllowedOAuthFlows:
         - implicit
       AllowedOAuthScopes:
