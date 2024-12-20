@@ -389,6 +389,14 @@ Resources:
       EnableTokenRevocation: true
       EnablePropagateAdditionalUserContextData: false
       AuthSessionValidity: 3
+  CognitoUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId: !GetAtt CognitoUserPool.UserPoolId
+      AWSAccountId: !Sub '${AWS::AccountId}'
+      Domain: eco-wise
+      ManagedLoginVersion: 2
+
   CognitoManagedLoginBranding:
     Type: AWS::Cognito::ManagedLoginBranding
     Properties:
