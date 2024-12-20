@@ -22,8 +22,7 @@ Resources:
       - Name: REACT_APP_COGNITO_AUTH_FLOW
         Value: '{{resolve:secretsmanager:AmplifyAppEnvVar:SecretString:REACT_APP_COGNITO_AUTH_FLOW}}'
       - Name: REACT_APP_REDIRECT_URI
-        Value: !Sub >-
-          https://main.${AmplifyApp.DefaultDomain}/login
+        Value: '{{resolve:secretsmanager:AmplifyAppEnvVar:SecretString:REACT_APP_REDIRECT_URI}}'
       - Name: AMPLIFY_DIFF_DEPLOY
         Value: '{{resolve:secretsmanager:AmplifyAppEnvVar:SecretString:AMPLIFY_DIFF_DEPLOY}}'
       - Name: REACT_APP_ADMIN_ACCESS_KEY_ID
@@ -399,6 +398,9 @@ Resources:
 
   CognitoManagedLoginBranding:
     Type: AWS::Cognito::ManagedLoginBranding
+    DependsOn:
+      - CognitoUserPool
+      - CognitoUserPoolClient
     Properties:
       ClientId: !GetAtt CognitoUserPool.UserPoolId
       UserPoolId: !GetAtt CognitoUserPoolClient.ClientId
