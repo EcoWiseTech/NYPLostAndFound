@@ -401,8 +401,8 @@ Resources:
       - CognitoUserPool
       - CognitoUserPoolClient
     Properties:
-      ClientId: !GetAtt CognitoUserPool.UserPoolId
-      UserPoolId: !GetAtt CognitoUserPoolClient.ClientId
+      ClientId: !GetAtt CognitoUserPoolClient.ClientId
+      UserPoolId: !GetAtt CognitoUserPool.UserPoolId
       UseCognitoProvidedValues: false
       Settings:
         components:
