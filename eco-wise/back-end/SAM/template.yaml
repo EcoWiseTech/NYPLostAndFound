@@ -147,6 +147,25 @@ Resources:
             Method: post
             RestApiId: !Ref ServerlessRestApi
 
+  StoreHomeApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: StoreHomeApiFunction/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: HomeTable
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        StoreHomeApiResource:
+          Type: Api
+          Properties:
+            Path: /Home/StoreHome
+            Method: Post
+            RestApiId: !Ref ServerlessRestApi
+
 Outputs:
   StoreWeatherApiFunction:
     Description: "StoreWeatherApiFunction ARN"
