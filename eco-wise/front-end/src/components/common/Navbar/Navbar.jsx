@@ -13,27 +13,28 @@ import { useUserContext } from "../../../contexts/UserContext";
 export function Navbar() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isAdminDrawerOpen, setIsAdminDrawerOpen] = useState(false)
-    const {IsLoggedIn} = useUserContext();
-    
+    const { IsLoggedIn } = useUserContext();
+
 
     return (
         <>
             {// !isAdminPage &&
-                    <AppBar position="sticky" sx={{ zIndex:999, borderRadius: "0.5rem", maxWidth:"95%", margin: "0 auto", marginTop: ["1rem", "2rem"], top: ["1rem", "2rem"]}}>
-                        <Toolbar>
-                            <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
-                                <IconButton color="inherit" sx={{ marginRight: "1rem", display: ["flex", "flex", "none"] }} onClick={() => setIsDrawerOpen(true)}><MenuIcon /></IconButton>
-                                <Button color="inherit" variant="text" LinkComponent={Link} to="/" sx={{ marginRight: "1rem", fontFamily: "'caveat brush'", textTransform: "none", fontSize: "18px", padding: "0" }}>EcoWise</Button>
-                                <Divider orientation="vertical" flexItem sx={{ marginRight: "1rem", display: ["none", "none", "flex"] }} />
-                                <Stack spacing={2} direction="row" sx={{ display: ["none", "none", "flex"] }}>
-                                    <Button startIcon={<HomeIcon/>} LinkComponent={Link} variant="text" color="inherit" to="/">Home</Button>
-                                    <Button startIcon={<DirectionsCarIcon/>} LinkComponent={Link} variant="text" color="inherit" to="/weatherpage">weather</Button>
-                                </Stack>
-                            </Box>
-                            {!IsLoggedIn() && <Button LinkComponent={Link} variant="text" color="inherit" to="/login" startIcon={<LoginIcon/>}>Login</Button>}
-                            {IsLoggedIn() && <NavbarProfile />}
-                        </Toolbar>
-                    </AppBar>
+                <AppBar position="sticky" sx={{ zIndex: 999, borderRadius: "0.5rem", maxWidth: "95%", margin: "0 auto", marginTop: ["1rem", "2rem"], top: ["1rem", "2rem"] }}>
+                    <Toolbar>
+                        <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
+                            <IconButton color="inherit" sx={{ marginRight: "1rem", display: ["flex", "flex", "none"] }} onClick={() => setIsDrawerOpen(true)}><MenuIcon /></IconButton>
+                            <Button color="inherit" variant="text" LinkComponent={Link} to="/" sx={{ marginRight: "1rem", fontFamily: "'caveat brush'", textTransform: "none", fontSize: "18px", padding: "0" }}>EcoWise</Button>
+                            <Divider orientation="vertical" flexItem sx={{ marginRight: "1rem", display: ["none", "none", "flex"] }} />
+                            <Stack spacing={2} direction="row" sx={{ display: ["none", "none", "flex"] }}>
+                                <Button startIcon={<HomeIcon />} LinkComponent={Link} variant="text" color="inherit" to="/">Home</Button>
+                                {IsLoggedIn() && <Button startIcon={<HomeIcon />} LinkComponent={Link} variant="text" color="inherit" to="/dashboard">Dashboard</Button>}
+                                <Button startIcon={<DirectionsCarIcon />} LinkComponent={Link} variant="text" color="inherit" to="/weatherpage">weather</Button>
+                            </Stack>
+                        </Box>
+                        {!IsLoggedIn() && <Button LinkComponent={Link} variant="text" color="inherit" to="/login" startIcon={<LoginIcon />}>Login</Button>}
+                        {IsLoggedIn() && <NavbarProfile />}
+                    </Toolbar>
+                </AppBar>
             }
             {/* {isAdminPage &&
                 <AppBar position="sticky" sx={{ zIndex:999, borderRadius: "0.5rem", maxWidth:"95%", margin: "0 auto", marginTop: ["1rem", "2rem"], top: ["1rem", "2rem"]}}>
@@ -59,13 +60,21 @@ export function Navbar() {
                     <ListItem key={"Home"}>
                         <Typography fontWeight={700}>Navigation Menu</Typography>
                     </ListItem>
-                    <Divider sx={{marginBottom: 1}} />
+                    <Divider sx={{ marginBottom: 1 }} />
                     <ListItem key={"Home"} disablePadding>
                         <ListItemButton component={Link} to="/" onClick={() => setIsDrawerOpen(false)}>
                             <ListItemIcon><HomeIcon /></ListItemIcon>
                             <ListItemText primary={"Home"} />
                         </ListItemButton>
                     </ListItem>
+                    {IsLoggedIn() &&
+                        <ListItem key={"Dashboard"} disablePadding>
+                            <ListItemButton component={Link} to="/dashboard" onClick={() => setIsDrawerOpen(false)}>
+                                <ListItemIcon><HomeIcon /></ListItemIcon>
+                                <ListItemText primary={"Dashbaord"} />
+                            </ListItemButton>
+                        </ListItem>
+                    }
                     <ListItem key={"weather"} disablePadding>
                         <ListItemButton component={Link} to="/weatherpage" onClick={() => setIsDrawerOpen(false)}>
                             <ListItemIcon><DirectionsCarIcon /></ListItemIcon>
