@@ -27,18 +27,22 @@ import * as Yup from 'yup';
 import { useUserContext } from '../../contexts/UserContext';
 import { useAlert } from '../../contexts/AlertContext';
 import DevicesIcon from '@mui/icons-material/Devices';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { StoreHomeApi } from '../../api/home/StoreHomeApi';
 import { LoadingButton } from '@mui/lab';
 import CloseIcon from '@mui/icons-material/Close';
 import CardTitle from '../../components/common/CardTitle';
+import { GetHomeApi } from '../../api/home/GetHomeApi';
+import { useEffect } from 'react';
+import { enqueueSnackbar } from 'notistack';
+import { UpdateHomeApi } from '../../api/home/UpdateHomeApi';
 
 const validationSchema = Yup.object({
     homeName: Yup.string().required('Home name is required'),
     rooms: Yup.array()
         .of(
             Yup.object({
-                name: Yup.string().required('Room name is required'),
+                roomName: Yup.string().required('Room name is required'),
                 devices: Yup.array()
                     .of(
                         Yup.object({
@@ -52,7 +56,7 @@ const validationSchema = Yup.object({
         .min(1, 'There must be at least one room'),
 });
 
-function AddHomePage() {
+function EditHomePage() {
     const { user } = useUserContext();
     const { showAlert } = useAlert();
     const navigate = useNavigate();
@@ -62,7 +66,7 @@ function AddHomePage() {
         homeName: '',
         rooms: [
             {
-                name: '',
+                roomName: '',
                 devices: [],
             },
         ],
@@ -75,6 +79,20 @@ function AddHomePage() {
         AirCon: ['Samsung AC 1', 'LG AC 2', 'Custom'],
         Fan: ['Dyson Fan 1', 'Philips Fan 2', 'Custom'],
     };
+    const { uuid } = useParams();
+
+    useEffect(() => {
+        if (uuid) {
+            GetHomeApi(user.Username, uuid)
+                .then((res) => {
+                    setHomeData(res.data[0]);
+                    console.log(res.data[0]);
+                })
+                .catch((err) => {
+                    enqueueSnackbar('Failed to fetch home data', { variant: 'error' });
+                });
+        }
+    }, [user.Username, uuid]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -105,7 +123,7 @@ function AddHomePage() {
             ...prev,
             rooms: [
                 ...prev.rooms,
-                { name: '', devices: [{ type: '', model: '', consumption: '' }] },
+                { roomName: '', devices: [{ type: '', model: '', consumption: '' }] },
             ],
         }));
     };
@@ -137,13 +155,14 @@ function AddHomePage() {
             const filteredData = {
                 ...homeData,
                 userId: user.Username,
-                rooms: homeData.rooms.filter((room) => room.name.trim() !== ''),
+                rooms: homeData.rooms.filter((room) => room.roomName.trim() !== ''),
             };
 
-            await StoreHomeApi(filteredData);
-            showAlert('success', 'New home has been added.');
+            await UpdateHomeApi(filteredData);
+            showAlert('success', 'Home Has been Updated');
             navigate('/dashboard');
         } catch (err) {
+            console.log('reached', err)
             if (err.inner) {
                 // Collect all error messages into a single string
                 const allErrors = err.inner.map((validationError) => validationError.message);
@@ -211,9 +230,9 @@ function AddHomePage() {
                                         label="Room Name"
                                         variant="outlined"
                                         fullWidth
-                                        value={room.name}
+                                        value={room.roomName}
                                         onChange={(e) =>
-                                            handleRoomChange(roomIndex, 'name', e.target.value)
+                                            handleRoomChange(roomIndex, 'roomName', e.target.value)
                                         }
                                         InputProps={{
                                             startAdornment: (
@@ -353,10 +372,10 @@ function AddHomePage() {
                 onClick={handleSubmit}
                 loading={loading}
             >
-                Add Home
+                Edit Home
             </LoadingButton>
         </Container>
     );
 }
 
-export default AddHomePage;
+export default EditHomePage;

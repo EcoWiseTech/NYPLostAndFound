@@ -1,5 +1,5 @@
-import { useParams } from 'react-router-dom';
-import { Box, Button, Card, CardContent, CircularProgress, Container, Grid, Typography } from '@mui/material';
+import { Link, useParams } from 'react-router-dom';
+import { Box, Button, Card, CardContent, CircularProgress, Container, Grid, IconButton, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import HomeIcon from '@mui/icons-material/Home';
 import RoomIcon from '@mui/icons-material/MeetingRoom';
@@ -8,6 +8,8 @@ import { GetHomeApi } from '../../api/home/GetHomeApi';
 import { enqueueSnackbar } from 'notistack';
 import EditIcon from '@mui/icons-material/Edit';
 import { useUserContext } from '../../contexts/UserContext';
+import CardTitle from '../../components/common/CardTitle';
+import { LoadingButton } from '@mui/lab';
 
 function ViewHomePage() {
     const { user } = useUserContext();
@@ -26,10 +28,6 @@ function ViewHomePage() {
                 });
         }
     }, [user.Username, uuid]);
-
-    const handleEdit = () => {
-        console.log('Edit button clicked'); // Replace this with navigation or functionality to edit the home
-    };
 
     return (
         <>
@@ -50,7 +48,7 @@ function ViewHomePage() {
                             </Typography>
                         </CardContent>
                         <Box>
-                            <Button variant="contained" startIcon={<EditIcon />} color="primary" onClick={handleEdit}>
+                            <Button variant="contained" startIcon={<EditIcon />} color="primary" href='/' to={`/home/edit/${uuid}`} LinkComponent={Link}>
                                 Edit
                             </Button>
                         </Box>
@@ -58,24 +56,49 @@ function ViewHomePage() {
 
                     <Grid container spacing={3}>
                         {home.rooms.map((room) => (
-                            <Grid item xs={12} md={6} lg={4} key={room.roomId}>
+                            <Grid item xs={12} md={6} lg={6} key={room.roomId}>
                                 <Card sx={{ height: '100%' }}>
                                     <CardContent>
                                         <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', mb: '0.5rem' }}>
                                             <RoomIcon color="primary" sx={{ fontSize: '1.5rem', marginRight: '0.5rem' }} />
                                             {room.roomName}
                                         </Typography>
-                                        <Typography variant="subtitle1" sx={{ mb: '0.5rem' }}>
-                                            Devices:
-                                        </Typography>
                                         {room.devices.map((device, index) => (
-                                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: '0.5rem' }}>
-                                                <DeviceIcon sx={{ fontSize: '1.2rem', marginRight: '0.5rem', color: 'gray' }} />
-                                                <Typography>{device.name}</Typography>
-                                            </Box>
+                                            <>
+                                                <Card sx={{ mt: 2, padding: 1.5, boxShadow: 2, }}>
+                                                    <Grid container spacing={1}>
+                                                        <Grid item xs={10}>
+                                                            <CardTitle
+                                                                title={device.model === 'Custom' ? device.customModel: device.model}
+                                                                icon={<DeviceIcon sx={{ color: "gray" }} />}
+                                                            />
+                                                        </Grid>
+                                                        <Grid item xs={2} >
+                                                            <LoadingButton variant='contained' color='primary'>Start</LoadingButton>
+                                                        </Grid>
+                                                        <Grid item xs={12}>
+                                                            <Typography>Status: running {device.status}</Typography>
+                                                        </Grid>
+                                                        <Grid item xs={12}>
+                                                            <Typography>Type: {device.type}</Typography>
+                                                        </Grid>
+                                                        <Grid item xs={12}>
+                                                            {device.model === 'Custom' ? (
+                                                                <Typography>Model: Custom - {device.customModel}</Typography>
+                                                            ) :
+                                                                <Typography>Model: {device.model}</Typography>
+                                                            }
+                                                        </Grid>
+                                                        <Grid item xs={12}>
+                                                            <Typography>Device Consumption: {device.consumption}</Typography>
+                                                        </Grid>
+                                                    </Grid>
+                                                </Card>
+                                            </>
+
                                         ))}
                                     </CardContent>
-                                </Card>
+                                </Card >
                             </Grid>
                         ))}
                     </Grid>

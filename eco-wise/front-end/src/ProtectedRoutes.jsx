@@ -3,6 +3,7 @@ import UserProfileRoutesPage from './pages/user/UserProfileRoutesPage'
 import AddHomePage from './pages/home/AddHomePage'
 import UserDashboardPage from './pages/home/UserDashboardPage'
 import ViewHomePage from './pages/home/ViewHomePage'
+import EditHomePage from './pages/home/EditHomePage'
 
 const ProtectedRoutes = [
     {
@@ -20,6 +21,10 @@ const ProtectedRoutes = [
     {
         path: "home/view/:uuid",
         element: <ViewHomePage />,
+    },
+    {
+        path: "home/edit/:uuid",
+        element: <EditHomePage />,
     },
 ]
 
