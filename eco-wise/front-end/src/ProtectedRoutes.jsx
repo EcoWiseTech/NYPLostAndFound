@@ -1,7 +1,8 @@
 import React from 'react'
 import UserProfileRoutesPage from './pages/user/UserProfileRoutesPage'
-import UserDashboard from './pages/home/UserDashboard'
-import AddHome from './pages/home/AddHome'
+import AddHomePage from './pages/home/AddHomePage'
+import UserDashboardPage from './pages/home/UserDashboardPage'
+import ViewHomePage from './pages/home/ViewHomePage'
 
 const ProtectedRoutes = [
     {
@@ -10,11 +11,15 @@ const ProtectedRoutes = [
     },
     {
         path: "dashboard",
-        element: <UserDashboard />,
+        element: <UserDashboardPage />,
     },
     {
         path: "addHome",
-        element: <AddHome />,
+        element: <AddHomePage />,
+    },
+    {
+        path: "home/view/:uuid",
+        element: <ViewHomePage />,
     },
 ]
 

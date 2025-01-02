@@ -1,16 +1,10 @@
 import EcoWiseApi from "../APIRequest";
 
-export const CreateHome = async (homeName, userId, rooms) => {
+export const StoreHomeApi = async (requestBody) => {
     try {
-      // Construct the request payload
-      const requestBody = {
-        homeName,
-        userId,
-        rooms,
-      };
   
       // Make the POST request using the APIRequest class
-      const response = await EcoWiseApi.post('/home', requestBody);
+      const response = await EcoWiseApi.post('/Home/StoreHome', requestBody);
   
       // Return the successful response
       return response.data;
