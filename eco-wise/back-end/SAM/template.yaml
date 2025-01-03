@@ -223,6 +223,63 @@ Resources:
             Method: post
             RestApiId: !Ref ServerlessRestApi
 
+  StoreDeviceConsumptionApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: StoreDeviceConsumptionApiFunction/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: DeviceConsumptionTable
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        StoreDeviceConsumptionApiResource:
+          Type: Api
+          Properties:
+            Path: /DeviceConsumption/StoreDeviceConsumption
+            Method: post
+            RestApiId: !Ref ServerlessRestApi
+
+  GetDeviceConsumptionApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetDeviceConsumptionApiFunction/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: DeviceConsumptionTable
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        GetDeviceConsumptionApiResource:
+          Type: Api
+          Properties:
+            Path: /DeviceConsumption/GetDeviceConsumption
+            Method: post
+            RestApiId: !Ref ServerlessRestApi
+
+  UpdateDeviceConsumptionApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: UpdateDeviceConsumptionApiFunction/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: DeviceConsumptionTable
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        UpdateDeviceConsumptionApiResource:
+          Type: Api
+          Properties:
+            Path: /DeviceConsumption/UpdateDeviceConsumption
+            Method: put
+            RestApiId: !Ref ServerlessRestApi
+
 Outputs:
   StoreWeatherApiFunction:
     Description: "StoreWeatherApiFunction ARN"

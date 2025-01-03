@@ -59,7 +59,13 @@ export const lambdaHandler = async (event, context) => {
       .map((room) => ({
         roomId: uuidv4(),
         roomName: room.name,
-        devices: room.devices || [],
+        devices: (room.devices || []).map((device) => ({
+          ...device,
+          status: "stopped",
+          startTime:"",
+          sessionId:"",
+          deviceId: uuidv4(), // Assign a unique deviceId to each device
+        })),
       }));
 
     const homeData = {
