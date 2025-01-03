@@ -204,6 +204,25 @@ Resources:
             Method: put
             RestApiId: !Ref ServerlessRestApi
 
+  DeleteHomeApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DeleteHomeApiFunction/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: HomeTable
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        DeleteHomeApiResource:
+          Type: Api
+          Properties:
+            Path: /Home/DeleteHome
+            Method: post
+            RestApiId: !Ref ServerlessRestApi
+
 Outputs:
   StoreWeatherApiFunction:
     Description: "StoreWeatherApiFunction ARN"

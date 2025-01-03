@@ -2,40 +2,23 @@ import React, { useState } from 'react';
 import {
     Box,
     Container,
-    TextField,
-    Button,
-    Card,
-    CardContent,
     Grid,
-    IconButton,
-    Divider,
-    InputAdornment,
-    MenuItem,
-    Select,
-    FormControl,
-    InputLabel,
-    Alert,
-    Collapse,
+    CircularProgress,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AirConditionerIcon from '@mui/icons-material/AcUnit'; // AirCon icon
-import DeviceThermostatIcon from '@mui/icons-material/DevicesOther'; // Fan icon
-import HomeIcon from '@mui/icons-material/Home';
-import RoomIcon from '@mui/icons-material/MeetingRoom';
 import * as Yup from 'yup';
 import { useUserContext } from '../../contexts/UserContext';
 import { useAlert } from '../../contexts/AlertContext';
-import DevicesIcon from '@mui/icons-material/Devices';
 import { useNavigate, useParams } from 'react-router-dom';
-import { StoreHomeApi } from '../../api/home/StoreHomeApi';
 import { LoadingButton } from '@mui/lab';
-import CloseIcon from '@mui/icons-material/Close';
-import CardTitle from '../../components/common/CardTitle';
 import { GetHomeApi } from '../../api/home/GetHomeApi';
 import { useEffect } from 'react';
 import { enqueueSnackbar } from 'notistack';
 import { UpdateHomeApi } from '../../api/home/UpdateHomeApi';
+import { DeleteHomeApi } from '../../api/home/DeleteHomeApi';
+import EditHomeTopCard from '../../components/home/EditHomeTopCard';
+import EditHomeErrorAlert from '../../components/home/EditHomeErrorAlert';
+import EditHomeRoomCard from '../../components/home/EditHomeRoomCard';
+import EditHomeDeleteModal from '../../components/home/EditHomeDeleteModal';
 
 const validationSchema = Yup.object({
     homeName: Yup.string().required('Home name is required'),
@@ -53,7 +36,6 @@ const validationSchema = Yup.object({
                     )
             })
         )
-        .min(1, 'There must be at least one room'),
 });
 
 function EditHomePage() {
@@ -61,19 +43,13 @@ function EditHomePage() {
     const { showAlert } = useAlert();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
-    const [homeData, setHomeData] = useState({
-        homeName: '',
-        rooms: [
-            {
-                roomName: '',
-                devices: [],
-            },
-        ],
-    });
+    const [homeData, setHomeData] = useState(null);
 
     const [errors, setErrors] = useState([]);
     const [openError, setOpenError] = useState(true);
+    const [deleteModal, setDeleteModal] = useState(false);
 
     const deviceModels = {
         AirCon: ['Samsung AC 1', 'LG AC 2', 'Custom'],
@@ -176,205 +152,86 @@ function EditHomePage() {
         }
     };
 
+    const handleDeleteConfirm = () => {
+        setDeleteLoading(true)
+        const requestBody = {
+            uuid: homeData.uuid,
+            userId: homeData.userId
+        }
+        DeleteHomeApi(requestBody)
+            .then((res) => {
+                showAlert('success', 'Home has been successfully deleted')
+                navigate('/dashboard')
+            })
+            .catch((err) => {
+                showAlert('error', 'unexpected error occured, please try again')
+                console.log(err)
+            })
+            .finally(() => {
+                setDeleteLoading(false)
+                setDeleteModal(false)
+            })
+    }
+
     return (
-        <Container maxWidth="xl" sx={{ mt: '2rem', mb: '2rem' }}>
-            {/* Display errors as collapsible alert */}
-            {errors.length > 0 && (
-                <Collapse in={openError}>
-                    <Alert
-                        sx={{ mb: 1 }}
-                        severity="error"
-                        action={
-                            <IconButton
-                                color="inherit"
-                                size="small"
-                                onClick={() => setOpenError(!openError)}
-                            >
-                                <CloseIcon />
-                            </IconButton>
-                        }
-                    >
-                        <Box sx={{ whiteSpace: 'pre-line' }}>{errors.join(', ')}</Box>
-                    </Alert>
-                </Collapse>
-            )}
+        <>
+            {homeData === null ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                    <CircularProgress />
+                </Box>
+            ) : (
+                <Container maxWidth="xl" sx={{ mt: '2rem', mb: '2rem' }}>
+                    {/* Display errors as collapsible alert */}
+                    {errors.length > 0 && (
+                        <EditHomeErrorAlert 
+                        openError={openError}
+                        setOpenError={setOpenError}
+                        errors={errors}
+                        />
+                    )}
 
-            <Card sx={{ mb: 3, p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <TextField
-                    sx={{ width: '60%' }}
-                    label="Home Name"
-                    variant="outlined"
-                    name="homeName"
-                    value={homeData.homeName}
-                    onChange={handleInputChange}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <HomeIcon />
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-                <Button variant="contained" startIcon={<AddIcon />} onClick={addRoom} sx={{ ml: 2 }}>
-                    Add Room
-                </Button>
-            </Card>
+                    <EditHomeTopCard
+                        homeData={homeData}
+                        handleInputChange={handleInputChange}
+                        setDeleteModal={setDeleteModal}
+                        addRoom={addRoom}
+                    />
 
-            <Grid container spacing={3}>
-                {homeData.rooms.map((room, roomIndex) => (
-                    <Grid item xs={12} md={6} key={roomIndex}>
-                        <Card>
-                            <CardContent>
-                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                    <TextField
-                                        label="Room Name"
-                                        variant="outlined"
-                                        fullWidth
-                                        value={room.roomName}
-                                        onChange={(e) =>
-                                            handleRoomChange(roomIndex, 'roomName', e.target.value)
-                                        }
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <RoomIcon />
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                    />
-                                    <IconButton color="error" onClick={() => removeRoom(roomIndex)} sx={{ ml: 2 }}>
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </Box>
-                                <Divider />
-                                {room.devices.map((device, deviceIndex) => (
-                                    <>
-                                        <Card sx={{ mt: 2, padding: 1.5, boxShadow: 2, }}>
-                                            <Grid container spacing={1}>
-                                                <Grid item xs={11}>
-                                                    <CardTitle
-                                                        title='Device Settings'
-                                                        icon={<DevicesIcon sx={{ color: "gray" }} />}
-                                                    />
-                                                </Grid>
-                                                <Grid item xs={1} >
-                                                    <IconButton
-                                                        color="error"
-                                                        onClick={() => removeDevice(roomIndex, deviceIndex)}
-                                                        sx={{
-                                                            zIndex: 1, // Ensures delete icon is above other elements
-                                                        }}
-                                                    >
-                                                        <DeleteIcon />
-                                                    </IconButton>
-                                                </Grid>
-                                                <Grid item xs={12}>
-                                                    <FormControl fullWidth sx={{ mb: 2 }}>
-                                                        <InputLabel>Device Type</InputLabel>
-                                                        <Select
-                                                            label='Device Type'
-                                                            value={device.type}
-                                                            onChange={(e) =>
-                                                                handleDeviceChange(
-                                                                    roomIndex,
-                                                                    deviceIndex,
-                                                                    'type',
-                                                                    e.target.value
-                                                                )
-                                                            }
-                                                        >
-                                                            <MenuItem value="AirCon">Air Con</MenuItem>
-                                                            <MenuItem value="Fan">Fan</MenuItem>
-                                                        </Select>
-                                                    </FormControl>
-                                                    {device.type && (
-                                                        <FormControl fullWidth sx={{ mb: 2 }}>
-                                                            <InputLabel>Device Model</InputLabel>
-                                                            <Select
-                                                                label="Device Model"
-                                                                value={device.model}
-                                                                onChange={(e) =>
-                                                                    handleDeviceChange(
-                                                                        roomIndex,
-                                                                        deviceIndex,
-                                                                        'model',
-                                                                        e.target.value
-                                                                    )
-                                                                }
-                                                            >
-                                                                {deviceModels[device.type].map((model) => (
-                                                                    <MenuItem key={model} value={model}>
-                                                                        {model}
-                                                                    </MenuItem>
-                                                                ))}
-                                                            </Select>
-                                                        </FormControl>
-                                                    )}
-                                                    {device.model === 'Custom' && (
-                                                        <TextField
-                                                            label="Custom Model Name"
-                                                            variant="outlined"
-                                                            fullWidth
-                                                            value={device.customModel || ''}  // Use a different state variable to store the custom model
-                                                            onChange={(e) =>
-                                                                handleDeviceChange(
-                                                                    roomIndex,
-                                                                    deviceIndex,
-                                                                    'customModel',  // Update customModel field
-                                                                    e.target.value
-                                                                )
-                                                            }
-                                                            sx={{ mb: 2 }}
-                                                        />
-                                                    )}
-                                                    {device.type && device.model && (
-                                                        <TextField
-                                                            label="Device Consumption (e.g., 100kWh)"
-                                                            variant="outlined"
-                                                            fullWidth
-                                                            value={device.consumption}
-                                                            onChange={(e) =>
-                                                                handleDeviceChange(
-                                                                    roomIndex,
-                                                                    deviceIndex,
-                                                                    'consumption',
-                                                                    e.target.value
-                                                                )
-                                                            }
-                                                            sx={{ mb: 2 }}
-                                                        />
-                                                    )}
-                                                </Grid>
-                                            </Grid>
-
-                                        </Card>
-                                    </>
-                                ))}
-
-                                <Button
-                                    variant="contained"
-                                    startIcon={<AddIcon />}
-                                    onClick={() => addDevice(roomIndex)}
-                                    sx={{ mt: 2 }}
-                                >
-                                    Add Device
-                                </Button>
-                            </CardContent>
-                        </Card>
+                    <Grid container spacing={3}>
+                        {homeData.rooms.map((room, roomIndex) => (
+                            <EditHomeRoomCard 
+                            handleRoomChange={handleRoomChange}
+                            handleDeviceChange={handleDeviceChange}
+                            room={room}
+                            addDevice={addDevice}
+                            removeDevice={removeDevice}
+                            removeRoom={removeRoom}
+                            deviceModels={deviceModels}
+                            roomIndex={roomIndex}
+                            />
+                        ))}
                     </Grid>
-                ))}
-            </Grid>
 
-            <LoadingButton
-                sx={{ marginTop: '1rem' }}
-                variant="contained"
-                color="primary"
-                onClick={handleSubmit}
-                loading={loading}
-            >
-                Edit Home
-            </LoadingButton>
-        </Container>
+                    <LoadingButton
+                        sx={{ marginTop: '1rem' }}
+                        variant="contained"
+                        color="primary"
+                        onClick={handleSubmit}
+                        loading={loading}
+                    >
+                        Edit Home
+                    </LoadingButton>
+                    <EditHomeDeleteModal
+                        deleteModal={deleteModal}
+                        setDeleteModal={setDeleteModal}
+                        deleteLoading={deleteLoading}
+                        homeData={homeData}
+                        handleDeleteConfirm={handleDeleteConfirm}
+                    />
+                </Container>
+            )}
+        </>
+
     );
 }
 
