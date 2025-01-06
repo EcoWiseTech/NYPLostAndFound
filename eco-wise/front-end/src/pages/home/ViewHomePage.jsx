@@ -9,6 +9,8 @@ import ViewHomeRoomCard from '../../components/home/ViewHomeRoomCard';
 import { StoreDeviceConsumptionApi } from '../../api/home/StoreDeviceConsumptionApi';
 import { UpdateHomeApi } from '../../api/home/UpdateHomeApi';
 import { UpdateDeviceConsumptionApi } from '../../api/home/UpdateDeviceConsumptionApi';
+import { GetDeviceConsumptionApi } from '../../api/home/GetDeviceConsumptionApi';
+import DeviceConsumptionChart from '../../components/home/DeviceConsumptionChart';
 
 function ViewHomePage() {
     const { user } = useUserContext();
@@ -16,6 +18,37 @@ function ViewHomePage() {
     const { uuid } = useParams();
     const [startLoading, setStartLoading] = useState({})
     const [stopLoading, setStopLoading] = useState({})
+    const [toggledDevices, setToggledDevices] = useState([]);
+
+    const toggleDevice = (deviceId) => {
+        if (toggledDevices.some(device => device.deviceId === deviceId)) {
+            // If the device is already toggled, remove it from the state
+            setToggledDevices(prev =>
+                prev.filter(device => device.deviceId !== deviceId)
+            );
+        } else {
+            // If the device is not toggled, fetch its consumption data and add it to the state
+            GetDeviceConsumptionApi(deviceId)
+                .then((res) => {
+                    console.log(res);
+                    if (res.data && Array.isArray(res.data)) {
+                        // Add the device and its consumption data to the state
+                        setToggledDevices(prev => [
+                            ...prev,
+                            {
+                                deviceId,
+                                consumptionData: res.data,
+                            }
+                        ]);
+                    }
+                })
+                .catch((err) => {
+                    console.error(`Failed to fetch consumption data for device ${deviceId}:`, err);
+                });
+        }
+        console.log("here",toggledDevices)
+    };
+
 
     const startDevice = (requestBody) => {
         console.log('triggered')
@@ -59,6 +92,8 @@ function ViewHomePage() {
     const calculateTotalConsumption = (startTime, endTime, consumption) => {
         const startDate = new Date(startTime);
         const endDate = new Date(endTime);
+        console.log('test end time', endTime)
+        console.log("test",startDate, endDate)
 
         // Calculate the difference in milliseconds
         const timeDifferenceInMilliseconds = endDate - startDate;
@@ -68,6 +103,7 @@ function ViewHomePage() {
 
         // Calculate the total consumption
         const totalConsumption = timeDifferenceInHours * parseFloat(consumption);
+        console.log(timeDifferenceInMilliseconds, timeDifferenceInHours, totalConsumption)
 
         // Set the total consumption and status
         return totalConsumption.toFixed(2); // Limiting to 2 decimal places
@@ -76,9 +112,9 @@ function ViewHomePage() {
 
     const stopDevice = (requestBody) => {
         setStopLoading((prev) => ({ ...prev, [requestBody.deviceId]: true }));
-        let newBody = {...requestBody}
+        let newBody = { ...requestBody }
         newBody.endTime = new Date().toISOString();
-        newBody.totalConsumption = calculateTotalConsumption(requestBody.startTime, requestBody.endTime, requestBody.consumption);
+        newBody.totalConsumption = calculateTotalConsumption(requestBody.startTime, newBody.endTime, requestBody.consumption);
         newBody.status = "stopped";
 
         UpdateDeviceConsumptionApi(newBody)
@@ -136,8 +172,8 @@ function ViewHomePage() {
                     <ViewHomeTopCard
                         home={home}
                         uuid={uuid}
+                        toggledDevices={toggledDevices}
                     />
-
                     <Grid container spacing={3}>
                         {home.rooms.map((room) => (
                             <ViewHomeRoomCard
@@ -146,6 +182,8 @@ function ViewHomePage() {
                                 stopDevice={stopDevice}
                                 startLoading={startLoading}
                                 stopLoading={stopLoading}
+                                toggleDevice={toggleDevice}
+                                toggledDevices={toggledDevices}
                             />
                         ))}
                     </Grid>
