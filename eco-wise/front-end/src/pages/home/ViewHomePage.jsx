@@ -46,15 +46,17 @@ function ViewHomePage() {
                     console.error(`Failed to fetch consumption data for device ${deviceId}:`, err);
                 });
         }
-        console.log("here",toggledDevices)
     };
 
 
     const startDevice = (requestBody) => {
-        console.log('triggered')
+        let formattedBody = {...requestBody};
+        formattedBody.userId = home.userId
+        formattedBody.uuid = home.uuid;
+        formattedBody.status = 'running'
         setStartLoading((prev) => ({ ...prev, [requestBody.deviceId]: true }));
 
-        StoreDeviceConsumptionApi(requestBody)
+        StoreDeviceConsumptionApi(formattedBody)
             .then((res) => {
                 const updatedHome = { ...home };
                 updatedHome.rooms = updatedHome.rooms.map((room) => ({

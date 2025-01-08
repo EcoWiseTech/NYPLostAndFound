@@ -40,7 +40,7 @@ export const lambdaHandler = async (event, context) => {
   }
 
   try {
-    const { model, consumption, type, customModel, deviceId, status } = requestBody;
+    const { model, consumption, type, customModel, deviceId, status, uuid, userId } = requestBody;
 
     // Validate input
     if (!model || !consumption || !type || !deviceId || !status) {
@@ -59,6 +59,8 @@ export const lambdaHandler = async (event, context) => {
     const consumptionData = {
       deviceId, // Partition key
       sessionId, // Sort key
+      userId,
+      uuid,
       model,
       consumption,
       type,

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import dayjs from 'dayjs';
+import minMax from 'dayjs/plugin/minMax';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+dayjs.extend(minMax);
 
 // Time period options
 const timePeriods = {
@@ -14,112 +16,125 @@ const timePeriods = {
     '30m': 30 * 60, // 30 minutes
     '45m': 45 * 60, // 45 minutes
     '1h': 60 * 60, // 1 hour
+    '2h': 2 * 60 * 60, // 1 hour
+    '3h': 3 * 60 * 60, // 1 hour
+    '4h': 4 * 60 * 60, // 1 hour
     '5h': 5 * 60 * 60, // 5 hours
+    '6h': 6 * 60 * 60, // 1 hour
     '12h': 12 * 60 * 60, // 12 hours
     '1d': 24 * 60 * 60, // 1 day
-    '5d': 5 * 24 * 60 * 60, // 5 days
-    '15d': 15 * 24 * 60 * 60, // 15 days
-    '30d': 30 * 24 * 60 * 60, // 30 days
-    all: Infinity, // All time
+    custom: null, // Custom time range
 };
 
-// Helper to filter data by time period
-const filterDataByPeriod = (data, periodKey) => {
-    const now = dayjs();
-    const periodSeconds = timePeriods[periodKey];
-    if (periodSeconds === Infinity) return data;
+const generateTimeline = (startTime, endTime, intervalMinutes = 1) => {
+    const timeline = [];
+    let currentTime = dayjs(startTime);
 
-    return data.filter(item => {
-        const startTime = dayjs(item.startTime);
-        return now.diff(startTime, 'second') <= periodSeconds;
-    });
-};
-
-// Helper to format x-axis labels based on time period
-const formatLabelForPeriod = (dateString, periodKey) => {
-    const date = dayjs(dateString);
-    if (periodKey === '30s' || periodKey === '1m' || periodKey === '5m' || periodKey === '15m') {
-        return date.format('HH:mm:ss'); // Show hours, minutes, and seconds
-    } else if (periodKey === '30m' || periodKey === '45m' || periodKey === '1h' || periodKey === '5h') {
-        return date.format('HH:mm'); // Show hours and minutes
-    } else if (periodKey === '12h' || periodKey === '1d' || periodKey === '5d') {
-        return date.format('MMM DD HH:mm'); // Show day and time
-    } else if (periodKey === '15d' || periodKey === '30d') {
-        return date.format('MMM DD'); // Show day and month
-    } else {
-        return date.format('YYYY-MM-DD'); // Show full date for "all time"
+    while (currentTime.isBefore(dayjs(endTime))) {
+        timeline.push(currentTime.format('YYYY-MM-DD HH:mm'));
+        currentTime = currentTime.add(intervalMinutes, 'minute');
     }
+    return timeline;
 };
+
+const aggregateConsumption = (timeline, consumptionData) => {
+    const aggregatedData = Array(timeline.length).fill(0);
+
+    timeline.forEach((timeLabel, index) => {
+        const currentIntervalStart = dayjs(timeLabel);
+        const currentIntervalEnd = currentIntervalStart.add(1, 'minute');
+
+        consumptionData.forEach(session => {
+            const sessionStart = dayjs(session.startTime);
+            const sessionEnd = dayjs(session.endTime || session.startTime);
+            const totalConsumption = parseFloat(session.totalConsumption) || 0;
+
+            // Check if the session overlaps with the current interval
+            if (
+                sessionStart.isBefore(currentIntervalEnd) &&
+                sessionEnd.isAfter(currentIntervalStart)
+            ) {
+                // Calculate the overlap duration in seconds
+                const overlapStart = dayjs.max(sessionStart, currentIntervalStart);
+                const overlapEnd = dayjs.min(sessionEnd, currentIntervalEnd);
+                const overlapDuration = overlapEnd.diff(overlapStart, 'second');
+
+                // Total session duration in seconds
+                const sessionDuration = sessionEnd.diff(sessionStart, 'second');
+                
+                if (sessionDuration > 0) {
+                    // Distribute the consumption proportionally
+                    const consumptionDuringOverlap = (totalConsumption * overlapDuration) / sessionDuration;
+                    aggregatedData[index] += consumptionDuringOverlap;
+                }
+            }
+        });
+    });
+
+    return aggregatedData;
+};
+
 
 const DeviceConsumptionChart = ({ toggledDevices }) => {
-    const [period, setPeriod] = useState('all'); // Period state
+    const [period, setPeriod] = useState('1d'); // Default to last 24 hours
+    const [customStartTime, setCustomStartTime] = useState('');
+    const [customEndTime, setCustomEndTime] = useState('');
 
-    // Filtered data for chart
-    const filteredDevices = toggledDevices.map(device => ({
-        ...device,
-        consumptionData: filterDataByPeriod(device.consumptionData, period),
-    }));
+    const now = dayjs();
+    const defaultStartTime = now.subtract(timePeriods[period] || 0, 'second');
+    const startTime = period === 'custom' ? customStartTime : defaultStartTime.format('YYYY-MM-DD HH:mm');
+    const endTime = period === 'custom' ? customEndTime : now.format('YYYY-MM-DD HH:mm');
 
-    // Calculate total consumption
-    const totalConsumption = filteredDevices.reduce((sum, device) => {
-        return (
-            sum +
-            device.consumptionData.reduce((deviceSum, session) => {
-                return deviceSum + (parseFloat(session.totalConsumption) || 0);
-            }, 0)
-        );
-    }, 0);
+    // Generate timeline for the selected period
+    const timeline = generateTimeline(startTime, endTime);
 
-    // Prepare chart data
+    // Aggregate data for each device
+    const datasets = toggledDevices.map(device => {
+        const aggregatedData = aggregateConsumption(timeline, device.consumptionData);
+        const deviceTotal = aggregatedData.reduce((sum, value) => sum + value, 0);
+        return {
+            label: `Device: ${device.consumptionData[0]?.customModel || device.consumptionData[0]?.model || 'Unknown'} (Total: ${deviceTotal.toFixed(2)} kWh)`,
+            data: aggregatedData,
+            borderColor: `hsl(${Math.random() * 360}, 70%, 50%)`, // Random color
+            backgroundColor: `hsla(${Math.random() * 360}, 70%, 50%, 0.5)`,
+            tension: 0.4,
+        };
+    });
+
+    // Chart data
     const chartData = {
-        labels: filteredDevices.flatMap(device =>
-            device.consumptionData.map(data => data.startTime)
-        ),
-        datasets: filteredDevices.map(device => {
-            // Calculate individual device total consumption
-            const deviceTotal = device.consumptionData.reduce((sum, session) => {
-                return sum + (parseFloat(session.totalConsumption) || 0);
-            }, 0);
-
-            return {
-                label: `Device: ${device.consumptionData[0]?.customModel || device.consumptionData[0]?.model || 'Unknown'} (Total: ${deviceTotal.toFixed(2)} kWh)`, // Add total to label
-                data: device.consumptionData.map(data => parseFloat(data.totalConsumption) || 0),
-                borderColor: `hsl(${Math.random() * 360}, 70%, 50%)`, // Random color
-                backgroundColor: `hsla(${Math.random() * 360}, 70%, 50%, 0.5)`,
-                tension: 0.4,
-            };
-        }),
+        labels: timeline,
+        datasets: datasets,
     };
 
+    // Chart options
     const options = {
         responsive: true,
-        aspectRatio: 3, // Set aspect ratio, 2 means width:height = 2:1
+        aspectRatio: 3,
         plugins: {
             legend: {
                 position: 'top',
             },
             title: {
                 display: true,
-                text: 'Device Consumption Over Time',
+                text: `Device Consumption from ${startTime} to ${endTime}`,
             },
         },
         scales: {
             x: {
                 title: {
                     display: true,
-                    text: 'Start Time',
+                    text: 'Time',
                 },
                 ticks: {
-                    callback: function (value, index, values) {
-                        const dateString = chartData.labels[index];
-                        return formatLabelForPeriod(dateString, period);
-                    },
+                    autoSkip: true,
+                    maxTicksLimit: 10,
                 },
             },
             y: {
                 title: {
                     display: true,
-                    text: 'Total Consumption (kWh)',
+                    text: 'Consumption (kWh)',
                 },
             },
         },
@@ -127,24 +142,44 @@ const DeviceConsumptionChart = ({ toggledDevices }) => {
 
     return (
         <div>
-            <div style={{ marginBottom: '1rem' }}></div>
             <div style={{ marginBottom: '1rem', fontSize: '1.2rem', fontWeight: 'bold' }}>
-                Total Consumption Across All Devices: {totalConsumption.toFixed(2)} kWh
+                Total Consumption: {datasets.reduce((sum, dataset) => sum + dataset.data.reduce((a, b) => a + b, 0), 0).toFixed(2)} kWh
             </div>
             <label htmlFor="period">Select Time Period:</label>
             <select
                 id="period"
                 value={period}
                 onChange={(e) => setPeriod(e.target.value)}
-                style={{ marginLeft: '0.5rem', marginBottom: "1rem", padding: '0.5rem', borderRadius: '5px' }}
+                style={{ marginLeft: '0.5rem', marginBottom: '1rem', padding: '0.5rem', borderRadius: '5px' }}
             >
-                {Object.keys(timePeriods).map((key) => (
+                {Object.keys(timePeriods).map(key => (
                     <option key={key} value={key}>
-                        {key === 'all' ? 'All Time' : key.toUpperCase()}
+                        {key.toUpperCase()}
                     </option>
                 ))}
             </select>
-            {/* Ensure the chart takes full width and maintains aspect ratio */}
+            {period === 'custom' && (
+                <div style={{ marginBottom: '1rem' }}>
+                    <label>
+                        Start Time:
+                        <input
+                            type="datetime-local"
+                            value={customStartTime}
+                            onChange={(e) => setCustomStartTime(e.target.value)}
+                            style={{ marginLeft: '0.5rem', marginRight: '1rem', padding: '0.5rem', borderRadius: '5px' }}
+                        />
+                    </label>
+                    <label>
+                        End Time:
+                        <input
+                            type="datetime-local"
+                            value={customEndTime}
+                            onChange={(e) => setCustomEndTime(e.target.value)}
+                            style={{ marginLeft: '0.5rem', padding: '0.5rem', borderRadius: '5px' }}
+                        />
+                    </label>
+                </div>
+            )}
             <div style={{ width: '100%', height: 'auto' }}>
                 <Line data={chartData} options={options} />
             </div>
