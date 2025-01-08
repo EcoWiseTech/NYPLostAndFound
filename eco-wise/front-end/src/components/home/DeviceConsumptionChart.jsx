@@ -93,7 +93,7 @@ const DeviceConsumptionChart = ({ toggledDevices }) => {
         const aggregatedData = aggregateConsumption(timeline, device.consumptionData);
         const deviceTotal = aggregatedData.reduce((sum, value) => sum + value, 0);
         return {
-            label: `Device: ${device.consumptionData[0]?.customModel || device.consumptionData[0]?.model || 'Unknown'} (Total: ${deviceTotal.toFixed(2)} kWh)`,
+            label: `Device: ${device.consumptionData[0]?.customModel || device.consumptionData[0]?.model || 'Unknown'} (Total: ${deviceTotal.toFixed(2)} kW)`,
             data: aggregatedData,
             borderColor: `hsl(${Math.random() * 360}, 70%, 50%)`, // Random color
             backgroundColor: `hsla(${Math.random() * 360}, 70%, 50%, 0.5)`,
@@ -134,7 +134,7 @@ const DeviceConsumptionChart = ({ toggledDevices }) => {
             y: {
                 title: {
                     display: true,
-                    text: 'Consumption (kWh)',
+                    text: 'Consumption (KW)',
                 },
             },
         },
@@ -143,7 +143,7 @@ const DeviceConsumptionChart = ({ toggledDevices }) => {
     return (
         <div>
             <div style={{ marginBottom: '1rem', fontSize: '1.2rem', fontWeight: 'bold' }}>
-                Total Consumption: {datasets.reduce((sum, dataset) => sum + dataset.data.reduce((a, b) => a + b, 0), 0).toFixed(2)} kWh
+                Total Consumption: {datasets.reduce((sum, dataset) => sum + dataset.data.reduce((a, b) => a + b, 0), 0).toFixed(2)} kW
             </div>
             <label htmlFor="period">Select Time Period:</label>
             <select
