@@ -38,6 +38,11 @@ export const lambdaHandler = async (event, context) => {
     console.error('Invalid JSON in event or event.body:', event.body || event);
     return {
       statusCode: 400,
+      headers: {
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+      },
       body: JSON.stringify({
         message: 'Invalid JSON format in request body.',
       }),
@@ -51,6 +56,11 @@ export const lambdaHandler = async (event, context) => {
     if (!uuid || !userId) {
       return {
         statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*", 
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+        },
         body: JSON.stringify({
           message: 'Missing or invalid uuid or userId in request body.',
         }),
@@ -62,6 +72,11 @@ export const lambdaHandler = async (event, context) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+      },
       body: JSON.stringify({
         message: 'Home successfully deleted from DynamoDB.',
       }),

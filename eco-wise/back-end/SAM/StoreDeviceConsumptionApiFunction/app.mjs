@@ -46,6 +46,11 @@ export const lambdaHandler = async (event, context) => {
     if (!model || !consumption || !type || !deviceId || !status) {
       return {
         statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*", 
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+        },
         body: JSON.stringify({
           message: 'Missing or invalid model, consumption, type, deviceId, or status in request body.',
         }),
@@ -75,6 +80,11 @@ export const lambdaHandler = async (event, context) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+      },
       body: JSON.stringify({
         message: 'Device consumption data successfully stored in DynamoDB.',
         consumptionData,

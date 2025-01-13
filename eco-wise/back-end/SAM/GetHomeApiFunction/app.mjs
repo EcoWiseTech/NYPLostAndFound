@@ -44,6 +44,11 @@ export const lambdaHandler = async (event, context) => {
     if (!userId) {
       return {
         statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*", 
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+        },
         body: JSON.stringify({
           message: 'Missing required query parameter: userId.',
         }),
@@ -57,6 +62,11 @@ export const lambdaHandler = async (event, context) => {
     if (homeData.length === 0) {
       return {
         statusCode: 404,
+        headers: {
+          "Access-Control-Allow-Origin": "*", 
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+        },
         body: JSON.stringify({
           message: 'Home data not found for the specified userId and/or uuid.',
         }),
@@ -65,6 +75,11 @@ export const lambdaHandler = async (event, context) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+      },
       body: JSON.stringify({
         message: 'Home data successfully retrieved.',
         data: homeData, // Return the queried data (whether 1 or more items)

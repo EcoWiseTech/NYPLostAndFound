@@ -23,6 +23,9 @@ const timePeriods = {
     '6h': 6 * 60 * 60, // 1 hour
     '12h': 12 * 60 * 60, // 12 hours
     '1d': 24 * 60 * 60, // 1 day
+    '5d': 5 * 24 * 60 * 60, // 1 day
+    '15d': 15 * 24 * 60 * 60, // 1 day
+    '30d': 30 * 24 * 60 * 60, // 1 day
     custom: null, // Custom time range
 };
 
