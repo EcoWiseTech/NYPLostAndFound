@@ -16,20 +16,30 @@ const timePeriods = {
     '30m': 30 * 60, // 30 minutes
     '45m': 45 * 60, // 45 minutes
     '1h': 60 * 60, // 1 hour
-    '2h': 2 * 60 * 60, // 1 hour
-    '3h': 3 * 60 * 60, // 1 hour
-    '4h': 4 * 60 * 60, // 1 hour
+    '2h': 2 * 60 * 60, // 2 hours
+    '3h': 3 * 60 * 60, // 3 hours
+    '4h': 4 * 60 * 60, // 4 hours
     '5h': 5 * 60 * 60, // 5 hours
-    '6h': 6 * 60 * 60, // 1 hour
+    '6h': 6 * 60 * 60, // 6 hours
     '12h': 12 * 60 * 60, // 12 hours
     '1d': 24 * 60 * 60, // 1 day
-    '5d': 5 * 24 * 60 * 60, // 1 day
-    '15d': 15 * 24 * 60 * 60, // 1 day
-    '30d': 30 * 24 * 60 * 60, // 1 day
+    '5d': 5 * 24 * 60 * 60, // 5 days
+    '15d': 15 * 24 * 60 * 60, // 15 days
+    '30d': 30 * 24 * 60 * 60, // 30 days
     custom: null, // Custom time range
 };
 
-const generateTimeline = (startTime, endTime, intervalMinutes = 1) => {
+const calculateIntervalMinutes = (startTime, endTime) => {
+    const totalDuration = dayjs(endTime).diff(dayjs(startTime), 'second');
+    if (totalDuration > 30 * 24 * 60 * 60) return 24 * 60; // 1-day intervals
+    if (totalDuration > 7 * 24 * 60 * 60) return 6 * 60;   // 6-hour intervals
+    if (totalDuration > 24 * 60 * 60) return 60;          // 1-hour intervals
+    if (totalDuration > 5 * 60 * 60) return 20;           // 20-minute intervals
+    if (totalDuration > 2 * 60 * 60) return 10;           // 10-minute intervals
+    return 1;                                             // 1-minute intervals
+};
+
+const generateTimeline = (startTime, endTime, intervalMinutes) => {
     const timeline = [];
     let currentTime = dayjs(startTime);
 
@@ -40,12 +50,12 @@ const generateTimeline = (startTime, endTime, intervalMinutes = 1) => {
     return timeline;
 };
 
-const aggregateConsumption = (timeline, consumptionData) => {
+const aggregateConsumption = (timeline, consumptionData, intervalMinutes) => {
     const aggregatedData = Array(timeline.length).fill(0);
 
     timeline.forEach((timeLabel, index) => {
         const currentIntervalStart = dayjs(timeLabel);
-        const currentIntervalEnd = currentIntervalStart.add(1, 'minute');
+        const currentIntervalEnd = currentIntervalStart.add(intervalMinutes, 'minute');
 
         consumptionData.forEach(session => {
             const sessionStart = dayjs(session.startTime);
@@ -64,9 +74,9 @@ const aggregateConsumption = (timeline, consumptionData) => {
 
                 // Total session duration in seconds
                 const sessionDuration = sessionEnd.diff(sessionStart, 'second');
-                
+
                 if (sessionDuration > 0) {
-                    // Distribute the consumption proportionally
+                    // Distribute the consumption proportionally based on the overlap duration
                     const consumptionDuringOverlap = (totalConsumption * overlapDuration) / sessionDuration;
                     aggregatedData[index] += consumptionDuringOverlap;
                 }
@@ -76,7 +86,6 @@ const aggregateConsumption = (timeline, consumptionData) => {
 
     return aggregatedData;
 };
-
 
 const DeviceConsumptionChart = ({ toggledDevices }) => {
     const [period, setPeriod] = useState('1d'); // Default to last 24 hours
@@ -88,12 +97,12 @@ const DeviceConsumptionChart = ({ toggledDevices }) => {
     const startTime = period === 'custom' ? customStartTime : defaultStartTime.format('YYYY-MM-DD HH:mm');
     const endTime = period === 'custom' ? customEndTime : now.format('YYYY-MM-DD HH:mm');
 
-    // Generate timeline for the selected period
-    const timeline = generateTimeline(startTime, endTime);
+    const intervalMinutes = calculateIntervalMinutes(startTime, endTime);
+    const timeline = generateTimeline(startTime, endTime, intervalMinutes);
 
     // Aggregate data for each device
     const datasets = toggledDevices.map(device => {
-        const aggregatedData = aggregateConsumption(timeline, device.consumptionData);
+        const aggregatedData = aggregateConsumption(timeline, device.consumptionData, intervalMinutes);
         const deviceTotal = aggregatedData.reduce((sum, value) => sum + value, 0);
         return {
             label: `Device: ${device.consumptionData[0]?.customModel || device.consumptionData[0]?.model || 'Unknown'} (Total: ${deviceTotal.toFixed(2)} kW)`,
