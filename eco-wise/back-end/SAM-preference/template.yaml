@@ -29,6 +29,26 @@ Resources:
             Path: /Preference/CreatePreference
             Method: Post
             RestApiId: !Ref ServerlessRestApi
+  GetPreferenceApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetPreferenceApiFunction/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: PreferenceTable
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        GetPreferenceApiResource:
+          Type: Api
+          Properties:
+            Path: /Preference/GetPreference
+            Method: get
+            RestApiId: !Ref ServerlessRestApi
+
+  
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
