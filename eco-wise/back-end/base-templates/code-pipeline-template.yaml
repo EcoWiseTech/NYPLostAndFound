@@ -127,7 +127,7 @@ Resources:
                     - !Ref GithubBranch
                 FilePaths:
                   Includes:
-                    - "eco-wise/back-end/**"
+                    - "eco-wise/back-end/templates/**"
                   Excludes:
                     - "eco-wise/front-end/**"
                 
