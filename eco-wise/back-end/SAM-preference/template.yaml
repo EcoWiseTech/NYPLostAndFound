@@ -48,7 +48,24 @@ Resources:
             Method: get
             RestApiId: !Ref ServerlessRestApi
 
-  
+  UpdatePreferenceApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: UpdatePreferenceApiFunction/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: PreferenceTable
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        UpdatePreferenceApiResource:
+          Type: Api
+          Properties:
+            Path: /Preference/UpdatePreference
+            Method: put
+            RestApiId: !Ref ServerlessRestApi
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
@@ -62,3 +79,23 @@ Outputs:
   CreatePreferenceApiFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt CreatePreferenceApiFunction.Arn
+
+  GetPreferenceApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/Preference/GetPreference/"
+  GetPreferenceApiFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt GetPreferenceApiFunction.Arn
+  GetPreferenceApiFunctionIamRole:
+    Description: "Implicit IAM Role Get for Hello World function"
+    Value: !GetAtt GetPreferenceApiFunction.Arn
+
+  UpdatePreferenceApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/Preference/UpdatePreference/"
+  UpdatePreferenceApiFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt UpdatePreferenceApiFunction.Arn
+  UpdatePreferenceApiFunctionIamRole:
+    Description: "Implicit IAM Role Update for Hello World function"
+    Value: !GetAtt UpdatePreferenceApiFunction.Arn
