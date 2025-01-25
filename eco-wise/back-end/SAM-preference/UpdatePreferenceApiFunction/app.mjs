@@ -2,10 +2,10 @@ import AWS from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
 
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
-const tableName = 'HomeTable';
+const tableName = 'PreferenceTable';
 
 // Function to update data in DynamoDB
-const updateHomeDataInDynamoDB = async (uuid, userId, updatedData) => {
+const updatePreferenceDataInDynamoDB = async (uuid, userId, updatedData) => {
   try {
     const params = {
       TableName: tableName,
@@ -25,11 +25,11 @@ const updateHomeDataInDynamoDB = async (uuid, userId, updatedData) => {
     console.log("DynamoDB Update Params:", JSON.stringify(params, null, 2));
 
     const result = await dynamoDB.update(params).promise();
-    console.log(`Updated home data in DynamoDB: ${JSON.stringify(result.Attributes)}`);
+    console.log(`Updated Preference data in DynamoDB: ${JSON.stringify(result.Attributes)}`);
     return result.Attributes;
   } catch (error) {
-    console.error('Error updating home data in DynamoDB:', error);
-    throw new Error('Failed to update home data in DynamoDB.');
+    console.error('Error updating Preference data in DynamoDB:', error);
+    throw new Error('Failed to update Preference data in DynamoDB.');
   }
 };
 
@@ -75,17 +75,17 @@ export const lambdaHandler = async (event, context) => {
     };
 
     // Update DynamoDB
-    const updatedItem = await updateHomeDataInDynamoDB(uuid, userId, updatedData);
+    const updatedItem = await updatePreferenceDataInDynamoDB(uuid, userId, updatedData);
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: 'Home data successfully updated in DynamoDB.',
+        message: 'Preference data successfully updated in DynamoDB.',
         updatedData: updatedItem,
       }),
     };
   } catch (error) {
-    console.error('Error updating home data:', error);
+    console.error('Error updating Preference data:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({
