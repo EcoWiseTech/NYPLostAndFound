@@ -28,7 +28,7 @@ export const lambdaHandler = async (event, context) => {
 
   try {
     // Use event directly if it's already an object, otherwise parse event.body
-    requestBody = typeof event === 'object' && event.preferenceName ? event : JSON.parse(event.body);
+    requestBody = typeof event === 'object' && event.budgets ? event : JSON.parse(event.body);
   } catch (error) {
     console.error('Invalid JSON in event or event.body:', event.body || event);
     return {
@@ -45,39 +45,26 @@ export const lambdaHandler = async (event, context) => {
   }
 
   try {
-    const { preferenceName, userId, rooms } = requestBody;
-
+    const { userId, budgets } = requestBody;
+    // console.log(userId,budgets, typeof(budgets) === 'object')
     // Validate input
-    if (!preferenceName || !userId || !Array.isArray(rooms)) {
+    if ( !userId || typeof(budgets) !== 'object' ) {
       return {
         statusCode: 400,
         body: JSON.stringify({
-          message: 'Missing or invalid preferenceName, userId, or rooms in request body.',
+          message: 'Missing or invalid userId, or budgets in request body.',
         }),
       };
     }
 
     // Generate UUID for preference and process rooms
     const preferenceUuid = uuidv4();
-    const roomData = rooms
-      .filter((room) => room.name?.trim()) // Skip empty rooms
-      .map((room) => ({
-        roomId: uuidv4(),
-        roomName: room.name,
-        devices: (room.devices || []).map((device) => ({
-          ...device,
-          status: "stopped",
-          startTime:"",
-          sessionId:"",
-          deviceId: uuidv4(), // Assign a unique deviceId to each device
-        })),
-      }));
+    const budgetData = budgets;
 
     const preferenceData = {
       uuid: preferenceUuid,
       userId,
-      preferenceName,
-      rooms: roomData,
+      budgets: budgetData,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
