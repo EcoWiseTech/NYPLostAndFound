@@ -17,7 +17,7 @@ function Budget() {
   useEffect(() => {
       GetPreferenceApi(user.Username)
           .then((res) => {
-              setPreference(res.data)
+              setPreference(res.data[0])
               console.log(res.data)
           })
           .catch((err) => {
