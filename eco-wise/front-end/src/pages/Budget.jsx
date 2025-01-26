@@ -257,7 +257,16 @@ function Budget() {
                   <Grid lg={6} container direction="row">
 
                     <Typography>
-                      {totalDeviceConsumption}kWh
+                    {totalDeviceConsumption === null ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                          <CircularProgress />
+                        </Box>
+                      ) : (
+                        <>
+                          {totalDeviceConsumption} kWh
+                        </>
+                      )}
+                      
                     </Typography>
                   </Grid>
 
@@ -280,7 +289,16 @@ function Budget() {
                   <Grid lg={6} container direction="row">
 
                     <Typography>
-                    ${todaySavings?.toFixed(2)}
+                      {todaySavings === null ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                          <CircularProgress />
+                        </Box>
+                      ) : (
+                        <>
+                          ${todaySavings?.toFixed(2)}
+                        </>
+                      )}
+
                     </Typography>
                   </Grid>
 
