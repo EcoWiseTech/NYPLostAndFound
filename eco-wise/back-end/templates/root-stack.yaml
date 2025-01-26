@@ -41,6 +41,8 @@ Resources:
         Value: '{{resolve:secretsmanager:AmplifyAppEnvVar:SecretString:REACT_APP_COGNITO_SMS_MFA_CHALLENGE}}'
       - Name: REACT_APP_USER_POOL_ID
         Value: '{{resolve:secretsmanager:AmplifyAppEnvVar:SecretString:REACT_APP_USER_POOL_ID}}'
+      - Name: REACT_APP_ECOWISE_PREFERENCE_API_URL
+        Value: '{{resolve:secretsmanager:AmplifyAppEnvVar:SecretString:REACT_APP_ECOWISE_PREFERENCE_API_URL}}'
       Platform: "WEB"
       EnableBranchAutoDeletion: false
       BuildSpec: |
