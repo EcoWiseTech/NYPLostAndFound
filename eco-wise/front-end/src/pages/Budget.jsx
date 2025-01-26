@@ -11,18 +11,18 @@ import { enqueueSnackbar } from 'notistack';
 
 function Budget() {
   const { user } = useUserContext()
-      const [preference, setPreference] = useState(null); // Set initial value to null to indicate loading
-  
-      useEffect(() => {
-          GetPreferenceApi(user.Username)
-              .then((res) => {
-                  setPreference(res.data)
-                  console.log(res.data)
-              })
-              .catch((err) => {
-                  enqueueSnackbar('Failed to fetch Preference data', { variant: "error" })
-              })
-      }, [user.Username]);
+  const [preference, setPreference] = useState(null); // Set initial value to null to indicate loading
+
+  useEffect(() => {
+      GetPreferenceApi(user.Username)
+          .then((res) => {
+              setPreference(res.data)
+              console.log(res.data)
+          })
+          .catch((err) => {
+              enqueueSnackbar('Failed to fetch Preference data', { variant: "error" })
+          })
+  }, [user.Username]);
   return (
     <>
       <Box padding={2}>
@@ -105,7 +105,7 @@ function Budget() {
                   <Grid lg={6} container direction="row">
 
                     <Typography>
-                      {preference?.budgets?.budgetLimit}
+                      {preference.budgets.budgetLimit}
                     </Typography>
                   </Grid>
 
