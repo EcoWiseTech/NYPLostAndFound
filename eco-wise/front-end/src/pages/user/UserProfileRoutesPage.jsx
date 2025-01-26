@@ -107,7 +107,7 @@ function UserProfileRoutesPage() {
                             <Route path="/" element={<ViewProfilePage />} />
                         </Routes>
                         <Routes>
-                            <Route path="/passwordlogin" element={<NotificationSettingsPage />} />
+                            <Route path="/notifications" element={<NotificationSettingsPage />} />
                         </Routes>
                         <Routes>
                             <Route path="/mfa" element={<UserMFAPage />} />
