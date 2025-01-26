@@ -4,8 +4,13 @@ import Weatherpage from './pages/Weatherpage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import PasswordResetPage from './pages/PasswordResetPage'
+import Budget from './pages/Budget'
 
 const PublicRoutes = [
+    {
+        path: "/budget",
+        element: <Budget />,
+    },
     {
         path: "",
         element: <Homepage />,
