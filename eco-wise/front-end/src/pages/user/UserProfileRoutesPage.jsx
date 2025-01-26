@@ -3,6 +3,7 @@ import { Route, Routes, useNavigate, Link, useLocation } from 'react-router-dom'
 import { Container, Box, Card, Typography, Grid, List, ListItem, ListItemText, ListItemButton, ListItemIcon, Tooltip, IconButton, Dialog, DialogTitle, DialogActions, DialogContentText, Stack, DialogContent, Button } from '@mui/material'
 import { LoadingButton } from '@mui/lab';
 import PersonIcon from '@mui/icons-material/Person';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import KeyIcon from '@mui/icons-material/Key';
 import HistoryIcon from '@mui/icons-material/History';
@@ -56,6 +57,12 @@ function UserProfileRoutesPage() {
                                         <ListItemText primary={"Account Overview"} />
                                     </ListItemButton>
                                 </ListItem>
+                                <ListItem key={"Notification Settings"} disablePadding>
+                                    <ListItemButton component={Link} to="/profile/notification" selected={(location.pathname == "/profile/notification" )}>
+                                        <ListItemIcon><NotificationsIcon /></ListItemIcon>
+                                        <ListItemText primary={"Notification Settings"} />
+                                    </ListItemButton>
+                                </ListItem>
                                 <ListItem key={"Phone & 2FA"} disablePadding>
                                     <ListItemButton component={Link} to="/profile/mfa" selected={(location.pathname == "/profile/mfa")}>
                                         <ListItemIcon><PhoneLockedIcon /></ListItemIcon>
@@ -98,6 +105,9 @@ function UserProfileRoutesPage() {
                     <Grid item xs={12} md={9}>
                         <Routes>
                             <Route path="/" element={<ViewProfilePage />} />
+                        </Routes>
+                        <Routes>
+                            <Route path="/passwordlogin" element={<NotificationSettingsPage />} />
                         </Routes>
                         <Routes>
                             <Route path="/mfa" element={<UserMFAPage />} />
