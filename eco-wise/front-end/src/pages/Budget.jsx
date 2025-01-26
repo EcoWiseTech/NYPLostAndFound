@@ -71,14 +71,14 @@ const data = {
 
 // Define the validation schema with yup
 const schema = yup.object({
-  budget: yup.number().required("Budget is required"),
+  budgetLimit: yup.number().required("Budget is required"),
 }).required();
 function Budget() {
   const { user } = useUserContext()
   const [preference, setPreference] = useState(null); // Set initial value to null to indicate loading
   const [openBudgetDialog, setOpenBudgetDialog] = useState(false);
   const [formData, setFormData] = useState({
-    budget: 0
+    budgetLimit: 0
   });
   const { showAlert } = useAlert();
   const [errors, setErrors] = useState({});
@@ -106,6 +106,13 @@ function Budget() {
     setOpenBudgetDialog(false);
     console.log(user)
   };
+  const handleBudgetInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+        ...prevState,
+        [name]: value,
+    }));
+};
   const handleEditBudget = async () => {
     if (!(await validateForm())) {
       return;
@@ -115,7 +122,7 @@ function Budget() {
       ...preference,
       userId: user.Username,
       uuid: preference.uuid,
-      budgets: { ...preference.budgets, budgetLimit: formData.budget }
+      budgets: { ...preference.budgets, budgetLimit: formData.budgetLimit }
     };
     if (preference === 0) {
       CreatePreferenceApi(requestObj)
@@ -299,7 +306,7 @@ function Budget() {
 
         </Grid>
       </Box>
-      <BudgetDialog open={openBudgetDialog} handleClose={handleCloseBudgetDialog} handleEdit={handleEditBudget} />
+      <BudgetDialog open={openBudgetDialog} handleClose={handleCloseBudgetDialog} errors={errors} handleEdit={handleEditBudget} handleInputChange={handleBudgetInputChange} formData={formData} />
 
     </>
   )

@@ -20,7 +20,10 @@ import DialogTitle from '@mui/material/DialogTitle';
 const BudgetDialog = ({
   open,
   handleClose,
-  handleEdit
+  handleEdit,
+  formData,
+  handleInputChange,
+  errors
 }) => {
   return (
     <Dialog
@@ -48,11 +51,15 @@ const BudgetDialog = ({
             required
             margin="dense"
             id="name"
-            name="budget"
+            name="budgetLimit"
+            error={!!errors.budgetLimit}
+            helperText={errors.budgetLimit}
             label="($)"
             type="number"
             fullWidth
             variant="standard"
+            value={formData.budgetLimit}
+            onChange={handleInputChange}
           />
         </DialogContent>
         <DialogActions>
