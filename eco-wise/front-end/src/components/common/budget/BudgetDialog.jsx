@@ -44,21 +44,21 @@ const BudgetDialog = ({
         <DialogTitle>Budget</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Set your budget for the month
+            Set your budget for the day
           </DialogContentText>
           <TextField
             autoFocus
             required
             margin="dense"
             id="name"
-            name="budgetLimit"
-            error={!!errors.budgetLimit}
-            helperText={errors.budgetLimit}
+            name="dailyBudgetLimit"
+            error={!!errors.dailyBudgetLimit}
+            helperText={errors.dailyBudgetLimit}
             label="($)"
             type="number"
             fullWidth
             variant="standard"
-            value={formData.budgetLimit}
+            value={formData.dailyBudgetLimit}
             onChange={handleInputChange}
           />
         </DialogContent>
