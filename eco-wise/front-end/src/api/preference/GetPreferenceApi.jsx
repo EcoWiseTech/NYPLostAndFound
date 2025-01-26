@@ -1,4 +1,4 @@
-import EcoWiseApi from "../APIRequest";
+import EcoWiseApi from "../APIRequestPreference";
 
 export const GetPreferenceApi = async (userId, uuid) => {
     try {
