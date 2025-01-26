@@ -23,6 +23,7 @@ import * as yup from 'yup';
 import { CreatePreferenceApi } from '../api/preference/CreatePreferenceApi';
 import { UpdatePreferenceApi } from '../api/preference/UpdatePreferenceApi';
 import { useAlert } from "../contexts/AlertContext";
+import { GetGSIDeviceConsumptionApi } from '../api/home/GetGSIDeviceConsumptionApi';
 
 
 ChartJS.register(
@@ -71,17 +72,20 @@ const data = {
 
 // Define the validation schema with yup
 const schema = yup.object({
-  budgetLimit: yup.number().required("Budget is required"),
+  dailyBudgetLimit: yup.number().required("Budget is required"),
 }).required();
 function Budget() {
   const { user, RefreshUser } = useUserContext()
   const [preference, setPreference] = useState(null); // Set initial value to null to indicate loading
   const [openBudgetDialog, setOpenBudgetDialog] = useState(false);
   const [formData, setFormData] = useState({
-    budgetLimit: 0
+    dailyBudgetLimit: 0
   });
   const { showAlert } = useAlert();
   const [errors, setErrors] = useState({});
+  const [deviceConsumption, setDeviceConsumption] = useState(null);
+  const [totalDeviceConsumption, setTotalDeviceConsumption] = useState(null);
+  const [todaySavings, setTodaySavings] = useState(null);
 
 
   const validateForm = async () => {
@@ -104,15 +108,15 @@ function Budget() {
 
   const handleCloseBudgetDialog = () => {
     setOpenBudgetDialog(false);
-    console.log(user)
+    // console.log(user)
   };
   const handleBudgetInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
-        ...prevState,
-        [name]: value,
+      ...prevState,
+      [name]: value,
     }));
-};
+  };
   const handleEditBudget = async () => {
     if (!(await validateForm())) {
       return;
@@ -122,40 +126,40 @@ function Budget() {
       ...preference,
       userId: user.Username,
       uuid: preference.uuid,
-      budgets: { ...preference.budgets, budgetLimit: formData.budgetLimit }
+      budgets: { ...preference.budgets, dailyBudgetLimit: formData.dailyBudgetLimit }
     };
     if (preference === 0) {
       CreatePreferenceApi(requestObj)
-      .then((res) => {
-        RefreshUser();
-        showAlert('success', "Profile Updated Successfully.");
-      })
-      .catch((error) => {
-        console.error("Error updating user:", error);
-        if (error.name === 'NotAuthorizedException') {
-          if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh')) {
+        .then((res) => {
+          RefreshUser();
+          showAlert('success', "Profile Updated Successfully.");
+        })
+        .catch((error) => {
+          console.error("Error updating user:", error);
+          if (error.name === 'NotAuthorizedException') {
+            if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh')) {
+            }
+          } else {
+            showAlert('error', 'Unexpected error occurred. Please try again.');
           }
-        } else {
-          showAlert('error', 'Unexpected error occurred. Please try again.');
-        }
-      });
+        });
     } else {
       UpdatePreferenceApi(requestObj)
-      .then((res) => {
-        RefreshUser();
-        showAlert('success', "Budget Updated Successfully.");
-      })
-      .catch((error) => {
-        console.error("Error updating user:", error);
-        if (error.name === 'NotAuthorizedException') {
-          if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh')) {
+        .then((res) => {
+          RefreshUser();
+          showAlert('success', "Budget Updated Successfully.");
+        })
+        .catch((error) => {
+          console.error("Error updating user:", error);
+          if (error.name === 'NotAuthorizedException') {
+            if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh')) {
+            }
+          } else {
+            showAlert('error', 'Unexpected error occurred. Please try again.');
           }
-        } else {
-          showAlert('error', 'Unexpected error occurred. Please try again.');
-        }
-      });
+        });
     }
-    
+
 
 
   };
@@ -163,15 +167,49 @@ function Budget() {
     GetPreferenceApi(user.Username)
       .then((res) => {
         setPreference(res.data[0])
+        let dailyBudgetLimit = res.data[0].budgets.dailyBudgetLimit
         setFormData({
-          budgetLimit: res.data[0].budgets.budgetLimit
+          dailyBudgetLimit: res.data[0].budgets.dailyBudgetLimit
         })
-        console.log(res.data)
+        // console.log(res.data)
+        GetGSIDeviceConsumptionApi(user.Username)
+          .then((res) => {
+            setDeviceConsumption(res.data)
+            //START calculate total Consumption based ondevices
+            let totalConsumption = 0
+            for (let i = 0; i < res.data.length; i++) {
+              let deviceRecord = res.data[i]
+              console.log(deviceRecord)
+              if (deviceRecord.totalConsumption != null) {
+                let consumption = Number(deviceRecord.totalConsumption)
+                console.log(typeof (consumption))
+                totalConsumption += consumption
+                console.log(totalConsumption)
+              }
+            }
+            console.log(`totalConsumption:${totalConsumption}`)
+            setTotalDeviceConsumption(totalConsumption)
+            // END calculate total Consumption based ondevices
+            // calculating AS PER amount https://www.spgroup.com.sg/our-services/utilities/tariff-information
+            const costPerKwh = 0.365 //in $/kWh
+            let totalCost = totalConsumption * costPerKwh
+            let todaysSavings = dailyBudgetLimit - totalCost
+            setTodaySavings(todaysSavings)
+            // console.log(res.data)
+          })
+          .catch((err) => {
+            // console.log(`err:${err.status}`)
+            if (404 == err.status) {
+              setDeviceConsumption([])
+            } else {
+              enqueueSnackbar('Failed to fetch Device Consumption data', { variant: "error" })
+            }
+          })
       })
       .catch((err) => {
-        console.log(`err:${err.status}`)
+        // console.log(`err:${err.status}`)
         if (404 == err.status) {
-          
+
           setPreference(0)
         } else {
           enqueueSnackbar('Failed to fetch Preference data', { variant: "error" })
@@ -181,6 +219,7 @@ function Budget() {
 
       })
   }, [user]);
+
 
   return (
     <>
@@ -218,7 +257,7 @@ function Budget() {
                   <Grid lg={6} container direction="row">
 
                     <Typography>
-
+                      {totalDeviceConsumption}kWh
                     </Typography>
                   </Grid>
 
@@ -241,7 +280,7 @@ function Budget() {
                   <Grid lg={6} container direction="row">
 
                     <Typography>
-
+                    ${todaySavings?.toFixed(2)}
                     </Typography>
                   </Grid>
 
@@ -285,7 +324,7 @@ function Budget() {
                             </>
                           ) : (
                             <>
-                              {preference.budgets.budgetLimit}
+                              {preference.budgets.dailyBudgetLimit}
                             </>
                           )}
                         </>
