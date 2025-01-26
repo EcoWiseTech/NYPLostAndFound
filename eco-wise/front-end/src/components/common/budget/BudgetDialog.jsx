@@ -16,9 +16,11 @@ import DialogTitle from '@mui/material/DialogTitle';
 
 
 
+
 const BudgetDialog = ({
   open,
   handleClose,
+  handleEdit
 }) => {
   return (
     <Dialog
@@ -55,7 +57,7 @@ const BudgetDialog = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button type="submit" variant="contained">Save</Button>
+          <Button onClick={handleEdit} variant="contained">Save</Button>
         </DialogActions>
       </Dialog>
   );

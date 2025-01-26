@@ -19,6 +19,10 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import BudgetDialog from '../components/common/budget/BudgetDialog';
+import * as yup from 'yup';
+import { CreatePreferenceApi } from '../api/preference/CreatePreferenceApi';
+import { UpdatePreferenceApi } from '../api/preference/UpdatePreferenceApi';
+import { useAlert } from "../contexts/AlertContext";
 
 
 ChartJS.register(
@@ -45,7 +49,7 @@ const options = {
     },
   },
 };
-const labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']; 
+const labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const data = {
   labels: labels,
   datasets: [{
@@ -57,7 +61,7 @@ const data = {
   },
   {
     label: 'Budget Consumption',
-    data: [10,20,30,40,50,60,70],
+    data: [10, 20, 30, 40, 50, 60, 70],
     fill: false,
     borderColor: 'rgb(255, 42, 0)',
     tension: 0.1
@@ -65,30 +69,107 @@ const data = {
   ]
 };
 
-
+// Define the validation schema with yup
+const schema = yup.object({
+  budget: yup.number().required("Budget is required"),
+}).required();
 function Budget() {
   const { user } = useUserContext()
   const [preference, setPreference] = useState(null); // Set initial value to null to indicate loading
   const [openBudgetDialog, setOpenBudgetDialog] = useState(false);
+  const [formData, setFormData] = useState({
+    budget: 0
+  });
+  const { showAlert } = useAlert();
+  const [errors, setErrors] = useState({});
 
+
+  const validateForm = async () => {
+    try {
+      await schema.validate(formData, { abortEarly: false });
+      setErrors({});
+      return true;
+    } catch (validationErrors) {
+      const validationIssues = {};
+      validationErrors.inner.forEach((err) => {
+        validationIssues[err.path] = err.message;
+      });
+      setErrors(validationIssues);
+      return false;
+    }
+  };
   const handleClickOpenBudgetDialog = () => {
     setOpenBudgetDialog(true);
   };
 
-  const handleCloseBudgetDialoge = () => {
+  const handleCloseBudgetDialog = () => {
     setOpenBudgetDialog(false);
+    console.log(user)
+  };
+  const handleEditBudget = async () => {
+    if (!(await validateForm())) {
+      return;
+    }
+
+    const requestObj = {
+      ...preference,
+      userId: user.Username,
+      uuid: preference.uuid,
+      budgets: { ...preference.budgets, budgetLimit: formData.budget }
+    };
+    if (preference === 0) {
+      CreatePreferenceApi(requestObj)
+      .then((res) => {
+        showAlert('success', "Profile Updated Successfully.");
+      })
+      .catch((error) => {
+        console.error("Error updating user:", error);
+        if (error.name === 'NotAuthorizedException') {
+          if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh')) {
+          }
+        } else {
+          showAlert('error', 'Unexpected error occurred. Please try again.');
+        }
+      });
+    } else {
+      UpdatePreferenceApi(requestObj)
+      .then((res) => {
+        showAlert('success', "Budget Updated Successfully.");
+      })
+      .catch((error) => {
+        console.error("Error updating user:", error);
+        if (error.name === 'NotAuthorizedException') {
+          if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh')) {
+          }
+        } else {
+          showAlert('error', 'Unexpected error occurred. Please try again.');
+        }
+      });
+    }
+    
+
+
   };
   useEffect(() => {
-      GetPreferenceApi(user.Username)
-          .then((res) => {
-              setPreference(res.data[0])
-              console.log(res.data)
-          })
-          .catch((err) => {
-              enqueueSnackbar('Failed to fetch Preference data', { variant: "error" })
-          })
+    GetPreferenceApi(user.Username)
+      .then((res) => {
+        setPreference(res.data[0])
+        console.log(res.data)
+      })
+      .catch((err) => {
+        console.log(`err:${err.status}`)
+        if (404 == err.status) {
+          
+          setPreference(0)
+        } else {
+          enqueueSnackbar('Failed to fetch Preference data', { variant: "error" })
+        }
+
+
+
+      })
   }, [user.Username]);
-  
+
   return (
     <>
       <Box padding={2}>
@@ -161,7 +242,7 @@ function Budget() {
                 <Grid container direction="column">
                   <Grid container direction="row" sx={{ marginTop: 2 }}>
                     <Grid item lg={2}>
-                      <img style={{ width: 48, marginLeft: 17,marginTop:3 }} src="https://i.ibb.co/d5FcLHr/budget.png" alt="" />
+                      <img style={{ width: 48, marginLeft: 17, marginTop: 3 }} src="https://i.ibb.co/d5FcLHr/budget.png" alt="" />
                     </Grid>
                     <Grid container direction={'row'} display={'flex'} justifyContent={'space-between'} lg={10} >
                       <Grid item>
@@ -172,7 +253,7 @@ function Budget() {
                           <img style={{ width: 30 }} src="https://cdn-icons-png.flaticon.com/128/2311/2311524.png" alt="" />
                         </Button>
                       </Grid>
-                
+
 
                     </Grid>
 
@@ -186,7 +267,15 @@ function Budget() {
                         </Box>
                       ) : (
                         <>
-                          {preference.budgets.budgetLimit}
+                          {preference === 0 ? (
+                            <>
+                              Budget is not set
+                            </>
+                          ) : (
+                            <>
+                              {preference.budgets.budgetLimit}
+                            </>
+                          )}
                         </>
                       )}
                     </Typography>
@@ -210,7 +299,7 @@ function Budget() {
 
         </Grid>
       </Box>
-<BudgetDialog open={openBudgetDialog} handleClose={handleCloseBudgetDialoge} />
+      <BudgetDialog open={openBudgetDialog} handleClose={handleCloseBudgetDialog} handleEdit={handleEditBudget} />
 
     </>
   )
