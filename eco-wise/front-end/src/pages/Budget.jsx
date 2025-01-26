@@ -4,9 +4,25 @@ import { Box, Paper, Divider, Typography, Grid, Card } from '@mui/material';
 import { AccessTime } from '@mui/icons-material';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { jwtDecode } from 'jwt-decode';
+import { GetPreferenceApi } from '../api/preference/GetPreferenceApi';
+import { useUserContext } from '../contexts/UserContext';
+import { enqueueSnackbar } from 'notistack';
 
 
 function Budget() {
+  const { user } = useUserContext()
+      const [preference, setPreference] = useState(null); // Set initial value to null to indicate loading
+  
+      useEffect(() => {
+          GetPreferenceApi(user.Username)
+              .then((res) => {
+                  setPreference(res.data)
+                  console.log(res.data)
+              })
+              .catch((err) => {
+                  enqueueSnackbar('Failed to fetch Preference data', { variant: "error" })
+              })
+      }, [user.Username]);
   return (
     <>
       <Box padding={2}>
@@ -21,7 +37,7 @@ function Budget() {
             href="/"
 
           >
-            Home
+            Preference
           </Link>
 
         </Breadcrumbs>
@@ -89,7 +105,7 @@ function Budget() {
                   <Grid lg={6} container direction="row">
 
                     <Typography>
-                      test
+                      {preference?.budgets?.budgetLimit}
                     </Typography>
                   </Grid>
 
