@@ -105,7 +105,15 @@ function Budget() {
                   <Grid lg={6} container direction="row">
 
                     <Typography>
-                      {preference.budgets.budgetLimit}
+                    {preference === null ? (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                <CircularProgress />
+                            </Box>
+                        ) : (
+                            <>
+                            {preference.budgets.budgetLimit}
+                            </>
+                        )}
                     </Typography>
                   </Grid>
 
