@@ -74,7 +74,7 @@ const schema = yup.object({
   budgetLimit: yup.number().required("Budget is required"),
 }).required();
 function Budget() {
-  const { user } = useUserContext()
+  const { user, RefreshUser } = useUserContext()
   const [preference, setPreference] = useState(null); // Set initial value to null to indicate loading
   const [openBudgetDialog, setOpenBudgetDialog] = useState(false);
   const [formData, setFormData] = useState({
@@ -127,6 +127,7 @@ function Budget() {
     if (preference === 0) {
       CreatePreferenceApi(requestObj)
       .then((res) => {
+        RefreshUser();
         showAlert('success', "Profile Updated Successfully.");
       })
       .catch((error) => {
@@ -141,6 +142,7 @@ function Budget() {
     } else {
       UpdatePreferenceApi(requestObj)
       .then((res) => {
+        RefreshUser();
         showAlert('success', "Budget Updated Successfully.");
       })
       .catch((error) => {
@@ -175,7 +177,7 @@ function Budget() {
 
 
       })
-  }, [user.Username]);
+  }, [user]);
 
   return (
     <>
