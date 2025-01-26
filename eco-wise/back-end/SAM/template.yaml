@@ -9,7 +9,7 @@ Globals:
     Timeout: 60
   Api:
     Cors:
-      AllowMethods: "'GET,POST,OPTIONS'"
+      AllowMethods: "'GET,POST,OPTIONS,PUT'"
       AllowHeaders: "'content-type'"
       AllowOrigin: "'*'"
     # AllowCredentials: true  Uncomment only if you choose a specific origin instead of the * wildcard.

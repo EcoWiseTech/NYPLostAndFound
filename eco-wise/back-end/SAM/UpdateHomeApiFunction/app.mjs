@@ -48,6 +48,12 @@ export const lambdaHandler = async (event, context) => {
     console.error('Invalid JSON in event or event.body:', event.body || event);
     return {
       statusCode: 400,
+      headers: {
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+      },
+      
       body: JSON.stringify({
         message: 'Invalid JSON format in request body.',
       }),
@@ -61,6 +67,11 @@ export const lambdaHandler = async (event, context) => {
     if (!uuid || !userId || !homeName || !Array.isArray(rooms)) {
       return {
         statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*", 
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+        },
         body: JSON.stringify({
           message: 'Missing or invalid uuid, userId, homeName, or rooms in request body.',
         }),
@@ -88,6 +99,11 @@ export const lambdaHandler = async (event, context) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+      },
       body: JSON.stringify({
         message: 'Home data successfully updated in DynamoDB.',
         updatedData: updatedItem,
@@ -97,6 +113,11 @@ export const lambdaHandler = async (event, context) => {
     console.error('Error updating home data:', error);
     return {
       statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+      },
       body: JSON.stringify({
         message: 'An error occurred while processing the request.',
         error: error.message,

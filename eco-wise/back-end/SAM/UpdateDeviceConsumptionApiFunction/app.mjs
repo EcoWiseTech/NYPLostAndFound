@@ -62,6 +62,11 @@ export const lambdaHandler = async (event, context) => {
     console.error('Invalid JSON in event or event.body:', event.body || event);
     return {
       statusCode: 400,
+      headers: {
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+      },
       body: JSON.stringify({
         message: 'Invalid JSON format in request body.',
       }),
@@ -86,6 +91,11 @@ export const lambdaHandler = async (event, context) => {
     if (!deviceId || !sessionId || !model || !consumption || !type || !status || !startTime || !endTime || !totalConsumption) {
       return {
         statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*", 
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+        },
         body: JSON.stringify({
           message: 'Missing or invalid required fields in request body.',
         }),
@@ -108,6 +118,11 @@ export const lambdaHandler = async (event, context) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+      },
       body: JSON.stringify({
         message: 'Device consumption data successfully updated in DynamoDB.',
         updatedData: updatedItem,
@@ -117,6 +132,11 @@ export const lambdaHandler = async (event, context) => {
     console.error('Error updating device consumption data:', error);
     return {
       statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+      },
       body: JSON.stringify({
         message: 'An error occurred while processing the request.',
         error: error.message,
