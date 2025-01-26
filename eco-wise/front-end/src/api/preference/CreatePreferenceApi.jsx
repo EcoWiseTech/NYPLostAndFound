@@ -1,10 +1,10 @@
 import EcoWiseApi from "../APIRequestPreference";
 
-export const StorePreferenceApi = async (requestBody) => {
+export const CreatePreferenceApi = async (requestBody) => {
     try {
   
       // Make the POST request using the APIRequest class
-      const response = await EcoWiseApi.post('/Preference/StorePreference', requestBody);
+      const response = await EcoWiseApi.post('/Preference/CreatePreference', requestBody);
   
       // Return the successful response
       return response.data;
