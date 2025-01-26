@@ -1,108 +1,87 @@
 import React from 'react';
-import { Card, CardContent, CardActions, Grid, TextField, Box, Typography, Avatar } from '@mui/material';
+import { Card, CardContent, CardActions, Grid, TextField, Box, Typography, Avatar, Switch } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import FileUploadIcon from '@mui/icons-material/UploadFile';
 import BadgeIcon from '@mui/icons-material/Badge';
 import EditIcon from '@mui/icons-material/Edit';
 import CardTitle from '../common/CardTitle';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+
 
 const NotificationInformationCard = ({
-  formData,
+  notificationChecked,
   handleInputChange,
-  handleFileChange,
-  handleEditProfile,
-  errors,
-  isLoading,
   isModified,
-  selectedFile,
-  user,
+  isLoading,
+  handleEditNotification
 }) => {
   return (
     <Card>
       <CardContent>
-        <CardTitle icon={<BadgeIcon />} title="Profile Information" />
+        <CardTitle icon={<NotificationsIcon />} title="Notification Settings" />
         <Grid container spacing={2} marginTop="1rem">
-          <Grid item container spacing={2} xs={12} sm={7} md={7} lg={7}>
+          <Grid item container spacing={2} xs={12} sm={12} md={12} lg={12} direction={'row'}>
             <Grid item xs={12}>
-              <TextField
-                label="Email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                fullWidth
-                disabled
-                error={!!errors.email}
-                helperText={errors.email}
-              />
+              <Grid container direction={'row'} display={'flex'} justifyContent={'space-between'} sx={{ px: 5, mb: 1}}>
+                <Grid item>
+                  <Typography fontSize={18}>
+                    Turn on Notification
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Switch
+                    checked={notificationChecked}
+                    onChange={handleInputChange}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                  />
+                </Grid>
+
+              </Grid>
+
+
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Name"
-                name="given_name"
-                value={formData.given_name}
-                onChange={handleInputChange}
-                fullWidth
-                error={!!errors.given_name}
-                helperText={errors.given_name}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Date of Birth"
-                name="birthdate"
-                type="date"
-                value={formData.birthdate}
-                onChange={handleInputChange}
-                fullWidth
-                error={!!errors.birthdate}
-                helperText={errors.birthdate}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
+
           </Grid>
-          <Grid item xs={12} sm={5} md={5} lg={5} textAlign="center">
-            <Avatar
-              src={selectedFile || user.profilePicture || '/default-avatar.png'}
-              alt="Profile Picture"
-              sx={{ width: 150, height: 150, margin: '0 auto' }}
-            />
-            <Box marginTop="0.5rem" marginBottom="1rem">
-              <Typography variant="h8" color="black">
-                Profile Picture
-              </Typography>
-            </Box>
-            <Box marginTop="1rem">
-              <Typography variant="subtitle2" color="darkgray">
-                File Size no larger than 5MB
-              </Typography>
-            </Box>
-            <Box>
-              <LoadingButton
-                style={{ justifyContent: 'flex-end' }}
-                loadingPosition="start"
-                variant="contained"
-                color="primary"
-                startIcon={<FileUploadIcon />}
-                component="label"
-              >
-                Upload Image
-                <input type="file" onChange={handleFileChange} hidden />
-              </LoadingButton>
-            </Box>
+          <Grid item container spacing={2} xs={12} sm={12} md={12} lg={12} direction={'row'}>
+            <Grid item xs={12}>
+              <Grid container direction={'row'} display={'flex'} justifyContent={'space-between'} sx={{ px: 5, mb: 1 }}>
+                <Grid item>
+                  <Typography fontSize={18}>
+                    Do not Disturb
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Switch
+                    checked={notificationChecked}
+                    onChange={handleInputChange}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                  />
+                </Grid>
+
+              </Grid>
+
+
+            </Grid>
+
           </Grid>
+
+
         </Grid>
       </CardContent>
-      <CardActions sx={{ paddingX: '16px' }}>
-        <LoadingButton
-          loading={isLoading}
-          variant="contained"
-          color="primary"
-          startIcon={<EditIcon />}
-          onClick={handleEditProfile}
-          disabled={!isModified}
-        >
-          Save
-        </LoadingButton>
+      <CardActions >
+        <Grid container display={'flex'} justifyContent={"flex-end"} sx={{ px: 5, py: 3 }}>
+          <LoadingButton
+            loading={isLoading}
+            variant="contained"
+            color="primary"
+            startIcon={<EditIcon />}
+            onClick={handleEditNotification}
+            disabled={!isModified}
+          >
+            Save
+          </LoadingButton>
+        </Grid>
+
       </CardActions>
     </Card>
   );

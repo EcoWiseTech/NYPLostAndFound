@@ -19,6 +19,7 @@ import UserMFAPage from './UserMFAPage';
 import PhoneLockedIcon from '@mui/icons-material/PhoneLocked';
 import UserPasswordLoginPage from './UserPasswordLoginPage';
 import NotFoundPage from '../NotFoundPage'
+import NotificationSettingsPage from './NotificationSettingsPage'
 
 export const ProfileContext = createContext(null)
 function UserProfileRoutesPage() {

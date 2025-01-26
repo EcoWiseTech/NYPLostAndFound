@@ -41,9 +41,16 @@ function NotificationSettingsPage() {
         email: '',
         birthdate: '',
     });
-    const [errors, setErrors] = useState({});
-    const [selectedFile, setSelectedFile] = useState(null);
     const [isModified, setIsModified] = useState(false);
+    const [notificationChecked, setNotificationChecked] = useState(false);
+    const handleNotificationChanged = (e) => {
+        console.log(e.target.checked)
+        setNotificationChecked(e.target.checked)
+        setIsModified(true);
+    };
+    const handleEditNotification = (e) => {
+        console.log('clicked handleEditNotification')
+    };
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const { showAlert } = useAlert();
@@ -59,104 +66,18 @@ function NotificationSettingsPage() {
         }
     }, [user]);
 
-    const validateForm = async () => {
-        try {
-            await schema.validate(formData, { abortEarly: false });
-            setErrors({});
-            return true;
-        } catch (validationErrors) {
-            const validationIssues = {};
-            validationErrors.inner.forEach((err) => {
-                validationIssues[err.path] = err.message;
-            });
-            setErrors(validationIssues);
-            return false;
-        }
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
-        setIsModified(true);
-    };
-
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setSelectedFile(URL.createObjectURL(file));
-            setIsModified(true);
-        }
-    };
-
-    const handleEditProfile = async () => {
-        if (!(await validateForm())) {
-            return;
-        }
-
-        setIsLoading(true);
-
-        const requestObj = {
-            email: formData.email,
-            given_name: formData.given_name,
-            birthdate: formData.birthdate ? formData.birthdate : "",
-        };
-        UpdateUserApi({ accessToken, refreshToken, attributes: requestObj })
-            .then((res) => {
-                RefreshUser();
-                showAlert('success', "Profile Updated Successfully.");
-                setIsLoading(false);
-            })
-            .catch((error) => {
-                console.error("Error updating user:", error);
-                if (error.name === 'NotAuthorizedException') {
-                    if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh')) {
-                        SessionRefreshError();
-                    }
-                } else {
-                    showAlert('error', 'Unexpected error occurred. Please try again.');
-                }
-                setIsLoading(false);
-            });
-
-        setIsModified(false);
-    };
-
-    const deleteUser = async () => {
-        DeleteUserApi(refreshToken, accessToken)
-            .then((res) => {
-                DeleteUser()
-            })
-            .catch((error) => {
-                console.error("Error Deleting user:", error);
-                if (error.name === 'NotAuthorizedException') {
-                    if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh')) {
-                        SessionRefreshError();
-                    }
-                } else {
-                    showAlert('error', 'Unexpected error occurred. Please try again.');
-                }
-            })
-    };
+    
 
     return (
         <Stack direction="column" spacing={2}>
             <NotificationInformationCard
-                formData={formData}
-                handleInputChange={handleInputChange}
-                handleFileChange={handleFileChange}
-                handleEditProfile={handleEditProfile}
-                errors={errors}
+                notificationChecked={notificationChecked}
+                handleInputChange={handleNotificationChanged}
                 isLoading={isLoading}
+                handleNotificationChanged={handleEditNotification}
                 isModified={isModified}
-                selectedFile={selectedFile}
-                user={user}
             />
-            <DeleteUserCard
-                deleteUser={deleteUser}
-            />
+           
         </Stack>
     );
 }

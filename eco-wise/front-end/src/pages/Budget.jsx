@@ -32,7 +32,7 @@ function Budget() {
             Overview
           </Link> */}
           <Link
-            aria-current="page"   
+            aria-current="page"
             underline="hover"
             style={{ textDecoration: "underline", color: "black" }}
             href="/"
@@ -45,10 +45,10 @@ function Budget() {
 
         <Grid container direction="column" spacing={2} sx={{ height: "100%" }}>
           <Grid lg={6} item container direction="row" spacing={2}>
-          <Grid item lg={4}>
+            <Grid item lg={4}>
               <Card sx={{ width: "100%", height: 170 }}>
                 <Grid container direction="column">
-                  <Grid  container direction="row" sx={{marginTop:2}}>
+                  <Grid container direction="row" sx={{ marginTop: 2 }}>
                     <Grid item lg={2}>
                       <img style={{ width: 50, marginLeft: 15, }} src="https://i.ibb.co/tYFNbxN/energy.png" alt="" />
                     </Grid>
@@ -60,7 +60,7 @@ function Budget() {
                   <Grid lg={6} container direction="row">
 
                     <Typography>
-                      
+
                     </Typography>
                   </Grid>
 
@@ -71,7 +71,7 @@ function Budget() {
             <Grid item lg={4}>
               <Card sx={{ width: "100%", height: 170 }}>
                 <Grid container direction="column">
-                  <Grid  container direction="row" sx={{marginTop:2}}>
+                  <Grid container direction="row" sx={{ marginTop: 2 }}>
                     <Grid item lg={2}>
                       <img style={{ width: 50, marginLeft: 15, }} src="https://cdn-icons-png.flaticon.com/128/13798/13798822.png" alt="" />
                     </Grid>
@@ -83,7 +83,7 @@ function Budget() {
                   <Grid lg={6} container direction="row">
 
                     <Typography>
-                      
+
                     </Typography>
                   </Grid>
 
@@ -94,27 +94,36 @@ function Budget() {
             <Grid item lg={4}>
               <Card sx={{ width: "100%", height: 170 }}>
                 <Grid container direction="column">
-                  <Grid  container direction="row" sx={{marginTop:2}}>
+                  <Grid container direction="row" sx={{ marginTop: 2 }}>
                     <Grid item lg={2}>
-                      <img style={{ width: 50, marginLeft: 15, }} src="https://i.ibb.co/tYFNbxN/energy.png" alt="" />
+                      <img style={{ width: 48, marginLeft: 17,marginTop:3 }} src="https://i.ibb.co/d5FcLHr/budget.png" alt="" />
                     </Grid>
-                    <Grid item lg={9}>
-                      <Typography fontSize={22} marginTop={1} marginLeft={2}> Budget</Typography>
+                    <Grid container direction={'row'} display={'flex'} justifyContent={'space-between'} lg={10} >
+                      <Grid item>
+                        <Typography fontSize={22} marginTop={1} marginLeft={2}> Budget</Typography>
+                      </Grid>
+                      <Grid item>
+                        <Button onClick={() => (setOpenBudgetDialog(true))}>
+                          <img style={{ width: 30 }} src="https://cdn-icons-png.flaticon.com/128/2311/2311524.png" alt="" />
+                        </Button>
+                      </Grid>
+                
+
                     </Grid>
 
                   </Grid>
                   <Grid lg={6} container direction="row">
 
                     <Typography>
-                    {preference === null ? (
-                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                <CircularProgress />
-                            </Box>
-                        ) : (
-                            <>
-                            {preference.budgets.budgetLimit}
-                            </>
-                        )}
+                      {preference === null ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                          <CircularProgress />
+                        </Box>
+                      ) : (
+                        <>
+                          {preference.budgets.budgetLimit}
+                        </>
+                      )}
                     </Typography>
                   </Grid>
 
@@ -126,7 +135,7 @@ function Budget() {
           <Grid lg={6} item container direction="row" spacing={2}>
             <Grid item lg={12}>
               <Card sx={{ width: "100%", height: 340 }}>
-                Placeholder Graph
+                <Line options={options} data={data} width={"800%"} />;
               </Card>
             </Grid>
 
@@ -136,6 +145,7 @@ function Budget() {
 
         </Grid>
       </Box>
+<BudgetDialog open={openBudgetDialog} handleClose={handleCloseBudgetDialoge} />
 
     </>
   )
