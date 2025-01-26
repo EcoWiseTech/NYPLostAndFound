@@ -7,13 +7,77 @@ import { jwtDecode } from 'jwt-decode';
 import { GetPreferenceApi } from '../api/preference/GetPreferenceApi';
 import { useUserContext } from '../contexts/UserContext';
 import { enqueueSnackbar } from 'notistack';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+import BudgetDialog from '../components/common/budget/BudgetDialog';
 
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+
+
+const options = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false
+    },
+    title: {
+      display: true,
+      text: '',
+    },
+  },
+};
+const labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']; 
+const data = {
+  labels: labels,
+  datasets: [{
+    label: 'Actual Consumption',
+    data: [11, 20, 34, 38, 47],
+    fill: false,
+    borderColor: 'rgb(75, 192, 192)',
+    tension: 0.1
+  },
+  {
+    label: 'Budget Consumption',
+    data: [10,20,30,40,50,60,70],
+    fill: false,
+    borderColor: 'rgb(255, 42, 0)',
+    tension: 0.1
+  },
+  ]
+};
 
 
 function Budget() {
   const { user } = useUserContext()
   const [preference, setPreference] = useState(null); // Set initial value to null to indicate loading
+  const [openBudgetDialog, setOpenBudgetDialog] = useState(false);
 
+  const handleClickOpenBudgetDialog = () => {
+    setOpenBudgetDialog(true);
+  };
+
+  const handleCloseBudgetDialoge = () => {
+    setOpenBudgetDialog(false);
+  };
   useEffect(() => {
       GetPreferenceApi(user.Username)
           .then((res) => {
@@ -24,6 +88,7 @@ function Budget() {
               enqueueSnackbar('Failed to fetch Preference data', { variant: "error" })
           })
   }, [user.Username]);
+  
   return (
     <>
       <Box padding={2}>
