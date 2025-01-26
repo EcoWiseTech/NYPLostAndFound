@@ -281,6 +281,9 @@ Resources:
             RestApiId: !Ref ServerlessRestApi
 
 Outputs:
+  EcoWiseApi:
+    Description: "API Gateway endpoint URL for Prod stage for EcoWiseApi function"
+    Value: !Sub ServerlessRestApi
   StoreWeatherApiFunction:
     Description: "StoreWeatherApiFunction ARN"
     Value: !GetAtt StoreWeatherApiFunction.Arn
