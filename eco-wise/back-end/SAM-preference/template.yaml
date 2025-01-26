@@ -9,6 +9,11 @@ Description: >
 Globals:
   Function:
     Timeout: 3
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,DELETE,OPTIONS,PUT'"
+      AllowHeaders: "'content-type'"
+      AllowOrigin: "'*'"
 
 Resources:
   CreatePreferenceApiFunction:
@@ -66,6 +71,24 @@ Resources:
             Path: /Preference/UpdatePreference
             Method: put
             RestApiId: !Ref ServerlessRestApi
+  DeletePreferenceApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DeletePreferenceApiFunction/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: PreferenceTable
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        DeletePreferenceApiResource:
+          Type: Api
+          Properties:
+            Path: /Preference/DeletePreference
+            Method: delete
+            RestApiId: !Ref ServerlessRestApi
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
@@ -99,3 +122,13 @@ Outputs:
   UpdatePreferenceApiFunctionIamRole:
     Description: "Implicit IAM Role Update for Hello World function"
     Value: !GetAtt UpdatePreferenceApiFunction.Arn
+
+  DeletePreferenceApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/Preference/DeletePreference/"
+  DeletePreferenceApiFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt DeletePreferenceApiFunction.Arn
+  DeletePreferenceApiFunctionIamRole:
+    Description: "Implicit IAM Role Delete for Hello World function"
+    Value: !GetAtt DeletePreferenceApiFunction.Arn
