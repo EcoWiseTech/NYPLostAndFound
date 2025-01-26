@@ -163,6 +163,9 @@ function Budget() {
     GetPreferenceApi(user.Username)
       .then((res) => {
         setPreference(res.data[0])
+        setFormData({
+          budgetLimit: res.data[0].budgets.budgetLimit
+        })
         console.log(res.data)
       })
       .catch((err) => {
