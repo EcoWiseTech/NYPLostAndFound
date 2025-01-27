@@ -119,9 +119,11 @@ export const lambdaHandler = async (event, context) => {
     //FOR BUDGET CHECK -> Publish SNS Topic
     const sns = new AWS.SNS();
     // console.log(updatedItem["userId"])
-
+    let date = updatedItem["endTime"].slice(0,10)
+    console.log(`date: ${date}`)
     const eventText = {
-      userId: updatedItem["userId"]
+      userId: updatedItem["userId"],
+      date: date
     }
     var snsParams = {
       Message: JSON.stringify(eventText), 
@@ -130,14 +132,9 @@ export const lambdaHandler = async (event, context) => {
     }
     var publishTextPromise = sns.publish(snsParams).promise()
     // Handle promise's fulfilled/rejected states
-    publishTextPromise
-    .then(function (data) {
-      console.log(
-        `Message ${snsParams.Message} sent to the topic ${snsParams.TopicArn}`
-      );
-      console.log("MessageID is " + data.MessageId);
-    })
-    .catch(function (err) {
+    publishTextPromise.then(function (data) {
+      console.log(`PROMISE SENT: ${data}`);
+    }).catch(function (err) {
       console.error(err, err.stack);
     });
     return {
