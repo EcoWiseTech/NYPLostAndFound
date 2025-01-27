@@ -1,7 +1,9 @@
 import AWS from 'aws-sdk';
 
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
+const sns = new AWS.SNS();
 const tableName = 'DeviceConsumptionTable';
+
 
 // Function to update device consumption data in DynamoDB
 const updateDeviceConsumptionInDynamoDB = async (deviceId, sessionId, updatedData) => {
@@ -47,6 +49,32 @@ const updateDeviceConsumptionInDynamoDB = async (deviceId, sessionId, updatedDat
     throw new Error('Failed to update device consumption data in DynamoDB.');
   }
 };
+
+
+const publishSNS = async (updatedItem) => {
+  //FOR BUDGET CHECK -> Publish SNS Topic
+    // console.log(updatedItem["userId"])
+    let date = updatedItem["endTime"].slice(0,10)
+    console.log(`date: ${date}`)
+    console.log(`userId: ${updatedItem["userId"]}`)
+    const eventText = {
+      userId: updatedItem["userId"],
+      date: date
+    }
+    console.log(`created eventText`)
+
+    var snsParams = {
+      Message: JSON.stringify(eventText), 
+      Subject: "SNS From UpdateDeviceConsumption Lambda",
+      TopicArn: process.env.TopicArn
+    }
+    console.log(`created snsParams`)
+
+    var snsResult = await sns.publish(snsParams).promise()
+
+    console.log(`snsResult: ${JSON.stringify(snsResult)}`)
+    return snsResult
+}
 
 // Lambda handler
 export const lambdaHandler = async (event, context) => {
@@ -116,27 +144,7 @@ export const lambdaHandler = async (event, context) => {
     // Update DynamoDB
     const updatedItem = await updateDeviceConsumptionInDynamoDB(deviceId, sessionId, updatedData);
 
-    //FOR BUDGET CHECK -> Publish SNS Topic
-    const sns = new AWS.SNS();
-    // console.log(updatedItem["userId"])
-    let date = updatedItem["endTime"].slice(0,10)
-    console.log(`date: ${date}`)
-    const eventText = {
-      userId: updatedItem["userId"],
-      date: date
-    }
-    var snsParams = {
-      Message: JSON.stringify(eventText), 
-      Subject: "SNS From UpdateDeviceConsumption Lambda",
-      TopicArn: process.env.TopicArn
-    }
-    var publishTextPromise = sns.publish(snsParams).promise()
-    // Handle promise's fulfilled/rejected states
-    publishTextPromise.then(function (data) {
-      console.log(`PROMISE SENT: ${data}`);
-    }).catch(function (err) {
-      console.error(err, err.stack);
-    });
+    const publishBudgetSNS = await publishSNS(updatedItem);
     return {
       statusCode: 200,
       headers: {
