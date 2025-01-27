@@ -565,6 +565,14 @@ Resources:
     Properties:
       TopicName: "triggerNotificationSendTopic"
 
+# ------------------------------ END TriggerNotificationSendTopic stacks ------------------------------  #
+# ------------------------------ START EmailIdentity stacks ------------------------------  #
+EcoWiseEmailIdentity:
+  Type: AWS::SES::EmailIdentity
+  Properties:
+    EmailIdentity: "sgecowisetech@gmail.com"
+
+
 Outputs:
   TriggerCheckBudgetCostOverrunTopicOutput:
     Description: "TriggerCheckBudgetCostOverrunTopic"
