@@ -116,6 +116,30 @@ export const lambdaHandler = async (event, context) => {
     // Update DynamoDB
     const updatedItem = await updateDeviceConsumptionInDynamoDB(deviceId, sessionId, updatedData);
 
+    //FOR BUDGET CHECK -> Publish SNS Topic
+    const sns = new AWS.SNS();
+    // console.log(updatedItem["userId"])
+
+    const eventText = {
+      userId: updatedItem["userId"]
+    }
+    var snsParams = {
+      Message: JSON.stringify(eventText), 
+      Subject: "SNS From UpdateDeviceConsumption Lambda",
+      TopicArn: process.env.TopicArn
+    }
+    var publishTextPromise = sns.publish(snsParams).promise()
+    // Handle promise's fulfilled/rejected states
+    publishTextPromise
+    .then(function (data) {
+      console.log(
+        `Message ${snsParams.Message} sent to the topic ${snsParams.TopicArn}`
+      );
+      console.log("MessageID is " + data.MessageId);
+    })
+    .catch(function (err) {
+      console.error(err, err.stack);
+    });
     return {
       statusCode: 200,
       headers: {
