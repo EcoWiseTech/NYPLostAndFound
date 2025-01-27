@@ -89,6 +89,39 @@ Resources:
             Path: /Preference/DeletePreference
             Method: delete
             RestApiId: !Ref ServerlessRestApi
+
+  # Check Cost Overrunr LAMBDA only (no API Gateway)
+  RetrieveCostFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: RetrieveCostFunction/
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        TriggerBudgetCheckCostOverrunTopic:
+          Type: SNS # More info about SNS Event Source: https://github.com/aws/serverless-application-model/blob/master/versions/2016-10-31.md#sns
+          Properties:
+            Topic: 
+              Fn::ImportValue: TriggerCheckBudgetCostOverrunTopicOutput 
+              # "arn:aws:sns:us-east-1:783764587062:triggerCheckBudgetCostOverrun"
+  # Send Notification LAMBDA only (no API Gateway)
+  SendNotificationFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: SendNotificationFunction/
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        TriggerNotificationSendTopic:
+          Type: SNS # More info about SNS Event Source: https://github.com/aws/serverless-application-model/blob/master/versions/2016-10-31.md#sns
+          Properties:
+            Topic: 
+              Fn::ImportValue: TriggerNotificationSendTopicOutput 
+              
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
@@ -101,7 +134,7 @@ Outputs:
     Value: !GetAtt CreatePreferenceApiFunction.Arn
   CreatePreferenceApiFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt CreatePreferenceApiFunction.Arn
+    Value: !GetAtt CreatePreferenceApiFunctionRole.Arn
 
   GetPreferenceApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
@@ -111,7 +144,7 @@ Outputs:
     Value: !GetAtt GetPreferenceApiFunction.Arn
   GetPreferenceApiFunctionIamRole:
     Description: "Implicit IAM Role Get for Hello World function"
-    Value: !GetAtt GetPreferenceApiFunction.Arn
+    Value: !GetAtt GetPreferenceApiFunctionRole.Arn
 
   UpdatePreferenceApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
@@ -121,7 +154,7 @@ Outputs:
     Value: !GetAtt UpdatePreferenceApiFunction.Arn
   UpdatePreferenceApiFunctionIamRole:
     Description: "Implicit IAM Role Update for Hello World function"
-    Value: !GetAtt UpdatePreferenceApiFunction.Arn
+    Value: !GetAtt UpdatePreferenceApiFunctionRole.Arn
 
   DeletePreferenceApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
@@ -131,4 +164,12 @@ Outputs:
     Value: !GetAtt DeletePreferenceApiFunction.Arn
   DeletePreferenceApiFunctionIamRole:
     Description: "Implicit IAM Role Delete for Hello World function"
-    Value: !GetAtt DeletePreferenceApiFunction.Arn
+    Value: !GetAtt DeletePreferenceApiFunctionRole.Arn
+
+  RetrieveCostFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt RetrieveCostFunction.Arn
+  RetrieveCostFunctionIamRole:
+    Description: "Implicit IAM Role Delete for Hello World function"
+    Value: !GetAtt RetrieveCostFunctionRole.Arn
+    
