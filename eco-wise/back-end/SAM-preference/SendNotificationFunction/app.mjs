@@ -3,6 +3,26 @@ import AWS from 'aws-sdk';
 
 
 const { CognitoIdentityProviderClient, AdminGetUserCommand } = pkg;
+const ses = new AWS.SES()
+
+const publishSES = async(formattedUserObj,dailyBudgetLimit) => {
+  const sesParams = {
+    Destination: {
+      ToAddresses: [
+        formattedUserObj["email"],
+      ],
+    },
+    Source: "sgecowisetech@gmail.com",
+    Template: "BudgetTemplate",
+    TemplateData: `{ "budgetLimit": "${dailyBudgetLimit}" }`,
+    ReplyToAddresses: ["sgecowisetech@gmail.com"],
+    ReturnPath: "sgecowisetech@gmail.com"
+  };  
+  console.log(`sesParamsHERE: ${JSON.stringify(sesParams)}`);
+  const sesResult = await ses.sendTemplatedEmail(sesParams).promise();
+  console.log(`sesResult: ${sesResult}`)
+  return sesResult
+}
 
 export const lambdaHandler = async (event, context) => {
   console.log('Received event:', JSON.stringify(event));
@@ -77,28 +97,9 @@ export const lambdaHandler = async (event, context) => {
     const response = await client.send(command);
     const formattedUserObj = formatUserObject(response);
     console.log('Cognito user found:', formattedUserObj);
-    const sesParams = {
-      Destination: {
-        ToAddresses: [
-          formattedUserObj["email"],
-        ],
-      },
-      Source: "sgecowisetech@gmail.com",
-      Template: "BudgetTemplate",
-      TemplateData: `{ "budgetLimit": "${dailyBudgetLimit}" }`,
-      ReplyToAddresses: ["sgecowisetech@gmail.com"],
-      ReturnPath: "sgecowisetech@gmail.com"
-    };  
-    console.log(`sesParamsHERE: ${JSON.stringify(sesParams)}`);
-    var sendSNSPromise = new AWS.SES().sendTemplatedEmail(sesParams).promise();
-    console.log(`PROMISE CREATED`);
-
-    sendSNSPromise.then( (data) => {
-      console.log(`PROMISE SENT: ${data}`);
-        
-      }).catch( (err) => {
-        console.error(err, err.stack);
-    });
+    //HERERRER
+    const sendEmailNotification = await publishSES(formatUserObject,dailyBudgetLimit);
+    
     return {
       statusCode: 200,
       body: JSON.stringify({
