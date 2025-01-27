@@ -260,6 +260,24 @@ Resources:
             Path: /DeviceConsumption/GetDeviceConsumption
             Method: get
             RestApiId: !Ref ServerlessRestApi
+  GetGSIDeviceConsumptionApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetGSIDeviceConsumptionApiFunction/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: DeviceConsumptionTable
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Events:
+        GetGSIDeviceConsumptionApiResource:
+          Type: Api
+          Properties:
+            Path: /DeviceConsumption/GetGSIDeviceConsumption
+            Method: get
+            RestApiId: !Ref ServerlessRestApi
 
   UpdateDeviceConsumptionApiFunction:
     Type: AWS::Serverless::Function
