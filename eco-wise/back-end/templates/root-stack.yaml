@@ -553,11 +553,17 @@ Resources:
         Ref: "EcowiseApiSnsTopic"
   # ------------------------------ END SNS+CloudWatch stacks ------------------------------  # 
 
-  # ------------------------------ START TriggerCheckCostOverrun stacks ------------------------------  #
+  # ------------------------------ START TriggerCheckBudgetCostOverrunTopic stacks ------------------------------  #
   TriggerCheckBudgetCostOverrunTopic:
     Type: AWS::SNS::Topic
     Properties:
       TopicName: "triggerCheckBudgetCostOverrun"
+
+# ------------------------------ START TriggerNotificationSendTopic stacks ------------------------------  #
+  TriggerNotificationSendTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "triggerNotificationSendTopic"
 
 Outputs:
   TriggerCheckBudgetCostOverrunTopicOutput:
@@ -565,4 +571,9 @@ Outputs:
     Value: !GetAtt TriggerCheckBudgetCostOverrunTopic.TopicArn
     Export:
       Name: TriggerCheckBudgetCostOverrunTopicOutput
+  TriggerNotificationSendTopicOutput:
+    Description: "TriggerNotificationSendTopic"
+    Value: !GetAtt TriggerNotificationSendTopic.TopicArn
+    Export:
+      Name: TriggerNotificationSendTopicOutput
 
