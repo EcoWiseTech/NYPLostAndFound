@@ -27,12 +27,11 @@ import '../../css/PhoneInput.css'
 import NotificationInformationCard from '../../components/user/NotificationInformationCard';
 import DeleteUserCard from '../../components/user/DeleteUserCard';
 import DeleteUserApi from '../../api/auth/DeleteUserApi';
+import { GetPreferenceApi } from '../../api/preference/GetPreferenceApi';
+import { UpdatePreferenceApi } from '../../api/preference/UpdatePreferenceApi';
+import { enqueueSnackbar } from 'notistack';
 
-// Define the validation schema with yup
-const schema = yup.object({
-    given_name: yup.string().required("Name is required"),
-    email: yup.string().email("Invalid email address").required("Email is required"),
-}).required();
+
 
 function NotificationSettingsPage() {
     const { user, accessToken, refreshToken, RefreshUser, SessionRefreshError, DeleteUser } = useUserContext();
@@ -42,6 +41,7 @@ function NotificationSettingsPage() {
         birthdate: '',
     });
     const [isModified, setIsModified] = useState(false);
+    const [preference, setPreference] = useState(null);
     const [allNotificationChecked, setAllNotificationChecked] = useState(false);
     const [budgetNotificationChecked, setBudgetNotificationChecked] = useState(false);
     const handleAllNotificationChanged = (e) => {
@@ -54,9 +54,35 @@ function NotificationSettingsPage() {
         setBudgetNotificationChecked(e.target.checked)
         setIsModified(true);
     };
-    
+
     const handleEditNotification = (e) => {
         console.log('clicked handleEditNotification')
+        // console.log(userId)
+        let requestObj = {
+            uuid: preference.uuid,
+            userId: user.Username,
+            budgets: { ...preference.budgets, isBudgetNotification: budgetNotificationChecked }
+            
+        }
+        // console.log(`requestObj: ${JSON.stringify(requestObj)}`)
+        UpdatePreferenceApi(requestObj)
+            .then((res) => {
+                console.log(`res.data: ${JSON.stringify(res)}`)
+                setPreference(res)
+            })
+            .catch((err) => {
+                console.log(`err: ${err.status}`)
+                if (404 == err.status) {
+                    setPreference(0)
+                } else {
+                    enqueueSnackbar('Failed to fetch Preference data', { variant: "error" })
+                    console.error("Error updating preference:", err);
+                }
+
+
+
+            })
+        //uuid, userId, updatedData
     };
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
@@ -64,16 +90,33 @@ function NotificationSettingsPage() {
 
     // Populate form data from user context
     useEffect(() => {
-        if (user?.UserAttributes) {
-            setFormData({
-                given_name: user.UserAttributes.given_name || '',
-                email: user.UserAttributes.email || '',
-                birthdate: user.UserAttributes.birthdate || '',
-            });
-        }
+        GetPreferenceApi(user.Username)
+            .then((res) => {
+                setPreference(res.data[0])
+                let preferenceData = res.data[0]
+
+                console.log(`preferenceData: ${JSON.stringify(preferenceData)}`)
+                if ('budgets' in preferenceData && 'isBudgetNotification' in preferenceData.budgets) {
+                    // console.log(`isbudgetnotification:${preferenceData.budgets.isBudgetNotification}`)
+                    setBudgetNotificationChecked(preferenceData.budgets.isBudgetNotification)
+                }
+            })
+            .catch((err) => {
+                // // console.log(`err:${err.status}`)
+                if (404 == err.status) {
+
+                    setPreference(0)
+                } else {
+                    enqueueSnackbar('Failed to fetch Preference data', { variant: "error" })
+                }
+
+
+
+            })
     }, [user]);
 
-    
+
+
 
     return (
         <Stack direction="column" spacing={2}>
@@ -86,7 +129,7 @@ function NotificationSettingsPage() {
                 handleBudgetNotificationInputChange={handleBudgetNotificationInputChange}
                 budgetNotificationChecked={budgetNotificationChecked}
             />
-           
+
         </Stack>
     );
 }
