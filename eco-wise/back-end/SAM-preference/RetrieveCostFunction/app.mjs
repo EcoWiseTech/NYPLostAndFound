@@ -166,9 +166,40 @@ export const lambdaHandler = async (event, context) => {
       }
     
     const dailyBudgetLimit = PreferenceData[0].budgets.dailyBudgetLimit
+    console.log(`dailyBudgetLimit FROM PREFERENCE: ${dailyBudgetLimit}`);
     if (totalCost >= dailyBudgetLimit   ){ //if total cost overrun budget / reach budget
       //push SNS to trigger notification
+      //send over:
+      //preferenceInfo + totalCost + dailyBudgetLimit
+      let eventText = {
+        preferenceData: PreferenceData[0],
+        dailyBudgetLimit: dailyBudgetLimit,
+        totalCost: totalCost,
+        totalConsumption: totalConsumption,
+        userId: userId
+      }
+      //s
+      //FOR NOTIFI -> Publish SNS Topic
+      const sns = new AWS.SNS();
       
+      var snsParams = {
+        Message: JSON.stringify(eventText), 
+        Subject: "SNS From UpdateDeviceConsumption Lambda",
+        TopicArn: process.env.TopicArn
+      }
+      var publishTextPromise = sns.publish(snsParams).promise()
+      // Handle promise's fulfilled/rejected states
+      publishTextPromise
+      .then(function (data) {
+        console.log(
+          `Message ${snsParams.Message} sent to the topic ${snsParams.TopicArn}`
+        );
+        console.log("MessageID is " + data.MessageId);
+      })
+      .catch(function (err) {
+        console.error(err, err.stack);
+      });
+    
     }
     
     
@@ -181,7 +212,7 @@ export const lambdaHandler = async (event, context) => {
         "Access-Control-Allow-Headers": "Content-Type, Authorization", 
       },
       body: JSON.stringify({
-        message: 'Device consumption data successfully retrieved.',
+        message: 'cost data has been succesfully retrieved',
         data: totalConsumption, // Return the queried data
       }),
     };
