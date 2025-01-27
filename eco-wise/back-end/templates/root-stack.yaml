@@ -570,7 +570,8 @@ Resources:
 EcoWiseEmailIdentity:
   Type: AWS::SES::EmailIdentity
   Properties:
-    EmailIdentity: "sgecowisetech@gmail.com"
+    EmailIdentity:
+      "sgecowisetech@gmail.com"
 
 
 Outputs:
