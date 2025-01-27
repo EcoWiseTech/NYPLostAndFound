@@ -554,15 +554,15 @@ Resources:
   # ------------------------------ END SNS+CloudWatch stacks ------------------------------  # 
 
   # ------------------------------ START TriggerCheckCostOverrun stacks ------------------------------  #
-  TriggerCheckCostOverrunTopic:
+  TriggerCheckBudgetCostOverrunTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: "triggerCheckCostOverrun"
+      TopicName: "triggerCheckBudgetCostOverrun"
 
 Outputs:
-  TriggerCheckCostOverrunTopicOutput:
-    Description: "TriggerCheckCostOverrunTopic"
-    Value: !GetAtt TriggerCheckCostOverrunTopic.TopicArn
+  TriggerCheckBudgetCostOverrunTopicOutput:
+    Description: "TriggerCheckBudgetCostOverrunTopic"
+    Value: !GetAtt TriggerCheckBudgetCostOverrunTopic.TopicArn
     Export:
-      Name: TriggerCheckCostOverrunTopicOutput
+      Name: TriggerCheckBudgetCostOverrunTopicOutput
 
