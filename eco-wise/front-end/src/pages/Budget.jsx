@@ -14,7 +14,6 @@ import {
   PointElement,
   LineElement,
   Title,
-  Tooltip,
   Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
@@ -24,7 +23,9 @@ import { CreatePreferenceApi } from '../api/preference/CreatePreferenceApi';
 import { UpdatePreferenceApi } from '../api/preference/UpdatePreferenceApi';
 import { useAlert } from "../contexts/AlertContext";
 import { GetGSIDeviceConsumptionApi } from '../api/home/GetGSIDeviceConsumptionApi';
-
+import { styled } from '@mui/material/styles';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import { GetHomeApi } from '../api/home/GetHomeApi';
 
 ChartJS.register(
   CategoryScale,
@@ -32,11 +33,21 @@ ChartJS.register(
   PointElement,
   LineElement,
   Title,
-  Tooltip,
   Legend
 );
 
+function convertToHoursAndMinutes(hours) {
+  const wholeHours = Math.floor(hours); // Get the whole number of hours
+  const minutes = Math.round((hours - wholeHours) * 60); // Get the fractional part and convert to minutes
 
+  if (wholeHours === 0) {
+      return `${minutes} minutes`; // Only show minutes if hours are 0
+  } else if (minutes === 0) {
+      return `${wholeHours} hr`; // Only show hours if minutes are 0
+  } else {
+      return `${wholeHours} hr ${minutes} min`; // Show both hours and minutes
+  }
+}
 
 const options = {
   responsive: true,
@@ -53,13 +64,7 @@ const options = {
 const labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const data = {
   labels: labels,
-  datasets: [{
-    label: 'Actual Consumption',
-    data: [11, 20, 34, 38, 47],
-    fill: false,
-    borderColor: 'rgb(75, 192, 192)',
-    tension: 0.1
-  },
+  datasets: [
   {
     label: 'Budget Consumption',
     data: [10, 20, 30, 40, 50, 60, 70],
@@ -67,8 +72,22 @@ const data = {
     borderColor: 'rgb(255, 42, 0)',
     tension: 0.1
   },
+  {
+    label: 'Actual Consumption',
+    data: [11, 20, 34, 38, 47],
+    type:"bar",
+    backgroundColor: 'rgb(3, 227, 227)',
+    tension: 0.1
+  }
   ]
 };
+const CustomWidthTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))({
+  [`& .${tooltipClasses.tooltip}`]: {
+    minWidth: 150,
+  },
+});
 
 // Define the validation schema with yup
 const schema = yup.object({
@@ -86,7 +105,10 @@ function Budget() {
   const [deviceConsumption, setDeviceConsumption] = useState(null);
   const [totalDeviceConsumption, setTotalDeviceConsumption] = useState(null);
   const [todaySavings, setTodaySavings] = useState(null);
-
+  const [totalConsumptionCost, setTotalConsumptionCost] = useState(null);
+  const [toolTipAircon, setToolTipAircon] = useState("test \n test"); 
+  const [home, setHome] = useState(null); // Set initial value to null to indicate loading
+  
 
   const validateForm = async () => {
     try {
@@ -108,7 +130,7 @@ function Budget() {
 
   const handleCloseBudgetDialog = () => {
     setOpenBudgetDialog(false);
-    // console.log(user)
+    // // console.log(user)
   };
   const handleBudgetInputChange = (e) => {
     const { name, value } = e.target;
@@ -171,34 +193,87 @@ function Budget() {
         setFormData({
           dailyBudgetLimit: res.data[0].budgets.dailyBudgetLimit
         })
-        // console.log(res.data)
+        
+        // // console.log(res.data)
         GetGSIDeviceConsumptionApi(user.Username)
           .then((res) => {
+            // console.log(`res.data GSIDEVICE: `)
+            for (let i = 0; i < res.data.length; i++) {
+              let deviceRecord = res.data[i]
+              // console.log(`res.data GSIDEVICE: ${JSON.stringify(deviceRecord)}`)
+
+            }
             setDeviceConsumption(res.data)
             //START calculate total Consumption based ondevices
             let totalConsumption = 0
             for (let i = 0; i < res.data.length; i++) {
               let deviceRecord = res.data[i]
-              console.log(deviceRecord)
+              // console.log(deviceRecord)
               if (deviceRecord.totalConsumption != null) {
                 let consumption = Number(deviceRecord.totalConsumption)
-                console.log(typeof (consumption))
+                // console.log(typeof (consumption))
                 totalConsumption += consumption
-                console.log(totalConsumption)
+                // console.log(totalConsumption)
               }
             }
-            console.log(`totalConsumption:${totalConsumption}`)
+            // console.log(`totalConsumption:${totalConsumption}`)
             setTotalDeviceConsumption(totalConsumption)
             // END calculate total Consumption based ondevices
             // calculating AS PER amount https://www.spgroup.com.sg/our-services/utilities/tariff-information
             const costPerKwh = 0.365 //in $/kWh
             let totalCost = totalConsumption * costPerKwh
             let todaysSavings = dailyBudgetLimit - totalCost
+            setTotalConsumptionCost(totalCost)
             setTodaySavings(todaysSavings)
-            // console.log(res.data)
+            // // console.log(res.data)
+
+            //SAVINGS retrieved HENCE do check
+            GetHomeApi(user.Username)
+                    .then((res) => {
+                        setHome(res.data)
+                        // console.log(`HOMEDATA: ${JSON.stringify(res.data)}`);
+                        let homeData = res.data
+                        let toolTipMSG = "Usage left based on savings: \n\n"
+                        for (let i = 0; i < homeData.length; i++) {
+                            let rooms = homeData[i]["rooms"]
+                            for (let j = 0; j < rooms.length; j++) {
+                                let room = rooms[j]
+                                let roomName = room["roomName"]
+                                console.log(`${roomName}:`) 
+                                toolTipMSG += `${roomName}: \n`
+                                let devices = room["devices"]                        
+                                for (let k = 0; k < devices.length; k++) {
+                                    let device = devices[k]
+                                    let deviceModel = device["model"]
+                                    if (device["customModel"] != "") {
+                                        deviceModel = device["customModel"]
+                                    }
+                                    let consumptionKwh = device["consumption"]
+                                    // calculating AS PER amount https://www.spgroup.com.sg/our-services/utilities/tariff-information
+        
+                                    let consumptionKwhCost = consumptionKwh * 0.365
+                                    let savings = todaysSavings
+                                    let remainingTimeInHours= (savings / consumptionKwhCost)
+                                    let formattedRemainingTime = convertToHoursAndMinutes(remainingTimeInHours)
+                                    // savings / consumptionKwhCost = how many hours left
+                                    console.log(`• ${deviceModel}: ${formattedRemainingTime} `)
+                                    toolTipMSG += `• ${deviceModel}: ${formattedRemainingTime} left \n`
+
+                                }
+                                
+                            }
+                            
+                        }
+                        //setToolTipAircon(toolTipMSG)
+                        setToolTipAircon(toolTipMSG)
+                        
+                    })
+                    .catch((err) => {
+                        enqueueSnackbar('Failed to fetch home data', { variant: "error" })
+                    })
           })
           .catch((err) => {
-            // console.log(`err:${err.status}`)
+            // // console.log(`err:${err.status}`)
             if (404 == err.status) {
               setDeviceConsumption([])
             } else {
@@ -207,7 +282,7 @@ function Budget() {
           })
       })
       .catch((err) => {
-        // console.log(`err:${err.status}`)
+        // // console.log(`err:${err.status}`)
         if (404 == err.status) {
 
           setPreference(0)
@@ -250,23 +325,26 @@ function Budget() {
                       <img style={{ width: 50, marginLeft: 15, }} src="https://i.ibb.co/tYFNbxN/energy.png" alt="" />
                     </Grid>
                     <Grid item lg={9}>
-                      <Typography fontSize={22} marginTop={1} marginLeft={2}> Current Usage</Typography>
+                      <Typography fontSize={22} marginTop={1} marginLeft={2}> Current Usage Cost</Typography>
                     </Grid>
 
                   </Grid>
-                  <Grid lg={6} container direction="row">
+                  <Grid lg={12} container direction={'row'} display={'flex'} justifyContent={'center'}>
 
-                    <Typography>
-                    {totalDeviceConsumption === null ? (
+                    <Typography fontSize={28}>
+                      {totalConsumptionCost === null ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                           <CircularProgress />
                         </Box>
                       ) : (
                         <>
-                          {totalDeviceConsumption} kWh
+
+                          $ {totalConsumptionCost?.toFixed(2)}
+
+
                         </>
                       )}
-                      
+
                     </Typography>
                   </Grid>
 
@@ -281,25 +359,60 @@ function Budget() {
                     <Grid item lg={2}>
                       <img style={{ width: 50, marginLeft: 15, }} src="https://cdn-icons-png.flaticon.com/128/13798/13798822.png" alt="" />
                     </Grid>
-                    <Grid item lg={9}>
-                      <Typography fontSize={22} marginTop={1} marginLeft={2}> Current Savings</Typography>
+                    <Grid container direction={'row'} display={'flex'} justifyContent={'space-between'} lg={10} >
+
+                      <Grid item >
+                        <Typography fontSize={22} marginTop={1} marginLeft={2}> Current Savings</Typography>
+                      </Grid>
+                      <Grid item>
+                        <CustomWidthTooltip sx={{whiteSpace:'pre-line'}} title={<span style={{ whiteSpace: 'pre-line' }}>{toolTipAircon}</span>} followCursor data-html="true" >
+                          <Button onClick={() => (setOpenBudgetDialog(true))}>
+                            <img style={{ width: 30 }} src="https://cdn-icons-png.flaticon.com/128/157/157933.png" alt="" />
+                          </Button>
+
+                        </CustomWidthTooltip>
+                      </Grid>
                     </Grid>
 
+
                   </Grid>
-                  <Grid lg={6} container direction="row">
+                  <Grid lg={12} container direction={'row'} display={'flex'} justifyContent={'center'}  >
 
-                    <Typography>
-                      {todaySavings === null ? (
-                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                          <CircularProgress />
-                        </Box>
-                      ) : (
-                        <>
-                          ${todaySavings?.toFixed(2)}
-                        </>
-                      )}
 
-                    </Typography>
+
+                    {todaySavings === null ? (
+                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                        <CircularProgress />
+                      </Box>
+                    ) : (
+                      <>
+                        {todaySavings > 0 ? (
+                          <>
+                            <Grid item><img style={{ width: 30, height: 30, marginTop: 5 }} src="https://cdn-icons-png.flaticon.com/128/14035/14035529.png" alt="" /></Grid>
+                            <Grid sx={{ pr: 4 }}>
+                              <Typography fontSize={28}>${todaySavings?.toFixed(2)}</Typography>
+
+                            </Grid>
+                          </>
+
+                        ) : (
+                          <>
+                            <Grid item><img style={{ width: 40, height: 40, marginTop: 0 }} src="https://cdn-icons-png.flaticon.com/128/14034/14034783.png" alt="" /></Grid>
+                            <Grid sx={{ pr: 4 }}>
+                              <Typography fontSize={28}>${Number(todaySavings.toString().slice(1)).toFixed(2)}</Typography>
+
+                            </Grid>
+                          </>
+
+                        )}
+
+
+
+
+                      </>
+                    )}
+
+
                   </Grid>
 
 
@@ -327,9 +440,9 @@ function Budget() {
                     </Grid>
 
                   </Grid>
-                  <Grid lg={6} container direction="row">
+                  <Grid lg={12} container direction={'row'} display={'flex'} justifyContent={'center'}>
 
-                    <Typography>
+                    <Typography fontSize={28}>
                       {preference === null ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                           <CircularProgress />
@@ -342,7 +455,7 @@ function Budget() {
                             </>
                           ) : (
                             <>
-                              {preference.budgets.dailyBudgetLimit}
+                              $ {Number(preference.budgets.dailyBudgetLimit).toFixed(2)}
                             </>
                           )}
                         </>

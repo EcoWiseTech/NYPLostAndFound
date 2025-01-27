@@ -9,8 +9,10 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 
 
 const NotificationInformationCard = ({
-  notificationChecked,
-  handleInputChange,
+  allNotificationChecked,
+  handleAllNotificationInputChange,
+  budgetNotificationChecked,
+  handleBudgetNotificationInputChange,
   isModified,
   isLoading,
   handleEditNotification
@@ -20,18 +22,18 @@ const NotificationInformationCard = ({
       <CardContent>
         <CardTitle icon={<NotificationsIcon />} title="Notification Settings" />
         <Grid container spacing={2} marginTop="1rem">
-          <Grid item container spacing={2} xs={12} sm={12} md={12} lg={12} direction={'row'}>
+          <Grid item container spacing={1} xs={12} sm={12} md={12} lg={12} direction={'row'}>
             <Grid item xs={12}>
-              <Grid container direction={'row'} display={'flex'} justifyContent={'space-between'} sx={{ px: 5, mb: 1}}>
+              <Grid container direction={'row'} display={'flex'} justifyContent={'space-between'} sx={{ px: 5}}>
                 <Grid item>
                   <Typography fontSize={18}>
-                    Turn on Notification
+                    Turn on All Notifications
                   </Typography>
                 </Grid>
                 <Grid item>
                   <Switch
-                    checked={notificationChecked}
-                    onChange={handleInputChange}
+                    checked={allNotificationChecked}
+                    onChange={handleAllNotificationInputChange}
                     inputProps={{ 'aria-label': 'controlled' }}
                   />
                 </Grid>
@@ -45,15 +47,15 @@ const NotificationInformationCard = ({
           <Grid item container spacing={2} xs={12} sm={12} md={12} lg={12} direction={'row'}>
             <Grid item xs={12}>
               <Grid container direction={'row'} display={'flex'} justifyContent={'space-between'} sx={{ px: 5, mb: 1 }}>
-                <Grid item>
+                <Grid item >
                   <Typography fontSize={18}>
-                    Do not Disturb
+                    Budget Notifications
                   </Typography>
                 </Grid>
                 <Grid item>
                   <Switch
-                    checked={notificationChecked}
-                    onChange={handleInputChange}
+                    checked={budgetNotificationChecked}
+                    onChange={handleBudgetNotificationInputChange}
                     inputProps={{ 'aria-label': 'controlled' }}
                   />
                 </Grid>

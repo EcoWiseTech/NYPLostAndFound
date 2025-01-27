@@ -42,12 +42,19 @@ function NotificationSettingsPage() {
         birthdate: '',
     });
     const [isModified, setIsModified] = useState(false);
-    const [notificationChecked, setNotificationChecked] = useState(false);
-    const handleNotificationChanged = (e) => {
+    const [allNotificationChecked, setAllNotificationChecked] = useState(false);
+    const [budgetNotificationChecked, setBudgetNotificationChecked] = useState(false);
+    const handleAllNotificationChanged = (e) => {
         console.log(e.target.checked)
-        setNotificationChecked(e.target.checked)
+        setAllNotificationChecked(e.target.checked)
         setIsModified(true);
     };
+    const handleBudgetNotificationInputChange = (e) => {
+        console.log(e.target.checked)
+        setBudgetNotificationChecked(e.target.checked)
+        setIsModified(true);
+    };
+    
     const handleEditNotification = (e) => {
         console.log('clicked handleEditNotification')
     };
@@ -71,11 +78,13 @@ function NotificationSettingsPage() {
     return (
         <Stack direction="column" spacing={2}>
             <NotificationInformationCard
-                notificationChecked={notificationChecked}
-                handleInputChange={handleNotificationChanged}
+                allNotificationChecked={allNotificationChecked}
+                handleAllNotificationInputChange={handleAllNotificationChanged}
                 isLoading={isLoading}
-                handleNotificationChanged={handleEditNotification}
+                handleEditNotification={handleEditNotification}
                 isModified={isModified}
+                handleBudgetNotificationInputChange={handleBudgetNotificationInputChange}
+                budgetNotificationChecked={budgetNotificationChecked}
             />
            
         </Stack>
