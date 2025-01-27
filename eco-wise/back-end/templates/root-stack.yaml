@@ -552,3 +552,11 @@ Resources:
       TopicArn: 
         Ref: "EcowiseApiSnsTopic"
   # ------------------------------ END SNS+CloudWatch stacks ------------------------------  # 
+
+  # ------------------------------ START TriggerCheckCostOverrun stacks ------------------------------  #
+  TriggerCheckCostOverrun:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "triggerCheckCostOverrun"
+  
+  
