@@ -32,6 +32,21 @@ export const lambdaHandler = async (event, context) => {
   try {
     const snsMessage = JSON.parse(event.Records[0].Sns.Message)
     console.log(`snsMessage: ${JSON.stringify(snsMessage)}`)
+     //check NotificationSettings
+     const isBudgetNotification = snsMessage["preferenceData"]["budgets"]["isBudgetNotification"]
+    if (!isBudgetNotification) {
+      return {
+        statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*", 
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization", 
+        },
+        body: JSON.stringify({
+          message: 'isBudgetNotification is set to false',
+        }),
+      };
+    }
     userId =  snsMessage["userId"];
     dailyBudgetLimit = snsMessage["preferenceData"]["budgets"]["dailyBudgetLimit"];
     if (!userId) {
@@ -98,6 +113,9 @@ export const lambdaHandler = async (event, context) => {
     const formattedUserObj = formatUserObject(response);
     console.log('Cognito user found:', formattedUserObj);
     //HERERRER
+
+   
+    
     const sendEmailNotification = await publishSES(formattedUserObj,dailyBudgetLimit);
 
     return {
