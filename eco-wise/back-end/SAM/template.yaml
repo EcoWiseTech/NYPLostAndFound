@@ -290,6 +290,9 @@ Resources:
       Runtime: nodejs22.x
       Architectures:
         - x86_64
+      Environment:
+        Variables:
+          TopicArn: !ImportValue TriggerCheckBudgetCostOverrunTopicOutput #So that can retrieve Arn from env , and not hardcode it
       Events:
         UpdateDeviceConsumptionApiResource:
           Type: Api
