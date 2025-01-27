@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
+const sns = new AWS.SNS();
 const tableName = 'DeviceConsumptionTable';
 const indexName = 'userId-startTime-index';
 const preferenceTableName = 'PreferenceTable';
@@ -37,6 +38,34 @@ const queryDeviceConsumptionFromDynamoDB = async (userId,date) => {
     throw new Error('Failed to query device consumption data from DynamoDB.');
   }
 };
+
+const snsPublish = async (PreferenceData,dailyBudgetLimit,totalCost,totalConsumption,userId) => {
+    console.log(`dailyBudgetLimit FROM PREFERENCE: ${dailyBudgetLimit}`);
+    if (totalCost >= dailyBudgetLimit   ){ //if total cost overrun budget / reach budget
+      //push SNS to trigger notification
+      //send over:
+      //preferenceInfo + totalCost + dailyBudgetLimit
+      let eventText = {
+        preferenceData: PreferenceData[0],
+        dailyBudgetLimit: dailyBudgetLimit,
+        totalCost: totalCost,
+        totalConsumption: totalConsumption,
+        userId: userId
+      }
+      //s
+      //FOR NOTIFI -> Publish SNS Topic
+      
+      var snsParams = {
+        Message: JSON.stringify(eventText), 
+        Subject: "SNS From UpdateDeviceConsumption Lambda",
+        TopicArn: process.env.TopicArn
+      }
+      const snsResult = await sns.publish(snsParams).promise();
+      
+      console.log(`snsResult: ${JSON.stringify(snsResult)}`)
+      return snsResult;
+    }
+}
 
 
 const queryPreferenceDataFromDynamoDB = async (userId, uuid) => {
@@ -164,45 +193,9 @@ export const lambdaHandler = async (event, context) => {
         }),
       };
       }
-    
     const dailyBudgetLimit = PreferenceData[0].budgets.dailyBudgetLimit
-    console.log(`dailyBudgetLimit FROM PREFERENCE: ${dailyBudgetLimit}`);
-    if (totalCost >= dailyBudgetLimit   ){ //if total cost overrun budget / reach budget
-      //push SNS to trigger notification
-      //send over:
-      //preferenceInfo + totalCost + dailyBudgetLimit
-      let eventText = {
-        preferenceData: PreferenceData[0],
-        dailyBudgetLimit: dailyBudgetLimit,
-        totalCost: totalCost,
-        totalConsumption: totalConsumption,
-        userId: userId
-      }
-      //s
-      //FOR NOTIFI -> Publish SNS Topic
-      const sns = new AWS.SNS();
-      
-      var snsParams = {
-        Message: JSON.stringify(eventText), 
-        Subject: "SNS From UpdateDeviceConsumption Lambda",
-        TopicArn: process.env.TopicArn
-      }
-      var publishTextPromise = sns.publish(snsParams).promise()
-      // Handle promise's fulfilled/rejected states
-      publishTextPromise
-      .then(function (data) {
-        console.log(
-          `Message ${snsParams.Message} sent to the topic ${snsParams.TopicArn}`
-        );
-        console.log("MessageID is " + data.MessageId);
-      })
-      .catch(function (err) {
-        console.error(err, err.stack);
-      });
-    
-    }
-    
-    
+
+    const snsNotificationPublish = await snsPublish(PreferenceData,dailyBudgetLimit,totalCost,totalConsumption,userId);
 
     return {
       statusCode: 200,
