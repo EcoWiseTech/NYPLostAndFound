@@ -14,7 +14,7 @@ const publishSES = async(formattedUserObj,dailyBudgetLimit) => {
     },
     Source: "sgecowisetech@gmail.com",
     Template: "BudgetTemplate",
-    TemplateData: `{ "budgetLimit": "${dailyBudgetLimit}" }`,
+    TemplateData: `{ "budgetLimit": "${Number(dailyBudgetLimit).toFixed(2)}" }`,
     ReplyToAddresses: ["sgecowisetech@gmail.com"],
     ReturnPath: "sgecowisetech@gmail.com"
   };  
