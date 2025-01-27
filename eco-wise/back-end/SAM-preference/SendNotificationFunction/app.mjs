@@ -98,8 +98,8 @@ export const lambdaHandler = async (event, context) => {
     const formattedUserObj = formatUserObject(response);
     console.log('Cognito user found:', formattedUserObj);
     //HERERRER
-    const sendEmailNotification = await publishSES(formatUserObject,dailyBudgetLimit);
-    
+    const sendEmailNotification = await publishSES(formattedUserObj,dailyBudgetLimit);
+
     return {
       statusCode: 200,
       body: JSON.stringify({
