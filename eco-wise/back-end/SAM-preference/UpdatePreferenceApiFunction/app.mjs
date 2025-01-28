@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
 
+const sns = new AWS.SNS();
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 const tableName = 'PreferenceTable';
 
@@ -33,6 +34,34 @@ const updatePreferenceDataInDynamoDB = async (uuid, userId, updatedData) => {
   }
 };
 
+const snsPublish = async (PreferenceData,dailyBudgetLimit,totalCost,totalConsumption,userId) => {
+  console.log(`dailyBudgetLimit FROM PREFERENCE: ${dailyBudgetLimit}`);
+  if (totalCost >= dailyBudgetLimit   ){ //if total cost overrun budget / reach budget
+    //push SNS to trigger notification
+    //send over:
+    //preferenceInfo + totalCost + dailyBudgetLimit
+    let eventText = {
+      preferenceData: PreferenceData[0],
+      dailyBudgetLimit: dailyBudgetLimit,
+      totalCost: totalCost,
+      totalConsumption: totalConsumption,
+      userId: userId
+    }
+    //s
+    //FOR NOTIFI -> Publish SNS Topic
+    
+    var snsParams = {
+      Message: JSON.stringify(eventText), 
+      Subject: "SNS From UpdateDeviceConsumption Lambda",
+      TopicArn: process.env.TopicArn
+    }
+    const snsResult = await sns.publish(snsParams).promise();
+    
+    console.log(`snsResult: ${JSON.stringify(snsResult)}`)
+    return snsResult;
+  }
+}
+
 export const lambdaHandler = async (event, context) => {
   console.log('Received event:', JSON.stringify(event, null, 2));
   console.log('Lambda context:', JSON.stringify(context, null, 2));
@@ -58,7 +87,7 @@ export const lambdaHandler = async (event, context) => {
   }
 
   try {
-    const { uuid, userId, budgets } = requestBody;
+    const { uuid, userId, budgets,totalCost } = requestBody;
 
     // Validate input
     if (!uuid || !userId || typeof(budgets) !== 'object') {
@@ -86,6 +115,9 @@ export const lambdaHandler = async (event, context) => {
 
     // Update DynamoDB
     const updatedItem = await updatePreferenceDataInDynamoDB(uuid, userId, updatedData);
+
+
+    const snsNotificationPublish = await snsPublish([updatedItem],updatedItem["budgets"]["dailyBudgetLimit"],totalCost,null,userId);
 
     return {
       statusCode: 200,
