@@ -33,6 +33,13 @@ Parameters:
     Type: String
     Default: "EcoWise Repository"
 
+  ProdApprovalSNSEmail:
+    Type: String
+    Description: Email address to which Prod approval should be sent
+    Default: "frankruszel@gmail.com"
+    AllowedPattern: "([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)"
+    ConstraintDescription: Must be a valid email address. (e.g. name@example.com)  
+
 Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket'
@@ -112,6 +119,16 @@ Resources:
                   done
       EncryptionKey: alias/aws/s3
       Name: !Sub '${ResourceNamePrefix}-cfn-scanner-codebuild-project'
+  CICDPipelineProdApprovalTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${ResourceNamePrefix}-prod-approval-topic"
+      DisplayName: !Sub "${ResourceNamePrefix}-prod-approval"
+      Subscription:
+        - 
+          Endpoint:
+            Ref: ProdApprovalSNSEmail
+          Protocol: "email"
   CICDPipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -163,6 +180,19 @@ Resources:
                 - Name: ScannedArtifact
               RunOrder: 1
           Name: CFN-Scanner
+        - Actions:
+            - ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: "1"
+              Configuration:
+                NotificationArn: 
+                  !Ref CICDPipelineProdApprovalTopic              
+                  
+              Name: Pipeline-Approval
+              RunOrder: 1
+          Name: Procceed-to-TEST-Approval
         - Actions:
             - ActionTypeId:
                 Category: Deploy
