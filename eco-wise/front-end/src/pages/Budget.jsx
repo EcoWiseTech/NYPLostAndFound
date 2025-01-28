@@ -26,7 +26,7 @@ import { GetGSIDeviceConsumptionApi } from '../api/home/GetGSIDeviceConsumptionA
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { GetHomeApi } from '../api/home/GetHomeApi';
-
+import StackedBarChart from '../components/common/budget/StackedChart';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -148,7 +148,8 @@ function Budget() {
       ...preference,
       userId: user.Username,
       uuid: preference.uuid,
-      budgets: { ...preference.budgets, dailyBudgetLimit: formData.dailyBudgetLimit }
+      budgets: { ...preference.budgets, dailyBudgetLimit: formData.dailyBudgetLimit },
+      totalCost: totalConsumptionCost
     };
     if (preference === 0) {
       CreatePreferenceApi(requestObj)
@@ -336,7 +337,7 @@ function Budget() {
                       <img style={{ width: 50, marginLeft: 15, }} src="https://i.ibb.co/tYFNbxN/energy.png" alt="" />
                     </Grid>
                     <Grid item lg={9}>
-                      <Typography fontSize={22} marginTop={1} marginLeft={2}> Current Usage Cost</Typography>
+                      <Typography fontSize={22} marginTop={1} marginLeft={2}> Today's Usage Cost</Typography>
                     </Grid>
 
                   </Grid>
@@ -373,7 +374,7 @@ function Budget() {
                     <Grid container direction={'row'} display={'flex'} justifyContent={'space-between'} lg={10} >
 
                       <Grid item >
-                        <Typography fontSize={22} marginTop={1} marginLeft={2}> Current Savings</Typography>
+                        <Typography fontSize={22} marginTop={1} marginLeft={2}> Savings <span style={{fontSize:14}}>(Remaining Budget)</span> </Typography> 
                       </Grid>
                       <Grid item>
                         <CustomWidthTooltip sx={{ whiteSpace: 'pre-line' }} title={<span style={{ whiteSpace: 'pre-line' }}>{toolTipAircon}</span>} followCursor data-html="true" >
@@ -492,12 +493,24 @@ function Budget() {
           <Grid lg={6} item container direction="row" spacing={2}>
             <Grid item lg={12}>
               <Card sx={{ width: "100%", height: 340 }}>
-                <Line options={options} data={data} width={"800%"} />;
+                {
+                  preference?.budgets?.dailyBudgetLimit == null ? (
+                    <>
+                    <StackedBarChart width={"600%"}  />                    
+                    </>
+                  ) : (
+                     <>
+                     <StackedBarChart width={"600%"} budgetLimit={preference?.budgets?.dailyBudgetLimit}  todayConsumption={totalConsumptionCost}/>
+                    
+                    </>
+                  )
+                }
+              
               </Card>
             </Grid>
 
           </Grid>
-
+          
 
 
         </Grid>
