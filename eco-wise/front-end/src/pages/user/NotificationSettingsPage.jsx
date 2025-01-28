@@ -70,6 +70,7 @@ function NotificationSettingsPage() {
                 console.log(`res.data: ${JSON.stringify(res)}`)
                 setPreference(res)
                 RefreshUser();
+                enqueueSnackbar('Successfully updated notification settings', { variant: "success" })
             })
             .catch((err) => {
                 console.log(`err: ${err.status}`)
