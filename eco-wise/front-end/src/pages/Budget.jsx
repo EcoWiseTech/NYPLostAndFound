@@ -311,21 +311,7 @@ function Budget() {
   return (
     <>
       <Box padding={2}>
-        <Breadcrumbs sx={{ mb: 1 }} >
-          {/* <Link underline="hover" style={{ textDecoration: "none", color: "grey" }} href="/">
-            Overview
-          </Link> */}
-          <Link
-            aria-current="page"
-            underline="hover"
-            style={{ textDecoration: "underline", color: "black" }}
-            href="/"
-
-          >
-            Preference
-          </Link>
-
-        </Breadcrumbs>
+        
 
         <Grid container direction="column" spacing={2} sx={{ height: "100%" }}>
           <Grid lg={6} item container direction="row" spacing={2}>
