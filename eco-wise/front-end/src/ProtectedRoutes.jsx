@@ -4,8 +4,14 @@ import AddHomePage from './pages/home/AddHomePage'
 import UserDashboardPage from './pages/home/UserDashboardPage'
 import ViewHomePage from './pages/home/ViewHomePage'
 import EditHomePage from './pages/home/EditHomePage'
+import Budget from './pages/Budget'
+
 
 const ProtectedRoutes = [
+    {
+        path: "/budget",
+        element: <Budget />,
+    },
     {
         path: "profile/*",
         element: <UserProfileRoutesPage />,
