@@ -9,6 +9,9 @@ import LoginIcon from '@mui/icons-material/Login';
 import { Link } from "react-router-dom"
 import { NavbarProfile } from "./NavbarProfile";
 import { useUserContext } from "../../../contexts/UserContext";
+import CloudIcon from '@mui/icons-material/Cloud';
+import PriceChangeIcon from '@mui/icons-material/PriceChange';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 export function Navbar() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -27,8 +30,9 @@ export function Navbar() {
                             <Divider orientation="vertical" flexItem sx={{ marginRight: "1rem", display: ["none", "none", "flex"] }} />
                             <Stack spacing={2} direction="row" sx={{ display: ["none", "none", "flex"] }}>
                                 <Button startIcon={<HomeIcon />} LinkComponent={Link} variant="text" color="inherit" to="/">Home</Button>
-                                {IsLoggedIn() && <Button startIcon={<HomeIcon />} LinkComponent={Link} variant="text" color="inherit" to="/dashboard">Dashboard</Button>}
-                                <Button startIcon={<DirectionsCarIcon />} LinkComponent={Link} variant="text" color="inherit" to="/weatherpage">weather</Button>
+                                {IsLoggedIn() && <Button startIcon={<DashboardIcon />} LinkComponent={Link} variant="text" color="inherit" to="/dashboard">Dashboard</Button>}
+                                {IsLoggedIn() && <Button startIcon={<PriceChangeIcon />} LinkComponent={Link} variant="text" color="inherit" to="/budget">Budget</Button>}
+                                <Button startIcon={<CloudIcon />} LinkComponent={Link} variant="text" color="inherit" to="/weatherpage">weather</Button>
                             </Stack>
                         </Box>
                         {!IsLoggedIn() && <Button LinkComponent={Link} variant="text" color="inherit" to="/login" startIcon={<LoginIcon />}>Login</Button>}
@@ -70,14 +74,22 @@ export function Navbar() {
                     {IsLoggedIn() &&
                         <ListItem key={"Dashboard"} disablePadding>
                             <ListItemButton component={Link} to="/dashboard" onClick={() => setIsDrawerOpen(false)}>
-                                <ListItemIcon><HomeIcon /></ListItemIcon>
+                                <ListItemIcon><DashboardIcon /></ListItemIcon>
                                 <ListItemText primary={"Dashbaord"} />
+                            </ListItemButton>
+                        </ListItem>
+                    }
+                    {IsLoggedIn() &&
+                        <ListItem key={"Budget"} disablePadding>
+                            <ListItemButton component={Link} to="/budget" onClick={() => setIsDrawerOpen(false)}>
+                                <ListItemIcon><PriceChangeIcon /></ListItemIcon>
+                                <ListItemText primary={"Budget"} />
                             </ListItemButton>
                         </ListItem>
                     }
                     <ListItem key={"weather"} disablePadding>
                         <ListItemButton component={Link} to="/weatherpage" onClick={() => setIsDrawerOpen(false)}>
-                            <ListItemIcon><DirectionsCarIcon /></ListItemIcon>
+                            <ListItemIcon><CloudIcon /></ListItemIcon>
                             <ListItemText primary={"weather"} />
                         </ListItemButton>
                     </ListItem>
