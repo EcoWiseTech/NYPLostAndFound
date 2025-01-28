@@ -1439,6 +1439,6 @@ Outputs:
   TriggerNotificationSendTopicOutput:
     Description: "TriggerNotificationSendTopic"
     Value: !GetAtt TriggerNotificationSendTopic.TopicArn
-    Export:
+    Export: 
       Name: TriggerNotificationSendTopicOutput
 
