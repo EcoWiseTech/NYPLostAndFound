@@ -43,7 +43,7 @@ function NotificationSettingsPage() {
     const [isModified, setIsModified] = useState(false);
     const [preference, setPreference] = useState(null);
     const [allNotificationChecked, setAllNotificationChecked] = useState(false);
-    const [budgetNotificationChecked, setBudgetNotificationChecked] = useState(false);
+    const [budgetNotificationChecked, setBudgetNotificationChecked] = useState(true);
     const handleAllNotificationChanged = (e) => {
         console.log(e.target.checked)
         setAllNotificationChecked(e.target.checked)
@@ -69,6 +69,7 @@ function NotificationSettingsPage() {
             .then((res) => {
                 console.log(`res.data: ${JSON.stringify(res)}`)
                 setPreference(res)
+                RefreshUser();
             })
             .catch((err) => {
                 console.log(`err: ${err.status}`)
@@ -99,6 +100,8 @@ function NotificationSettingsPage() {
                 if ('budgets' in preferenceData && 'isBudgetNotification' in preferenceData.budgets) {
                     // console.log(`isbudgetnotification:${preferenceData.budgets.isBudgetNotification}`)
                     setBudgetNotificationChecked(preferenceData.budgets.isBudgetNotification)
+                }else {
+                    setBudgetNotificationChecked(true)
                 }
             })
             .catch((err) => {
