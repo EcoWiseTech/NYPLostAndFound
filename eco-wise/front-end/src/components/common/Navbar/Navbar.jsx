@@ -12,6 +12,7 @@ import { useUserContext } from "../../../contexts/UserContext";
 import CloudIcon from '@mui/icons-material/Cloud';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import { FindInPage } from "@mui/icons-material";
 
 export function Navbar() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -39,6 +40,7 @@ export function Navbar() {
                             <Divider orientation="vertical" flexItem sx={{ marginRight: "1rem", display: ["none", "none", "flex"] }} />
                             <Stack spacing={2} direction="row" sx={{ display: ["none", "none", "flex"] }}>
                                 <Button startIcon={<HomeIcon />} LinkComponent={Link} variant="text" color="inherit" to="/">Home</Button>
+                                <Button startIcon={<FindInPage />} LinkComponent={Link} variant="text" color="inherit" to="/findItem">Find Item</Button>
                                 {IsLoggedIn() && user.UserAttributes['custom:role'] === "admin" && <Button startIcon={<DashboardIcon />} LinkComponent={Link} variant="text" color="inherit" to="/dashboard">All Items</Button>}
                                 {IsLoggedIn() && !user.UserAttributes['custom:role'] && <Button startIcon={<DashboardIcon />} LinkComponent={Link} variant="text" color="inherit" to="/studentDashboard">My Items</Button>}
                             </Stack>

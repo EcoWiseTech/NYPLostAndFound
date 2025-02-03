@@ -86,6 +86,30 @@ Resources:
             Path: /StoreItem
             Method: post
   ## ------------------------------
+  ## Lambda Function: CompareImagesFunction
+  ## ------------------------------
+  CompareImagesFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: CompareImageFunction/
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Policies:
+        - AmazonRekognitionFullAccess
+        - AmazonS3FullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ItemTable
+          S3_BUCKET_NAME: !Ref ItemImageS3Bucket
+      Events:
+        CompareImagesResource:
+          Type: Api 
+          Properties:
+            Path: /CompareImages
+            Method: post
+  ## ------------------------------
   ## Lambda Function: StoreItemFunction
   ## ------------------------------
   UpdateItemFunction:

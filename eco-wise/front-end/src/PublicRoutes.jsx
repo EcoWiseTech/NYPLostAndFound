@@ -4,6 +4,7 @@ import Weatherpage from './pages/Weatherpage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import PasswordResetPage from './pages/PasswordResetPage'
+import FindItemPage from './pages/home/FindItemPage'
 
 const PublicRoutes = [
    
@@ -18,6 +19,10 @@ const PublicRoutes = [
     {
         path:"/register",
         element: <RegisterPage />
+    },
+    {
+        path:"/findItem",
+        element: <FindItemPage />
     },
     {
         path: "/password-reset/:email/:code",
