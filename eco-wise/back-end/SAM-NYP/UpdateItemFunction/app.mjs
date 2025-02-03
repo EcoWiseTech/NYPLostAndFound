@@ -43,35 +43,71 @@ const uploadImageToS3 = async (image) => {
     return uploadResult.Location;
   } catch (error) {
     console.error("Error uploading image to S3:", error);
-
-    if (error.requestId || error.code) {
-      console.error("AWS Request ID:", error.requestId || "N/A");
-      console.error("AWS Error Code:", error.code || "N/A");
-      console.error("AWS Error Message:", error.message || "Unknown error");
-    }
-
     throw new Error("Failed to upload image to S3.");
   }
 };
 
-// Function to insert data into DynamoDB
-const insertItemDataIntoDynamoDB = async (itemData) => {
-  console.log("Inserting item data into DynamoDB...");
+// Function to get item by id from DynamoDB
+const getItemFromDynamoDB = async (itemId) => {
+  console.log("Fetching item data from DynamoDB...");
 
   try {
     const params = {
       TableName: tableName,
-      Item: itemData,
+      Key: {
+        id: itemId,
+      },
     };
 
-    console.log(`DynamoDB Insert Params: ${JSON.stringify(params)}`);
+    const result = await dynamoDB.get(params).promise();
 
-    await dynamoDB.put(params).promise();
+    if (!result.Item) {
+      throw new Error("Item not found.");
+    }
 
-    console.log(`Successfully inserted item into DynamoDB: ${JSON.stringify(itemData)}`);
+    return result.Item;
   } catch (error) {
-    console.error("Error inserting item data into DynamoDB:", error);
-    throw new Error("Failed to insert item data into DynamoDB.");
+    console.error("Error fetching item from DynamoDB:", error);
+    throw new Error("Failed to fetch item from DynamoDB.");
+  }
+};
+
+// Function to update item data in DynamoDB
+const updateItemDataInDynamoDB = async (itemId, updatedData) => {
+  console.log("Updating item data in DynamoDB...");
+
+  try {
+    const params = {
+      TableName: tableName,
+      Key: {
+        id: itemId,
+      },
+      UpdateExpression: "set #name = :name, #description = :description, #status = :status, #imageUrl = :imageUrl, #updatedAt = :updatedAt",
+      ExpressionAttributeNames: {
+        "#name": "name",
+        "#description": "description",
+        "#status": "status",
+        "#imageUrl": "imageUrl",
+        "#updatedAt": "updatedAt",
+      },
+      ExpressionAttributeValues: {
+        ":name": updatedData.name,
+        ":description": updatedData.description,
+        ":status": updatedData.status,
+        ":imageUrl": updatedData.imageUrl,
+        ":updatedAt": new Date().toISOString(),
+      },
+      ReturnValues: "ALL_NEW",
+    };
+
+    const result = await dynamoDB.update(params).promise();
+
+    console.log("Successfully updated item in DynamoDB:", result.Attributes);
+
+    return result.Attributes; // Return updated item
+  } catch (error) {
+    console.error("Error updating item data in DynamoDB:", error);
+    throw new Error("Failed to update item data in DynamoDB.");
   }
 };
 
@@ -99,42 +135,51 @@ export const lambdaHandler = async (event) => {
   }
 
   try {
-    const { name, description, image } = requestBody; // Expecting image as a file object
+    const { id, name, description, image, status } = requestBody; // Expecting image as a file object
 
-    console.log("Extracted request parameters:", { name, description, imageMetadata: image?.filename });
+    console.log("Extracted request parameters:", { id, name, description, imageMetadata: image?.filename });
 
     // Validate input
-    if (!name || !description || !image || !image.data || !image.filename || !image.mimetype) {
+    if (!id || !name || !description || !status) {
       console.error("Validation failed: Missing required fields.");
       return {
         statusCode: 400,
         body: JSON.stringify({
-          message: "Missing or invalid name, description, or image file in request body.",
+          message: "Missing required fields: id, name, description, or status.",
         }),
       };
     }
 
-    // Upload image to S3
-    console.log("Uploading image to S3...");
-    const imageUrl = await uploadImageToS3(image);
-    console.log("Image successfully uploaded:", imageUrl);
+    // Fetch the existing item from DynamoDB
+    const existingItem = await getItemFromDynamoDB(id);
 
-    const itemUuid = uuidv4();
+    if (!existingItem) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({
+          message: "Item not found.",
+        }),
+      };
+    }
 
-    const itemData = {
-      id: itemUuid,
+    // If a new image is provided, upload it to S3 and get the image URL
+    let imageUrl = existingItem.imageUrl;
+    if (image) {
+      console.log("Uploading new image to S3...");
+      imageUrl = await uploadImageToS3(image);
+      console.log("New image uploaded:", imageUrl);
+    }
+
+    // Prepare updated data
+    const updatedData = {
       name,
       description,
-      imageUrl, // Store the S3 URL of the uploaded image
-      status:"unclaimed",
-      createdAt: new Date().toISOString(),
+      status,
+      imageUrl, // Either existing or new image URL
     };
 
-    // Insert into DynamoDB
-    console.log("Inserting item data into DynamoDB...");
-    await insertItemDataIntoDynamoDB(itemData);
-
-    console.log("Lambda execution successful, returning response.");
+    // Update item in DynamoDB
+    const updatedItem = await updateItemDataInDynamoDB(id, updatedData);
 
     return {
       statusCode: 200,
@@ -144,12 +189,12 @@ export const lambdaHandler = async (event) => {
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
       body: JSON.stringify({
-        message: "Item successfully added to DynamoDB.",
-        itemData,
+        message: "Item successfully updated.",
+        itemData: updatedItem,
       }),
     };
   } catch (error) {
-    console.error("Error processing item data:", error);
+    console.error("Error processing update item request:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({

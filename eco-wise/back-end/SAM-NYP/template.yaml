@@ -74,6 +74,78 @@ Resources:
           Properties:
             Path: /StoreItem
             Method: post
+  ## ------------------------------
+  ## Lambda Function: StoreItemFunction
+  ## ------------------------------
+  UpdateItemFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: UpdateItemFunction/
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Policies:
+        - AmazonDynamoDBFullAccess # Allows full access to DynamoDB (adjust as needed)
+        - AmazonS3FullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ItemTable
+          S3_BUCKET_NAME: !Ref ItemImageS3Bucket
+      Events:
+        UpdateItemApiResource:
+          Type: Api 
+          Properties:
+            Path: /UpdateItem
+            Method: put
+  ## ------------------------------
+  ## Lambda Function: GetItemFunction
+  ## ------------------------------
+  GetItemFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: GetItemFunction/
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ItemTable
+      Events:
+        GetItemResource:
+          Type: Api 
+          Properties:
+            Path: /GetItem
+            Method: get
+  ## ------------------------------
+  ## Lambda Function: DeleteItemFunction
+  ## ------------------------------
+  DeleteItemFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: DeleteItemFunction/
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonS3FullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ItemTable
+          S3_BUCKET_NAME: !Ref ItemImageS3Bucket
+      Events:
+        DeleteItemResource:
+          Type: Api 
+          Properties:
+            Path: /DeleteItem
+            Method: post
+    
+
 
 Outputs:
   ApiEndpoint:
@@ -85,6 +157,24 @@ Outputs:
   StoreItemFunctionIamRole:
     Description: "IAM Role for StoreItemFunction"
     Value: !GetAtt StoreItemFunctionRole.Arn
+  GetItemFunctionArn:
+    Description: "GetItemFunction Lambda Function ARN"
+    Value: !GetAtt GetItemFunction.Arn
+  GetItemFunctionIAMRole:
+    Description: "IAM Role for GetItemFunction"
+    Value: !GetAtt GetItemFunctionRole.Arn
+  DeleteItemFunctionArn:
+    Description: "DeleteItemFunction Lambda Function ARN"
+    Value: !GetAtt DeleteItemFunction.Arn
+  DeleteItemFunctionIAMRole:
+    Description: "IAM Role for DeleteItemFunction"
+    Value: !GetAtt DeleteItemFunctionRole.Arn
+  UpdateItemFunctionArn:
+    Description: "UpdateItemFunction Lambda Function ARN"
+    Value: !GetAtt UpdateItemFunction.Arn
+  UpdateItemFunctionIAMRole:
+    Description: "IAM Role for UpdateItemFunction"
+    Value: !GetAtt UpdateItemFunctionRole.Arn
   ItemTableName:
     Description: "DynamoDB Table Name"
     Value: !Ref ItemTable

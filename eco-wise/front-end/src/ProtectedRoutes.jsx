@@ -6,6 +6,7 @@ import ViewHomePage from './pages/home/ViewHomePage'
 import EditHomePage from './pages/home/EditHomePage'
 import Budget from './pages/Budget'
 import AddItemPage from './pages/home/AddItemPage'
+import EditItemPage from './pages/home/EditItemPage'
 
 
 const ProtectedRoutes = [
@@ -24,6 +25,10 @@ const ProtectedRoutes = [
     {
         path: "addItem",
         element: <AddItemPage />,
+    },
+    {
+        path: "item/edit/:uuid",
+        element: <EditItemPage />,
     },
     {
         path: "home/view/:uuid",

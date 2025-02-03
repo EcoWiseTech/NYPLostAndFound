@@ -1,90 +1,157 @@
 import React, { useState, useEffect } from 'react';
 import { Grid, Card, CardContent, Typography, Box, Button, Container, CircularProgress } from '@mui/material';
 import CategoryIcon from '@mui/icons-material/Category';
-import HomeIcon from '@mui/icons-material/Home';
-import ThermostatIcon from '@mui/icons-material/Thermostat';
-import { GetHomeApi } from '../../api/home/GetHomeApi';
-import { enqueueSnackbar } from 'notistack';
-import { useUserContext } from '../../contexts/UserContext';
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from 'react-router-dom';
+import { enqueueSnackbar } from 'notistack';
+import { useUserContext } from '../../contexts/UserContext';
 import LargeCardTitle from '../../components/common/LargeCardTitle';
+import { GetAllItemApi } from '../../api/item/GetAllItemApi';
+import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid component
+import { DeleteItemApi } from '../../api/item/DeleteItemApi';
+import { useAlert } from '../../contexts/AlertContext';
+import { LoadingButton } from '@mui/lab';
 
 function UserDashboardPage() {
-    const { user } = useUserContext()
-    const [home, setHome] = useState(null); // Set initial value to null to indicate loading
+    const {showAlert} = useAlert();
+    const { user } = useUserContext();
+    const [items, setItems] = useState([]); // Set initial value to an empty array
+    const [loading, setLoading] = useState(true); // State for loading
+    const [deleteLoading, setDeleteLoading] = useState(false); // State for delete loading
+    const [selectedItems, setSelectedItems] = useState([]); // Store selected item IDs
 
     useEffect(() => {
-        GetHomeApi(user.Username)
+        GetAllItemApi()
             .then((res) => {
-                setHome(res.data)
-                console.log(res.data)
+                setItems(res);
             })
             .catch((err) => {
-                enqueueSnackbar('Failed to fetch home data', { variant: "error" })
+                enqueueSnackbar('Failed to fetch item data', { variant: 'error' });
             })
-    }, [user.Username]);
+            .finally(() => {
+                setLoading(false); // Set loading to false when data fetching is done
+            });
+    }, []);
+
+    const handleDelete = () => { 
+        setDeleteLoading(true); // Set delete loading to true
+        const reqObj = {
+            itemIds: selectedItems,
+        }
+        console.log(reqObj);
+        DeleteItemApi(reqObj)
+            .then((res) => {   
+                showAlert('success', 'Items deleted successfully');
+                setItems(items.filter((item) => !selectedItems.includes(item.id)));
+                setSelectedItems([]); // Clear selected items
+             })
+             .catch((err) => {
+                showAlert('error', 'Failed to delete items, please try again');
+             })
+             .finally(() => {
+                setDeleteLoading(false); // Set delete loading to false
+             });
+     }
+
+    const columns = [
+        {
+            field: 'name',
+            headerName: 'Item Name',
+            width: 150,
+        },
+        {
+            field: 'description',
+            headerName: 'Description',
+            width: 400,
+        },
+        {
+            field: 'status',
+            headerName: 'Status',
+            width: 150,
+        },
+        {
+            field: 'imageUrl',
+            headerName: 'Image',
+            width: 200,
+            renderCell: (params) => (
+                <img src={params.value} alt={params.row.name} style={{ width: '50px', height: '50px', objectFit: 'cover' }} />
+            ),
+        },
+        {
+            field: 'createdAt',
+            headerName: 'Created At',
+            width: 200,
+        },
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 75,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    component={Link}
+                    to={`/item/edit/${params.row.id}`}
+                >
+                    Edit
+                </Button>
+            ),
+        },
+    ];
+
+    // Prepare rows for DataGrid
+    const rows = items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        status: item.status,
+        imageUrl: item.imageUrl,
+        createdAt: new Date(item.createdAt).toLocaleString(), // Format the date
+    }));
+
+    const handleSelectionChange = (newSelection) => {
+        setSelectedItems(newSelection);
+    };
 
     return (
-        <Container maxWidth="xl" sx={{ marginTop: "2rem", marginBottom: "1rem" }}>
-            <Box >
+        <Container maxWidth="xl" sx={{ marginTop: '2rem', marginBottom: '1rem' }}>
+            <Box>
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={12}>
-                        <Card>
-                            <LargeCardTitle
-                                title='Item Dashboard'
-                                icon={<CategoryIcon sx={{ mr: 1, color: 'secondary.main' }} />}
-                                button={<Button variant="contained" color="primary" href="/" startIcon={<AddIcon />} LinkComponent={Link} to="/addItem">Add Item</Button>}
-                            />
-                        </Card>
-
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <Card sx={{ height: "300px" }}>
-                            Stats of total houses
-                        </Card>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        {home === null ? (
-                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                <CircularProgress />
+                        <Card sx={{ padding: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <CategoryIcon sx={{ mr: 2 }} />
+                                <Typography variant="h4">Item Dashbaord</Typography>
                             </Box>
-                        ) : (
-                            <Grid container spacing={2}>
-                                {home?.map((home) => (
-                                    <Grid item xs={12} sm={6} md={6} key={home.uuid}>
-                                        <Card sx={{ boxShadow: 3 }}>
-                                            <CardContent>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                                    <HomeIcon sx={{ fontSize: 40, color: 'primary.main', mr: 1 }} />
-                                                    <Typography variant="h6">{home.homeName}</Typography>
-                                                </Box>
-                                                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                                    <CategoryIcon sx={{ mr: 1, color: 'secondary.main' }} />
-                                                    Total Energy: {home.totalEnergy}
-                                                </Typography>
-                                                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                                    <CategoryIcon sx={{ mr: 1, color: 'secondary.main' }} />
-                                                    Total Rooms: {home.rooms.length}
-                                                </Typography>
-                                                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                                    <ThermostatIcon sx={{ mr: 1, color: 'info.main' }} />
-                                                    Devices: {home.activeDevices}
-                                                </Typography>
-                                                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                                                    Cost: {home.cost}
-                                                </Typography>
-                                                <Button LinkComponent={Link} to={`/home/view/${home.uuid}`} variant='contained' sx={{ marginTop: "0.5rem" }}>
-                                                    View
-                                                </Button>
-                                            </CardContent>
-                                        </Card>
-                                    </Grid>
-                                ))}
-                            </Grid>
-                        )}
-                    </Grid>
+                            <Box>
+                                <LoadingButton loading={deleteLoading} disabled={selectedItems.length === 0? true: false} variant="contained" color="error" sx={{ marginRight: "10px" }} href="/" startIcon={<AddIcon />} onClick={handleDelete} LinkComponent={Link}>Delete</LoadingButton>
+                                <Button variant="contained" color="primary" href="/" startIcon={<AddIcon />} LinkComponent={Link} to="/addItem">Add Item</Button>
+                            </Box>
 
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Card>
+                            <CardContent>
+                                {loading ? (
+                                    <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+                                        <CircularProgress />
+                                    </Box>
+                                ) : (
+                                    <div style={{ height: 500, width: '100%' }}>
+                                        <DataGrid
+                                            rows={rows}
+                                            columns={columns}
+                                            pageSize={5}
+                                            checkboxSelection // Enable checkboxes for selection
+                                            onRowSelectionModelChange={handleSelectionChange} // Handle selection change
+                                            selectionModel={selectedItems} // Controlled selection
+                                        />
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </Grid>
                 </Grid>
             </Box>
         </Container>
