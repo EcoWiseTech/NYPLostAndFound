@@ -1,64 +1,49 @@
-import React, { useEffect, useState } from "react";
-import { Container, TextField, Button, Typography, Grid, Card, CardMedia, Select, MenuItem, InputLabel, FormControl } from "@mui/material";
+import React, { useState } from "react";
+import { Container, TextField, Button, Typography, Grid, Card, CardMedia } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { StoreItemApi } from "../../api/item/StoreItemApi";
 import { useAlert } from "../../contexts/AlertContext";
 import { LoadingButton } from "@mui/lab";
-import { useNavigate, useParams } from "react-router-dom";
-import { GetItemByIdApi } from "../../api/item/GetItemByIdApi";
-import { UpdateItemApi } from "../../api/item/UpdateItemApi";
+import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../../contexts/UserContext";
+
 
 const validationSchema = Yup.object({
     name: Yup.string().required("Item name is required"),
     description: Yup.string().required("Description is required"),
-    status: Yup.string().required("Status is required"),
+    image: Yup.mixed().required("Image is required"),
 });
 
-function EditItemPage() {
+function AddItemStudentPage() {
+
+    const { user } = useUserContext();
     const Navigate = useNavigate();
     const { showAlert } = useAlert();
     const [loading, setLoading] = useState(false);
     const [preview, setPreview] = useState(null);
-    const [item, setItem] = useState(null);
-    const { uuid } = useParams();
-
-    useEffect(() => {
-        GetItemByIdApi(uuid)
-            .then((res) => {
-                setItem(res);
-            })
-            .catch((err) => {
-                showAlert('error', 'Failed to fetch item data');
-            });
-
-    }, [uuid]);
 
     const formik = useFormik({
-        enableReinitialize: true,  // Ensure form is reinitialized when item data is fetched
         initialValues: {
-            userId: item?.userId || "", 
-            id: item?.id || "",
-            name: item?.name || "",
-            description: item?.description || "",
+            userId: user.Username,
+            name: "",
+            description: "",
             image: null,
-            imageUrl: item?.imageUrl || null,
-            status: item?.status || "",  // Initialize status with the item's current status
         },
         validationSchema,
         onSubmit: (values) => {
-            setLoading(true);
-            console.log(values)
-            UpdateItemApi(values)
+            setLoading(true)
+            console.log("Form Submitted", values);
+            StoreItemApi(values)
                 .then((res) => {
-                    showAlert("success", "Item updated successfully");
-                    Navigate("/dashboard");
+                    showAlert("success", "Item added successfully");
+                    Navigate("/studentDashboard");
                 })
                 .catch(err => {
                     console.error(err);
-                    showAlert("error", "Failed to update item, please try again");
+                    showAlert("error", "Failed to add item, please try again");
                 })
-                .finally(() => {
+                .finally(() => {                
                     setLoading(false);
                 });
         },
@@ -81,23 +66,12 @@ function EditItemPage() {
         }
     };
 
-    if (!item) {
-        return (
-            <Container maxWidth="sm" sx={{ mt: 4 }}>
-                <Card sx={{ padding: 2, boxShadow: 3 }}>
-                    <Typography variant="h5" align="center" gutterBottom>
-                        Loading Item...
-                    </Typography>
-                </Card>
-            </Container>
-        );
-    }
 
     return (
         <Container maxWidth="sm" sx={{ mt: 4 }}>
             <Card sx={{ padding: 2, boxShadow: 3 }}>
                 <Typography variant="h5" align="center" gutterBottom>
-                    Edit Lost & Found Item
+                    Add Lost & Found Item
                 </Typography>
 
                 <form onSubmit={formik.handleSubmit}>
@@ -125,20 +99,6 @@ function EditItemPage() {
                         sx={{ mb: 2 }}
                     />
 
-                    <FormControl fullWidth sx={{ mb: 2 }}>
-                        <InputLabel>Status</InputLabel>
-                        <Select
-                            label="Status"
-                            name="status"
-                            value={formik.values.status}
-                            onChange={formik.handleChange}
-                            error={formik.touched.status && Boolean(formik.errors.status)}
-                        >
-                            <MenuItem value="claimed">clamied</MenuItem>
-                            <MenuItem value="unclaimed">unclaimed</MenuItem>
-                        </Select>
-                    </FormControl>
-
                     <Button variant="contained" component="label" fullWidth sx={{ mb: 2 }}>
                         Upload Image
                         <input type="file" hidden accept="image/*" onChange={handleImageUpload} />
@@ -152,23 +112,18 @@ function EditItemPage() {
 
                     {preview && (
                         <Card sx={{ mt: 2, mb: 2 }}>
-                            <CardMedia component="img" height="auto" sx={{ maxHeight: "300px" }} image={preview} alt="Item Preview" />
-                        </Card>
-                    )}
-
-                    {!preview && item.imageUrl && (
-                        <Card sx={{ mt: 2, mb: 2 }}>
-                            <CardMedia component="img" height="auto" sx={{ maxHeight: "300px" }} image={item.imageUrl} alt="Item Preview" />
+                            <CardMedia component="img" height="auto" sx={{ maxHeight:"300px" }} image={preview} alt="Item Preview" />
                         </Card>
                     )}
 
                     <LoadingButton loading={loading} type="submit" variant="contained" color="primary" fullWidth>
-                        Edit
+                        Submit
                     </LoadingButton>
                 </form>
             </Card>
         </Container>
+
     );
 }
 
-export default EditItemPage;
+export default AddItemStudentPage;

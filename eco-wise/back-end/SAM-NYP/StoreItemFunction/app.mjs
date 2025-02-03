@@ -99,7 +99,7 @@ export const lambdaHandler = async (event) => {
   }
 
   try {
-    const { name, description, image } = requestBody; // Expecting image as a file object
+    const { name, description, image, userId } = requestBody; // Expecting image as a file object
 
     console.log("Extracted request parameters:", { name, description, imageMetadata: image?.filename });
 
@@ -127,6 +127,7 @@ export const lambdaHandler = async (event) => {
       description,
       imageUrl, // Store the S3 URL of the uploaded image
       status:"unclaimed",
+      userId: userId || "",
       createdAt: new Date().toISOString(),
     };
 

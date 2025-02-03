@@ -11,8 +11,9 @@ import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid component
 import { DeleteItemApi } from '../../api/item/DeleteItemApi';
 import { useAlert } from '../../contexts/AlertContext';
 import { LoadingButton } from '@mui/lab';
+import { GetAllItemByUserIdApi } from '../../api/item/GetAllItemByUserIdApi';
 
-function UserDashboardPage() {
+function StudentDashboardPage() {
     const {showAlert} = useAlert();
     const { user } = useUserContext();
     const [items, setItems] = useState([]); // Set initial value to an empty array
@@ -21,11 +22,14 @@ function UserDashboardPage() {
     const [selectedItems, setSelectedItems] = useState([]); // Store selected item IDs
 
     useEffect(() => {
-        GetAllItemApi()
+        GetAllItemByUserIdApi(user.Username)
             .then((res) => {
                 setItems(res);
             })
             .catch((err) => {
+                if (err.response.status === 404) {
+                    return
+                }
                 enqueueSnackbar('Failed to fetch item data', { variant: 'error' });
             })
             .finally(() => {
@@ -91,7 +95,7 @@ function UserDashboardPage() {
                     variant="contained"
                     color="primary"
                     component={Link}
-                    to={`/item/edit/${params.row.id}`}
+                    to={`/item/editStudent/${params.row.id}`}
                 >
                     Edit
                 </Button>
@@ -121,11 +125,11 @@ function UserDashboardPage() {
                         <Card sx={{ padding: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <CategoryIcon sx={{ mr: 2 }} />
-                                <Typography variant="h4">Admin Item Dashbaord</Typography>
+                                <Typography variant="h4">My Items Dashbaord</Typography>
                             </Box>
                             <Box>
                                 <LoadingButton loading={deleteLoading} disabled={selectedItems.length === 0? true: false} variant="contained" color="error" sx={{ marginRight: "10px" }} href="/" startIcon={<AddIcon />} onClick={handleDelete} LinkComponent={Link}>Delete</LoadingButton>
-                                <Button variant="contained" color="primary" href="/" startIcon={<AddIcon />} LinkComponent={Link} to="/addItem">Add Item</Button>
+                                <Button variant="contained" color="primary" href="/" startIcon={<AddIcon />} LinkComponent={Link} to="/addItemStudent">Add Item</Button>
                             </Box>
 
                         </Card>
@@ -158,4 +162,4 @@ function UserDashboardPage() {
     );
 }
 
-export default UserDashboardPage;
+export default StudentDashboardPage;

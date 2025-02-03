@@ -7,6 +7,9 @@ import EditHomePage from './pages/home/EditHomePage'
 import Budget from './pages/Budget'
 import AddItemPage from './pages/home/AddItemPage'
 import EditItemPage from './pages/home/EditItemPage'
+import StudentDashboardPage from './pages/home/StudentDashboard'
+import AddItemStudentPage from './pages/home/AddItemStudentPage'
+import EditItemStudentPage from './pages/home/EditItemStudentPage'
 
 
 const ProtectedRoutes = [
@@ -23,12 +26,24 @@ const ProtectedRoutes = [
         element: <UserDashboardPage />,
     },
     {
+        path: "studentDashboard",
+        element: <StudentDashboardPage />,
+    },
+    {
         path: "addItem",
         element: <AddItemPage />,
     },
     {
+        path: "addItemStudent",
+        element: <AddItemStudentPage />,
+    },
+    {
         path: "item/edit/:uuid",
         element: <EditItemPage />,
+    },
+    {
+        path: "item/editStudent/:uuid",
+        element: <EditItemStudentPage />,
     },
     {
         path: "home/view/:uuid",

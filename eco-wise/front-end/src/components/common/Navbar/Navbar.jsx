@@ -1,4 +1,4 @@
-import { useState, useContext } from "react"
+import { useState, useContext, useEffect } from "react"
 import { AppBar, Box, Container, Toolbar, IconButton, List, ListItem, ListItemIcon, ListItemText, ListItemButton, Typography, Divider, Drawer, Stack, Button } from "@mui/material"
 import MenuIcon from "@mui/icons-material/Menu"
 import HomeIcon from "@mui/icons-material/Home"
@@ -16,7 +16,11 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 export function Navbar() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isAdminDrawerOpen, setIsAdminDrawerOpen] = useState(false)
-    const { IsLoggedIn } = useUserContext();
+    const { IsLoggedIn, user } = useUserContext();
+
+    useEffect(() => {
+        console.log("User", user);
+    }, [user])  
 
 
     return (
@@ -35,7 +39,8 @@ export function Navbar() {
                             <Divider orientation="vertical" flexItem sx={{ marginRight: "1rem", display: ["none", "none", "flex"] }} />
                             <Stack spacing={2} direction="row" sx={{ display: ["none", "none", "flex"] }}>
                                 <Button startIcon={<HomeIcon />} LinkComponent={Link} variant="text" color="inherit" to="/">Home</Button>
-                                {IsLoggedIn() && <Button startIcon={<DashboardIcon />} LinkComponent={Link} variant="text" color="inherit" to="/dashboard">Items</Button>}
+                                {IsLoggedIn() && user.UserAttributes['custom:role'] === "admin" && <Button startIcon={<DashboardIcon />} LinkComponent={Link} variant="text" color="inherit" to="/dashboard">All Items</Button>}
+                                {IsLoggedIn() && !user.UserAttributes['custom:role'] && <Button startIcon={<DashboardIcon />} LinkComponent={Link} variant="text" color="inherit" to="/studentDashboard">My Items</Button>}
                             </Stack>
                         </Box>
                         {!IsLoggedIn() && <Button LinkComponent={Link} variant="text" color="inherit" to="/login" startIcon={<LoginIcon />}>Login</Button>}

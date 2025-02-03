@@ -6,6 +6,7 @@ import { StoreItemApi } from "../../api/item/StoreItemApi";
 import { useAlert } from "../../contexts/AlertContext";
 import { LoadingButton } from "@mui/lab";
 import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../../contexts/UserContext";
 
 
 const validationSchema = Yup.object({
@@ -16,6 +17,7 @@ const validationSchema = Yup.object({
 
 function AddItemPage() {
 
+    const { user } = useUserContext();
     const Navigate = useNavigate();
     const { showAlert } = useAlert();
     const [loading, setLoading] = useState(false);
@@ -23,6 +25,7 @@ function AddItemPage() {
 
     const formik = useFormik({
         initialValues: {
+            userId: user.Username,
             name: "",
             description: "",
             image: null,

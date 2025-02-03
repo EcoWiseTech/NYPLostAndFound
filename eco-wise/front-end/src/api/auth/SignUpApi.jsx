@@ -16,6 +16,10 @@ async function SignUpUserApi(email, fullName, password) {
           Name: 'given_name',
           Value: fullName,
         },
+        {
+          Name: 'custom:role',
+          Value: 'student',
+        },
       ],
     };
 

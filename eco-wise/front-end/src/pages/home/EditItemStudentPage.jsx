@@ -15,7 +15,7 @@ const validationSchema = Yup.object({
     status: Yup.string().required("Status is required"),
 });
 
-function EditItemPage() {
+function EditItemStudentPage() {
     const Navigate = useNavigate();
     const { showAlert } = useAlert();
     const [loading, setLoading] = useState(false);
@@ -52,7 +52,7 @@ function EditItemPage() {
             UpdateItemApi(values)
                 .then((res) => {
                     showAlert("success", "Item updated successfully");
-                    Navigate("/dashboard");
+                    Navigate("/studentDashboard");
                 })
                 .catch(err => {
                     console.error(err);
@@ -171,4 +171,4 @@ function EditItemPage() {
     );
 }
 
-export default EditItemPage;
+export default EditItemStudentPage;
