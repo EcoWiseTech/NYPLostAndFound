@@ -71,12 +71,19 @@ const publishToSNS = async (itemData) => {
   }
 
   console.log("Publishing notification to SNS...");
-  const message = `🔔 New Item Added 🔔\n\n🆔 ID: ${itemData.id}\n📌 Name: ${itemData.name}\n📄 Description: ${itemData.description}\n📸 Image: ${itemData.imageUrl}\n📅 Date: ${itemData.createdAt}`;
+  const message = `🔔 New Item Added 🔔\n\n🆔 ID: ${itemData.id}\n🔔Cagegory: ${itemData.category}\n📌 Name: ${itemData.name}\n📄 Description: ${itemData.description}\n📸 Image: ${itemData.imageUrl}\n📅 Date: ${itemData.createdAt}`;
 
   const params = {
     Message: message,
     Subject: "New Lost & Found Item",
     TopicArn: snsTopicArn,
+    MessageAttributes: {
+      // Setting the 'category' as a message attribute for filtering
+      "category": {
+        DataType: "String",
+        StringValue: itemData.category, // Set category from the itemData
+      },
+    },
   };
 
   try {
@@ -110,9 +117,9 @@ export const lambdaHandler = async (event) => {
   }
 
   try {
-    const { name, description, image, userId } = requestBody; // Expecting image as a file object
+    const { name, description, image, userId, category } = requestBody; // Expecting image as a file object
 
-    console.log("Extracted request parameters:", { name, description, imageMetadata: image?.filename });
+    console.log("Extracted request parameters:", { name, category, description, imageMetadata: image?.filename });
 
     // Validate input
     if (!name || !description || !image || !image.data || !image.filename || !image.mimetype) {
@@ -132,6 +139,7 @@ export const lambdaHandler = async (event) => {
 
     const itemUuid = uuidv4();
     const itemData = {
+      category,
       id: itemUuid,
       name,
       description,

@@ -47,15 +47,15 @@ function NotificationSettingsPage() {
     const [isModified, setIsModified] = useState(false);
     const [preference, setPreference] = useState(null);
     const [allNotificationChecked, setAllNotificationChecked] = useState(user.UserAttributes['custom:allNotifications'] === 'true');
-    const [categoryNotificationsChecked, setCategoryNotificationsChecked] = useState(user.UserAttributes['custom:categoryNotification'] === 'true');
+    const [categoryNotificationsChecked, setCategoryNotificationsChecked] = useState(user.UserAttributes['custom:categoryNotification']);
     const handleAllNotificationChanged = (e) => {
         console.log(e.target.checked)
         setAllNotificationChecked(e.target.checked)
         setIsModified(true);
     };
     const handleCategoryNotificationInputChange = (e) => {
-        console.log(e.target.checked)
-        setCategoryNotificationsChecked(e.target.checked)
+        console.log(e.target.value)
+        setCategoryNotificationsChecked(e.target.value)
         setIsModified(true);
     };
 
@@ -64,7 +64,7 @@ function NotificationSettingsPage() {
         const reqObj = {
             email: user.UserAttributes.email,
             "custom:allNotifications": allNotificationChecked ? "true" : "false",
-            "custom:categoryNotification": categoryNotificationsChecked ? "true" : "false"
+            "custom:categoryNotification": categoryNotificationsChecked
         };
         UpdateUserApi({ accessToken, refreshToken, attributes: reqObj })
             .then((res) => {
@@ -86,8 +86,10 @@ function NotificationSettingsPage() {
         if (allNotificationChecked) {
             const requestObj = {
                 email: user.UserAttributes.email,
-                action: "subscribe"
+                action: "subscribe",
+                category: categoryNotificationsChecked
             }
+            console.log(requestObj);
             ModifyAllNotificationApi(requestObj)
                 .then((res) => {
                     console.log(res);

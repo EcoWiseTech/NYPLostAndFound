@@ -10,6 +10,7 @@ import { GetItemByIdApi } from "../../api/item/GetItemByIdApi";
 import { UpdateItemApi } from "../../api/item/UpdateItemApi";
 
 const validationSchema = Yup.object({
+    category: Yup.string().required("Category is required"),
     name: Yup.string().required("Item name is required"),
     description: Yup.string().required("Description is required"),
     status: Yup.string().required("Status is required"),
@@ -37,7 +38,8 @@ function EditItemStudentPage() {
     const formik = useFormik({
         enableReinitialize: true,  // Ensure form is reinitialized when item data is fetched
         initialValues: {
-            userId: item?.userId || "", 
+            category: item?.category || "",
+            userId: item?.userId || "",
             id: item?.id || "",
             name: item?.name || "",
             description: item?.description || "",
@@ -111,6 +113,25 @@ function EditItemStudentPage() {
                         helperText={formik.touched.name && formik.errors.name}
                         sx={{ mb: 2 }}
                     />
+
+                    <FormControl sx={{ mb: 2 }} fullWidth error={formik.touched.category && Boolean(formik.errors.category)}>
+                        <InputLabel>Category</InputLabel>
+                        <Select
+                            value={formik.values.category}
+                            onChange={formik.handleChange}
+                            name="category"
+                        >
+                            <MenuItem value="wallet">Wallet</MenuItem>
+                            <MenuItem value="electronics">Electronics</MenuItem>
+                            <MenuItem value="accessories">Accessories</MenuItem>
+                            <MenuItem value="others">Others</MenuItem>
+                        </Select>
+                        {formik.touched.category && formik.errors.category && (
+                            <Typography color="error" variant="body2">
+                                {formik.errors.category}
+                            </Typography>
+                        )}
+                    </FormControl>
 
                     <TextField
                         fullWidth

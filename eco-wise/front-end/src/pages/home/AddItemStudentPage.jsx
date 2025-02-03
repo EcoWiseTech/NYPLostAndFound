@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Container, TextField, Button, Typography, Grid, Card, CardMedia } from "@mui/material";
+import { Container, TextField, Button, Typography, Grid, Card, CardMedia, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { StoreItemApi } from "../../api/item/StoreItemApi";
@@ -7,9 +7,11 @@ import { useAlert } from "../../contexts/AlertContext";
 import { LoadingButton } from "@mui/lab";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../../contexts/UserContext";
+import { Category } from "@mui/icons-material";
 
 
 const validationSchema = Yup.object({
+    category: Yup.string().required("Category is required"),
     name: Yup.string().required("Item name is required"),
     description: Yup.string().required("Description is required"),
     image: Yup.mixed().required("Image is required"),
@@ -25,6 +27,7 @@ function AddItemStudentPage() {
 
     const formik = useFormik({
         initialValues: {
+            Category : "",
             userId: user.Username,
             name: "",
             description: "",
@@ -43,7 +46,7 @@ function AddItemStudentPage() {
                     console.error(err);
                     showAlert("error", "Failed to add item, please try again");
                 })
-                .finally(() => {                
+                .finally(() => {
                     setLoading(false);
                 });
         },
@@ -86,6 +89,25 @@ function AddItemStudentPage() {
                         sx={{ mb: 2 }}
                     />
 
+                    <FormControl sx={{ mb: 2 }} fullWidth error={formik.touched.category && Boolean(formik.errors.category)}>
+                        <InputLabel>Category</InputLabel>
+                        <Select
+                            value={formik.values.category}
+                            onChange={formik.handleChange}
+                            name="category"
+                        >
+                            <MenuItem value="wallet">Wallet</MenuItem>
+                            <MenuItem value="electronics">Electronics</MenuItem>
+                            <MenuItem value="accessories">Accessories</MenuItem>
+                            <MenuItem value="others">Others</MenuItem>
+                        </Select>
+                        {formik.touched.category && formik.errors.category && (
+                            <Typography color="error" variant="body2">
+                                {formik.errors.category}
+                            </Typography>
+                        )}
+                    </FormControl>
+
                     <TextField
                         fullWidth
                         label="Description"
@@ -112,7 +134,7 @@ function AddItemStudentPage() {
 
                     {preview && (
                         <Card sx={{ mt: 2, mb: 2 }}>
-                            <CardMedia component="img" height="auto" sx={{ maxHeight:"300px" }} image={preview} alt="Item Preview" />
+                            <CardMedia component="img" height="auto" sx={{ maxHeight: "300px" }} image={preview} alt="Item Preview" />
                         </Card>
                     )}
 

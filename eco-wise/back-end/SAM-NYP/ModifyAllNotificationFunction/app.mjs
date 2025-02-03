@@ -2,7 +2,7 @@ import AWS from "aws-sdk";
 
 // Initialize SNS client
 const sns = new AWS.SNS();
-const snsTopicArn = "arn:aws:sns:us-east-1:783764587062:LostAndFoundTopic"; // Replace with your SNS topic ARN
+const snsTopicArn = "arn:aws:sns:us-east-1:783764587062:AllNotificationsTopic"; // Replace with your SNS topic ARN
 
 export const lambdaHandler = async (event) => {
   console.log("Received event:", JSON.stringify(event));
@@ -10,7 +10,7 @@ export const lambdaHandler = async (event) => {
   try {
     // Parse the request body (assuming JSON payload)
     const body = JSON.parse(event.body);
-    const { email, action } = body;
+    const { email, action, category } = body;
 
     if (!email || !action) {
       return {
@@ -33,7 +33,70 @@ export const lambdaHandler = async (event) => {
 
     // Handle subscription or unsubscription based on the action
     if (action === "subscribe") {
-      // Subscribe the email to the SNS topic
+      console.log("reached")
+      // List subscriptions for the topic
+      const listParams = {
+        TopicArn: snsTopicArn,
+      };
+      const subscriptions = await sns.listSubscriptionsByTopic(listParams).promise();
+
+      console.log('all subs', subscriptions)
+
+      // Check if the email is already subscribed
+      const existingSubscription = subscriptions.Subscriptions.find(
+        (sub) => sub.Endpoint === email
+      );
+
+      if (existingSubscription) {
+        console.log("existing sub", JSON.stringify(existingSubscription))
+        // If the email is already subscribed, return the subscription ARN
+        if (existingSubscription.SubscriptionArn && existingSubscription.Endpoint === email) {
+          // Set filter policy only if the category is not 'all'
+          if (category && category !== "all") {
+            const filterPolicy = {
+              category: [category]
+            };
+            console.log('reached here', filterPolicy)
+            const setFilterParams = {
+              SubscriptionArn: existingSubscription.SubscriptionArn,
+              AttributeName: "FilterPolicy",  // Corrected here
+              AttributeValue: JSON.stringify(filterPolicy),  // Stringify the filter policy
+            };
+
+            // Set the filter policy for the existing subscription
+            const filterRes = await sns.setSubscriptionAttributes(setFilterParams).promise()
+            console.log('filter result', filterRes)
+            console.log(`Filter policy set for ${email}: ${JSON.stringify(filterPolicy)}`);
+          } else {
+            // Remove the filter policy if category is 'all'
+            const removeFilterParams = {
+              SubscriptionArn: existingSubscription.SubscriptionArn,
+              AttributeName: "FilterPolicy",  // Corrected here
+              AttributeValue: ""  // Set empty string to remove filter policy
+            };
+
+            await sns.setSubscriptionAttributes(removeFilterParams).promise();
+            console.log(`Filter policy removed for ${email}`);
+          }
+
+          return {
+            statusCode: 200,
+            body: JSON.stringify({
+              message: `${email} is already subscribed.`,
+              subscriptionArn: existingSubscription.SubscriptionArn,
+            }),
+          };
+        } else {
+          return {
+            statusCode: 400,
+            body: JSON.stringify({
+              message: `Subscription for ${email} is not confirmed.`,
+            }),
+          };
+        }
+      }
+
+      // If the email is not subscribed, proceed with subscribing
       const subscribeParams = {
         Protocol: "email",
         Endpoint: email,
@@ -47,6 +110,7 @@ export const lambdaHandler = async (event) => {
         statusCode: 200,
         body: JSON.stringify({
           message: `Subscription request sent to ${email}. Please check your inbox to confirm.`,
+          subscriptionResult: result,
         }),
       };
     } else if (action === "unsubscribe") {

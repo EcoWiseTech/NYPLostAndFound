@@ -82,11 +82,12 @@ const updateItemDataInDynamoDB = async (itemId, updatedData) => {
       Key: {
         id: itemId,
       },
-      UpdateExpression: "set #name = :name, #description = :description, #status = :status, #imageUrl = :imageUrl, #updatedAt = :updatedAt",
+      UpdateExpression: "set #name = :name, #description = :description, #status = :status, #category = :category, #imageUrl = :imageUrl, #updatedAt = :updatedAt",
       ExpressionAttributeNames: {
         "#name": "name",
         "#description": "description",
         "#status": "status",
+        "#category": "category",  // Added category field
         "#imageUrl": "imageUrl",
         "#updatedAt": "updatedAt",
       },
@@ -94,6 +95,7 @@ const updateItemDataInDynamoDB = async (itemId, updatedData) => {
         ":name": updatedData.name,
         ":description": updatedData.description,
         ":status": updatedData.status,
+        ":category": updatedData.category,  // Added category value
         ":imageUrl": updatedData.imageUrl,
         ":updatedAt": new Date().toISOString(),
       },
@@ -135,17 +137,17 @@ export const lambdaHandler = async (event) => {
   }
 
   try {
-    const { id, name, description, image, status } = requestBody; // Expecting image as a file object
+    const { id, name, description, image, status, category } = requestBody; // Expecting image as a file object
 
     console.log("Extracted request parameters:", { id, name, description, imageMetadata: image?.filename });
 
     // Validate input
-    if (!id || !name || !description || !status) {
+    if (!id || !name || !description || !status || !category) {
       console.error("Validation failed: Missing required fields.");
       return {
         statusCode: 400,
         body: JSON.stringify({
-          message: "Missing required fields: id, name, description, or status.",
+          message: "Missing required fields: id, name, description, status, or category.",
         }),
       };
     }
@@ -175,6 +177,7 @@ export const lambdaHandler = async (event) => {
       name,
       description,
       status,
+      category, // Added category field
       imageUrl, // Either existing or new image URL
     };
 

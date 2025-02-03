@@ -60,6 +60,11 @@ function UserDashboardPage() {
             width: 150,
         },
         {
+            field: 'category',
+            headerName: 'Category',
+            width: 150,
+        },
+        {
             field: 'description',
             headerName: 'Description',
             width: 400,
@@ -101,6 +106,7 @@ function UserDashboardPage() {
 
     // Prepare rows for DataGrid
     const rows = items.map((item) => ({
+        category: item.category,
         id: item.id,
         name: item.name,
         description: item.description,
