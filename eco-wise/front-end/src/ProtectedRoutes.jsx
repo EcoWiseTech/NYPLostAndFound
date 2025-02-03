@@ -5,6 +5,7 @@ import UserDashboardPage from './pages/home/UserDashboardPage'
 import ViewHomePage from './pages/home/ViewHomePage'
 import EditHomePage from './pages/home/EditHomePage'
 import Budget from './pages/Budget'
+import AddItemPage from './pages/home/AddItemPage'
 
 
 const ProtectedRoutes = [
@@ -21,8 +22,8 @@ const ProtectedRoutes = [
         element: <UserDashboardPage />,
     },
     {
-        path: "addHome",
-        element: <AddHomePage />,
+        path: "addItem",
+        element: <AddItemPage />,
     },
     {
         path: "home/view/:uuid",

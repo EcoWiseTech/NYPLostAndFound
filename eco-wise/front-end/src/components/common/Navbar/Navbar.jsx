@@ -35,9 +35,7 @@ export function Navbar() {
                             <Divider orientation="vertical" flexItem sx={{ marginRight: "1rem", display: ["none", "none", "flex"] }} />
                             <Stack spacing={2} direction="row" sx={{ display: ["none", "none", "flex"] }}>
                                 <Button startIcon={<HomeIcon />} LinkComponent={Link} variant="text" color="inherit" to="/">Home</Button>
-                                {IsLoggedIn() && <Button startIcon={<DashboardIcon />} LinkComponent={Link} variant="text" color="inherit" to="/dashboard">Dashboard</Button>}
-                                {IsLoggedIn() && <Button startIcon={<PriceChangeIcon />} LinkComponent={Link} variant="text" color="inherit" to="/budget">Budget</Button>}
-                                <Button startIcon={<CloudIcon />} LinkComponent={Link} variant="text" color="inherit" to="/weatherpage">weather</Button>
+                                {IsLoggedIn() && <Button startIcon={<DashboardIcon />} LinkComponent={Link} variant="text" color="inherit" to="/dashboard">Items</Button>}
                             </Stack>
                         </Box>
                         {!IsLoggedIn() && <Button LinkComponent={Link} variant="text" color="inherit" to="/login" startIcon={<LoginIcon />}>Login</Button>}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Grid, Card, CardContent, Typography, Box, Button, Container, CircularProgress } from '@mui/material';
-import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
+import CategoryIcon from '@mui/icons-material/Category';
 import HomeIcon from '@mui/icons-material/Home';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
 import { GetHomeApi } from '../../api/home/GetHomeApi';
@@ -32,9 +32,9 @@ function UserDashboardPage() {
                     <Grid item xs={12} md={12}>
                         <Card>
                             <LargeCardTitle
-                                title='Energy Dashboard'
-                                icon={<ElectricBoltIcon sx={{ mr: 1, color: 'secondary.main' }} />}
-                                button={<Button variant="contained" color="primary" href="/" startIcon={<AddIcon />} LinkComponent={Link} to="/addHome">Add Home</Button>}
+                                title='Item Dashboard'
+                                icon={<CategoryIcon sx={{ mr: 1, color: 'secondary.main' }} />}
+                                button={<Button variant="contained" color="primary" href="/" startIcon={<AddIcon />} LinkComponent={Link} to="/addItem">Add Item</Button>}
                             />
                         </Card>
 
@@ -60,11 +60,11 @@ function UserDashboardPage() {
                                                     <Typography variant="h6">{home.homeName}</Typography>
                                                 </Box>
                                                 <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                                    <ElectricBoltIcon sx={{ mr: 1, color: 'secondary.main' }} />
+                                                    <CategoryIcon sx={{ mr: 1, color: 'secondary.main' }} />
                                                     Total Energy: {home.totalEnergy}
                                                 </Typography>
                                                 <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                                    <ElectricBoltIcon sx={{ mr: 1, color: 'secondary.main' }} />
+                                                    <CategoryIcon sx={{ mr: 1, color: 'secondary.main' }} />
                                                     Total Rooms: {home.rooms.length}
                                                 </Typography>
                                                 <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>

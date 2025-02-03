@@ -1,119 +1,51 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom'
-import { Box, Paper, Divider, Typography, Grid, Card } from '@mui/material';
-import { AccessTime } from '@mui/icons-material';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import { jwtDecode } from 'jwt-decode';
+import React, { useState } from "react";
+import { Container, Typography, Card, CardContent, CardMedia, Grid } from "@mui/material";
 
+const items = [
+  {
+    id: 1,
+    name: "Black Wallet",
+    description: "A black leather wallet found near Block A.",
+    image: "/images/wallet.jpg",
+  },
+  {
+    id: 2,
+    name: "iPhone 13",
+    description: "White iPhone 13 found at the library.",
+    image: "/images/iphone.jpg",
+  },
+  {
+    id: 3,
+    name: "NYP Student Card",
+    description: "Student card belonging to John Doe, found in canteen.",
+    image: "/images/student-card.jpg",
+  },
+];
 
 function Homepage() {
   return (
-    <>
-      <Box padding={2}>
-        <Breadcrumbs sx={{ mb: 1 }} >
-          {/* <Link underline="hover" style={{ textDecoration: "none", color: "grey" }} href="/">
-            Overview
-          </Link> */}
-          <Link
-            aria-current="page"   
-            underline="hover"
-            style={{ textDecoration: "underline", color: "black" }}
-            href="/"
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Typography variant="h4" align="center" gutterBottom>
+        NYP Lost & Found
+      </Typography>
 
-          >
-            Home
-          </Link>
-
-        </Breadcrumbs>
-
-        <Grid container direction="column" spacing={2} sx={{ height: "100%" }}>
-          <Grid lg={6} item container direction="row" spacing={2}>
-            <Grid item lg={4}>
-              <Card sx={{ width: "100%", height: 170 }}>
-                <Grid container direction="column">
-                  <Grid  container direction="row" sx={{marginTop:2}}>
-                    <Grid item lg={2}>
-                      <img style={{ width: 50, marginLeft: 16, }} src="https://cdn-icons-png.flaticon.com/128/1163/1163624.png" alt="" />
-                    </Grid>
-                    <Grid item lg={9}>
-                      <Typography fontSize={22} marginTop={1} marginLeft={2}> Current </Typography>
-                    </Grid>
-
-                  </Grid>
-                  <Grid lg={6} container direction="row">
-
-                    <Typography>
-                      
-                    </Typography>
-                  </Grid>
-
-
-                </Grid>
-              </Card>
-            </Grid>
-            <Grid item lg={4}>
-              <Card sx={{ width: "100%", height: 170 }}>
-                <Grid container direction="column">
-                  <Grid  container direction="row" sx={{marginTop:2}}>
-                    <Grid item lg={2}>
-                      <img style={{ width: 50, marginLeft: 15, }} src="https://cdn-icons-png.flaticon.com/128/13798/13798822.png" alt="" />
-                    </Grid>
-                    <Grid item lg={9}>
-                      <Typography fontSize={22} marginTop={1} marginLeft={2}> Total Savings</Typography>
-                    </Grid>
-
-                  </Grid>
-                  <Grid lg={6} container direction="row">
-
-                    <Typography>
-                      
-                    </Typography>
-                  </Grid>
-
-
-                </Grid>
-              </Card>
-            </Grid>
-            <Grid item lg={4}>
-              <Card sx={{ width: "100%", height: 170 }}>
-                <Grid container direction="column">
-                  <Grid  container direction="row" sx={{marginTop:2}}>
-                    <Grid item lg={2}>
-                      <img style={{ width: 50, marginLeft: 15, }} src="https://i.ibb.co/tYFNbxN/energy.png" alt="" />
-                    </Grid>
-                    <Grid item lg={9}>
-                      <Typography fontSize={22} marginTop={1} marginLeft={2}> Energy Consumption</Typography>
-                    </Grid>
-
-                  </Grid>
-                  <Grid lg={6} container direction="row">
-
-                    <Typography>
-                      
-                    </Typography>
-                  </Grid>
-
-
-                </Grid>
-              </Card>
-            </Grid>
+      <Grid container spacing={3}>
+        {items.map((item) => (
+          <Grid item xs={12} sm={6} md={4} key={item.id}>
+            <Card>
+              <CardMedia component="img" height="140" image={item.image} alt={item.name} />
+              <CardContent>
+                <Typography variant="h6">{item.name}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {item.description}
+                </Typography>
+              </CardContent>
+            </Card>
           </Grid>
-          <Grid lg={6} item container direction="row" spacing={2}>
-            <Grid item lg={12}>
-              <Card sx={{ width: "100%", height: 340 }}>
-                Placeholder Graph
-              </Card>
-            </Grid>
-
-          </Grid>
-
-
-
-        </Grid>
-      </Box>
-
-    </>
-  )
+        ))}
+      </Grid>
+    </Container>
+  );
 }
 
-export default Homepage
+export default Homepage;
