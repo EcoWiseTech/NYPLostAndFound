@@ -55,6 +55,6 @@ export class APIRequest {
 
 }
 
-const EcoWiseApi = new APIRequest(process.env.REACT_APP_ECOWISE_PREFERENCE_API_URL)
+const EcoWiseApi = new APIRequest("https://53sau0m3oa.execute-api.us-east-1.amazonaws.com/Prod")
 
 export default EcoWiseApi;

@@ -30,10 +30,14 @@ import DeleteUserApi from '../../api/auth/DeleteUserApi';
 import { GetPreferenceApi } from '../../api/preference/GetPreferenceApi';
 import { UpdatePreferenceApi } from '../../api/preference/UpdatePreferenceApi';
 import { enqueueSnackbar } from 'notistack';
+import { ModifyAllNotificationApi } from '../../api/item/ModifyAllNotificationApi';
 
 
 
 function NotificationSettingsPage() {
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+    const { showAlert } = useAlert();
     const { user, accessToken, refreshToken, RefreshUser, SessionRefreshError, DeleteUser } = useUserContext();
     const [formData, setFormData] = useState({
         given_name: '',
@@ -42,82 +46,73 @@ function NotificationSettingsPage() {
     });
     const [isModified, setIsModified] = useState(false);
     const [preference, setPreference] = useState(null);
-    const [allNotificationChecked, setAllNotificationChecked] = useState(false);
-    const [budgetNotificationChecked, setBudgetNotificationChecked] = useState(true);
+    const [allNotificationChecked, setAllNotificationChecked] = useState(user.UserAttributes['custom:allNotifications'] === 'true');
+    const [categoryNotificationsChecked, setCategoryNotificationsChecked] = useState(user.UserAttributes['custom:categoryNotification'] === 'true');
     const handleAllNotificationChanged = (e) => {
         console.log(e.target.checked)
         setAllNotificationChecked(e.target.checked)
         setIsModified(true);
     };
-    const handleBudgetNotificationInputChange = (e) => {
+    const handleCategoryNotificationInputChange = (e) => {
         console.log(e.target.checked)
-        setBudgetNotificationChecked(e.target.checked)
+        setCategoryNotificationsChecked(e.target.checked)
         setIsModified(true);
     };
 
     const handleEditNotification = (e) => {
-        console.log('clicked handleEditNotification')
-        // console.log(userId)
-        let requestObj = {
-            uuid: preference.uuid,
-            userId: user.Username,
-            budgets: { ...preference.budgets, isBudgetNotification: budgetNotificationChecked }
-            
-        }
-        // console.log(`requestObj: ${JSON.stringify(requestObj)}`)
-        UpdatePreferenceApi(requestObj)
+        setIsLoading(true);
+        const reqObj = {
+            email: user.UserAttributes.email,
+            "custom:allNotifications": allNotificationChecked ? "true" : "false",
+            "custom:categoryNotification": categoryNotificationsChecked ? "true" : "false"
+        };
+        UpdateUserApi({ accessToken, refreshToken, attributes: reqObj })
             .then((res) => {
-                console.log(`res.data: ${JSON.stringify(res)}`)
-                setPreference(res)
                 RefreshUser();
-                enqueueSnackbar('Successfully updated notification settings', { variant: "success" })
+                showAlert('success', "Profile Updated Successfully.");
+                setIsLoading(false);
             })
-            .catch((err) => {
-                console.log(`err: ${err.status}`)
-                if (404 == err.status) {
-                    setPreference(0)
+            .catch((error) => {
+                console.error("Error updating user:", error);
+                if (error.name === 'NotAuthorizedException') {
+                    if (error.message === 'Refresh Token has expired' || error.message.includes('Refresh')) {
+                        SessionRefreshError();
+                    }
                 } else {
-                    enqueueSnackbar('Failed to fetch Preference data', { variant: "error" })
-                    console.error("Error updating preference:", err);
+                    showAlert('error', 'Unexpected error occurred. Please try again.');
                 }
+                setIsLoading(false);
+            });
+        if (allNotificationChecked) {
+            const requestObj = {
+                email: user.UserAttributes.email,
+                action: "subscribe"
+            }
+            ModifyAllNotificationApi(requestObj)
+                .then((res) => {
+                    console.log(res);
+                })
+                .catch((error) => {
+                    console.error("Error subscribing user:", error);
+                });
+            return;
+        }
+        else if (!allNotificationChecked) {
+            const requestObj = {
+                email: user.UserAttributes.email,
+                action: "unsubscribe"
+            }
+            ModifyAllNotificationApi(requestObj)
+                .then((res) => {
+                    console.log(res);
+                })
+                .catch((error) => {
+                    console.error("Error unsubscribing user:", error);
+                });
+            return;
+        }
 
-
-
-            })
-        //uuid, userId, updatedData
     };
-    const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
-    const { showAlert } = useAlert();
-
-    // Populate form data from user context
-    useEffect(() => {
-        GetPreferenceApi(user.Username)
-            .then((res) => {
-                setPreference(res.data[0])
-                let preferenceData = res.data[0]
-
-                console.log(`preferenceData: ${JSON.stringify(preferenceData)}`)
-                if ('budgets' in preferenceData && 'isBudgetNotification' in preferenceData.budgets) {
-                    // console.log(`isbudgetnotification:${preferenceData.budgets.isBudgetNotification}`)
-                    setBudgetNotificationChecked(preferenceData.budgets.isBudgetNotification)
-                }else {
-                    setBudgetNotificationChecked(true)
-                }
-            })
-            .catch((err) => {
-                // // console.log(`err:${err.status}`)
-                if (404 == err.status) {
-
-                    setPreference(0)
-                } else {
-                    enqueueSnackbar('Failed to fetch Preference data', { variant: "error" })
-                }
-
-
-
-            })
-    }, [user]);
 
 
 
@@ -130,8 +125,8 @@ function NotificationSettingsPage() {
                 isLoading={isLoading}
                 handleEditNotification={handleEditNotification}
                 isModified={isModified}
-                handleBudgetNotificationInputChange={handleBudgetNotificationInputChange}
-                budgetNotificationChecked={budgetNotificationChecked}
+                handleCategoryNotificationInputChange={handleCategoryNotificationInputChange}
+                categoryNotificationsChecked={categoryNotificationsChecked}
             />
 
         </Stack>

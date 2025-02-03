@@ -15,7 +15,17 @@ Globals:
       AllowOrigin: "'*'"
 
 Resources:
-
+## ------------------------------
+## SNS Topic: NotificationTopic
+## ------------------------------
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: "New Item Notification Topic"
+      TopicName: "AllNotificationsTopic" # Change this as necessary
+      Subscription:
+        - Endpoint: "brianyuk@gmail.com"  # Add email addresses or other subscribers
+          Protocol: "email"     
   ## ------------------------------
   ## DynamoDB Table: ItemTable
   ## ------------------------------
@@ -64,6 +74,7 @@ Resources:
       Policies:
         - AmazonDynamoDBFullAccess # Allows full access to DynamoDB (adjust as needed)
         - AmazonS3FullAccess
+        - AmazonSNSFullAccess
       Environment:
         Variables:
           TABLE_NAME: !Ref ItemTable
@@ -144,7 +155,32 @@ Resources:
           Properties:
             Path: /DeleteItem
             Method: post
-    
+  ## ------------------------------
+## Lambda Function: ModifyAllNotifications
+## ------------------------------
+  ModifyAllNotificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ModifyAllNotificationFunction/
+      Handler: app.lambdaHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      Policies:
+        - AmazonSNSFullAccess      # Full access to SNS for publishing notifications
+        - AmazonDynamoDBFullAccess # Full access to DynamoDB if needed for modifying item data
+      Environment:
+        Variables:
+          SNS_TOPIC_ARN: !Ref NotificationTopic   # Reference to your SNS topic ARN
+          TABLE_NAME: !Ref ItemTable              # Reference to your DynamoDB table (optional if interacting with DynamoDB)
+      Events:
+        ModifyAllNotificationsResource:
+          Type: Api
+          Properties:
+            Path: /ModifyAllNotifications      # Endpoint path to invoke the Lambda function
+            Method: post                       # HTTP method for triggering the Lambda function
+
+        
 
 
 Outputs:

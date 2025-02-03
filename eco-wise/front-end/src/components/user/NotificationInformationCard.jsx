@@ -11,11 +11,11 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 const NotificationInformationCard = ({
   allNotificationChecked,
   handleAllNotificationInputChange,
-  budgetNotificationChecked,
-  handleBudgetNotificationInputChange,
+  categoryNotificationsChecked,
+  handleCategoryNotificationInputChange,
   isModified,
   isLoading,
-  handleEditNotification
+  handleEditNotification,
 }) => {
   return (
     <Card>
@@ -27,7 +27,7 @@ const NotificationInformationCard = ({
               <Grid container direction={'row'} display={'flex'} justifyContent={'space-between'} sx={{ px: 5}}>
                 <Grid item>
                   <Typography fontSize={18}>
-                    Turn on All Notifications
+                    Turn on All Notifications (You will recieve all notifications)
                   </Typography>
                 </Grid>
                 <Grid item>
@@ -49,13 +49,13 @@ const NotificationInformationCard = ({
               <Grid container direction={'row'} display={'flex'} justifyContent={'space-between'} sx={{ px: 5, mb: 1 }}>
                 <Grid item >
                   <Typography fontSize={18}>
-                    Budget Notifications
+                    Category Notifications (You will recieve notifications for Category)
                   </Typography>
                 </Grid>
                 <Grid item>
                   <Switch
-                    checked={budgetNotificationChecked}
-                    onChange={handleBudgetNotificationInputChange}
+                    checked={categoryNotificationsChecked}
+                    onChange={handleCategoryNotificationInputChange}
                     inputProps={{ 'aria-label': 'controlled' }}
                   />
                 </Grid>
