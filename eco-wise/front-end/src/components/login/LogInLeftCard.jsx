@@ -76,7 +76,7 @@ function LogInLeftCard(props) {
 
             <Box component="form" onSubmit={formik.handleSubmit}>
                 <CardContent>
-                    <CardTitle title="Login to EcoWise" icon={<LoginIcon color="text.secondary" />} />
+                    <CardTitle title="Login to NYP Lost And Found" icon={<LoginIcon color="text.secondary" />} />
                     <Stack spacing={2} sx={{ marginTop: 2 }}>
                         <TextField
                             type="email"

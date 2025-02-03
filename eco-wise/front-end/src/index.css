@@ -1,9 +1,9 @@
 body, html {
-    background-color: lightblue;
+    background-color: white;
   }
   
   #root {
-    background-color: lightblue;
+    background-color: white;
   }
 
   @font-face {
