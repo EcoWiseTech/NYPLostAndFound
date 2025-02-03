@@ -119,11 +119,11 @@ const FindItemPage = () => {
       {/* Display image preview */}
       {imagePreview && (
         <Box sx={{ mb: 2, textAlign: 'center' }}>
-          <Card sx={{ maxWidth: '100%' }}>
+          <Card sx={{ maxWidth: '50%' }}>
             <CardMedia
               component="img"
               height="auto"
-              sx={{ maxHeight: '300px', margin: '0 auto' }}
+              sx={{ maxHeight: '400px', margin: '0 auto' }}
               image={imagePreview}
               alt="Preview of uploaded image"
             />
